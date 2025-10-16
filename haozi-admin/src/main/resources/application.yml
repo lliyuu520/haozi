@@ -1,0 +1,75 @@
+server:
+  port: 8080
+  undertow:
+    buffer-size: 1024
+    direct-buffers: true
+spring:
+  application:
+    name: haozi-admin
+  main:
+    banner-mode: off
+  jackson:
+    time-zone: GMT+8
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/haozi?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: Mysql@200722
+  data:
+    redis:
+      database: 4
+      host: localhost
+      port: 6379
+      timeout: 6000ms
+      client-type: LETTUCE
+      password: Redis@200722
+      # 添加连接池配置
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+      location: /tmp
+# mybatis-plus配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: cn.lliyuu520.haozi.modules.*.entity
+  global-config:
+    banner: off
+    db-config:
+      id-type: ASSIGN_ID
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      table-underline: true
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+sa-token:
+  token-name: Authorization
+  token-prefix: Bearer
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: true
+  is-share: false
+  token-style: simple-uuid
+  is-log: false
+  is-print: false
+  max-login-count: -1
+project:
+  aliyun-properties:
+    access-key-id: ${access-key-id}
+    access-key-secret: ${access-key-secret}
+    cdn-domain: ${cdn-domain}
+    bucket-name: ${bucket-name}
+    endpoint: ${endpoint}
+    sign-name: ${sign-name}
+    template-code: ${template-code}
+

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.lliyuu520.haozi.modules.sys.mapper.SysAreaMapper">
+    <delete id="deleteByCode">
+        delete from sys_area where code = #{code}
+    </delete>
+    <select id="getByCityAdcode" resultType="cn.lliyuu520.haozi.modules.sys.vo.SysAreaVO">
+        select t1.code as cityCode, t1.name as cityName, t2.code as provinceCode, t2.name as provinceName
+        from sys_area t1
+                 left join sys_area t2 on t1.parent_code = t2.code
+        where t1.code = #{adcode}
+
+    </select>
+    <select id="getByDistrictAdcode" resultType="cn.lliyuu520.haozi.modules.sys.vo.SysAreaVO">
+        select t1.code districtCode,
+               t1.name districtName,
+               t2.code cityCode,
+               t2.name cityName,
+               t3.code provinceCode,
+               t3.name provinceName
+        from sys_area t1
+                 left join sys_area t2 on t1.parent_code = t2.code
+                 left join sys_area t3 on t2.parent_code = t3.code
+        where t1.code = #{adcode}
+
+    </select>
+    <select id="getByProvinceAdcode" resultType="cn.lliyuu520.haozi.modules.sys.vo.SysAreaVO">
+        select t1.code provinceCode,
+               t1.name provinceName
+        from sys_area t1
+        where t1.code = #{adcode}
+
+    </select>
+    <select id="getByTownAdcode" resultType="cn.lliyuu520.haozi.modules.sys.vo.SysAreaVO">
+        select t1.code townCode,
+               t1.name townName,
+               t2.code districtCode,
+               t2.name districtName,
+               t3.code cityCode,
+               t3.name cityName,
+               t4.code provinceCode,
+               t4.name provinceName
+        from sys_area t1
+                 left join sys_area t2 on t1.parent_code = t2.code
+                 left join sys_area t3 on t2.parent_code = t3.code
+                 left join sys_area t4 on t3.parent_code = t4.code
+        where t1.code = #{adcode}
+
+
+    </select>
+
+</mapper>

@@ -1,0 +1,60 @@
+// 主题颜色变量
+$primary-color: #1890ff;
+$success-color: #52c41a;
+$warning-color: #faad14;
+$error-color: #ff4d4f;
+$info-color: #1890ff;
+
+// 文字颜色
+$text-primary: rgba(0, 0, 0, 0.85);
+$text-secondary: rgba(0, 0, 0, 0.65);
+$text-disabled: rgba(0, 0, 0, 0.25);
+
+// 边框颜色
+$border-color: #d9d9d9;
+$border-color-light: #f0f0f0;
+
+// 背景颜色
+$background-color: #f0f2f5;
+$background-color-light: #fafafa;
+$background-color-dark: #141414;
+
+// 布局相关
+$header-height: 64px;
+$sidebar-width: 200px;
+$sidebar-collapsed-width: 80px;
+
+// 间距
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// 圆角
+$border-radius-sm: 2px;
+$border-radius-base: 4px;
+$border-radius-lg: 8px;
+$border-radius-round: 50%;
+
+// 阴影
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+$shadow-base: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+$shadow-lg: 0 6px 16px -8px rgba(0, 0, 0, 0.08), 0 9px 28px 0 rgba(0, 0, 0, 0.05), 0 12px 48px 16px rgba(0, 0, 0, 0.03);
+
+// 断点
+$breakpoint-xs: 480px;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-xxl: 1600px;
+
+// Z-index
+$zindex-dropdown: 1050;
+$zindex-sticky: 1020;
+$zindex-fixed: 1030;
+$zindex-modal-backdrop: 1040;
+$zindex-modal: 1050;
+$zindex-popover: 1060;
+$zindex-tooltip: 1070;
