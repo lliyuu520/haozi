@@ -71,14 +71,7 @@ const ConfigManagement: React.FC = () => {
     }
   }
 
-  // 确认删除
-  const confirmDelete = (id: string) => {
-    Modal.confirm({
-      title: '确认删除',
-      content: '确定要删除这条记录吗？',
-      onOk: () => deleteHandle(id),
-    })
-  }
+
 
   // 渲染配置值
   const renderConfigValue = (record: SysConfig) => {

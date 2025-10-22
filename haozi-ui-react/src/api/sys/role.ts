@@ -1,5 +1,6 @@
 import service from '@/utils/request'
-import type {PageResult, SysMenu, SysRole, SysRoleDTO, SysRoleQuery} from '@/types/sys/role'
+import type {PageResult} from '@/types/common'
+import type {SysMenu, SysRole, SysRoleDTO, SysRoleQuery} from '@/types/sys/role'
 
 // 获取角色分页列表
 export const getSysRolePageApi = (params: SysRoleQuery) => {

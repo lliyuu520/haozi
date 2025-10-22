@@ -120,6 +120,8 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, SysUser> 
             final Long userDBId = userDB.getId();
             final int compare = CompareUtil.compare(userDBId, userId);
             if (compare != 0) {
+                log.error("用户名已经存在:{}", username);
+                log.error("userDBId:{},userId:{}", userDBId,userId);
                 throw new BaseException("用户名已经存在");
             }
         }

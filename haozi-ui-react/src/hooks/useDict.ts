@@ -1,6 +1,6 @@
 import {useMemo} from 'react'
 import {useAppStore} from '@/stores/appStore'
-import type {DictDataItem} from '@/types/app'
+import type {DictDataItem} from '@/types/sys/dict'
 
 /**
  * 字典数据Hook

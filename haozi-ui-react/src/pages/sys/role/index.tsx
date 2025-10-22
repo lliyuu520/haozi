@@ -1,12 +1,11 @@
 import React, {useEffect, useState} from 'react'
-import {Button, Card, Form, Input, Modal, Select, Space, Table, Tag} from 'antd'
+import {Button, Card, Form, Input, Modal, Space, Table} from 'antd'
 import {useCrud} from '@/hooks/useCrud'
 import {useUserStore} from '@/stores'
 import type {SysRole} from '@/types/sys/role'
 import type {ColumnsType} from 'antd/es/table'
-import AddOrUpdate from './add-or-update'
+import AddOrUpdate from './addOrUpdate.tsx'
 
-const { Option } = Select
 
 const RoleManagement: React.FC = () => {
   const [form] = Form.useForm()
@@ -62,15 +61,7 @@ const RoleManagement: React.FC = () => {
     setModalVisible(false)
   }
 
-  
-  const renderStatus = (status: number) => {
-    const statusMap = {
-      0: { text: '禁用', color: 'error' },
-      1: { text: '启用', color: 'success' }
-    }
-    const config = statusMap[status as keyof typeof statusMap] || { text: '未知', color: 'default' }
-    return <Tag color={config.color}>{config.text}</Tag>
-  }
+
 
   const columns: ColumnsType<SysRole> = [
     {
@@ -78,38 +69,6 @@ const RoleManagement: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       width: 150,
-    },
-    {
-      title: '角色编码',
-      dataIndex: 'code',
-      key: 'code',
-      width: 150,
-    },
-    {
-      title: '排序',
-      dataIndex: 'sort',
-      key: 'sort',
-      width: 80,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      width: 100,
-      render: renderStatus,
-    },
-    {
-      title: '备注',
-      dataIndex: 'remark',
-      key: 'remark',
-      width: 200,
-      ellipsis: true,
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      key: 'createTime',
-      width: 180,
     },
     {
       title: '操作',
@@ -148,15 +107,6 @@ const RoleManagement: React.FC = () => {
       <Form form={form} layout="inline" style={{ marginBottom: 16 }}>
         <Form.Item name="name">
           <Input placeholder="角色名称" allowClear style={{ width: 150 }} />
-        </Form.Item>
-        <Form.Item name="code">
-          <Input placeholder="角色编码" allowClear style={{ width: 150 }} />
-        </Form.Item>
-        <Form.Item name="status">
-          <Select placeholder="状态" allowClear style={{ width: 120 }}>
-            <Option value={1}>启用</Option>
-            <Option value={0}>禁用</Option>
-          </Select>
         </Form.Item>
         <Form.Item>
           <Space>

@@ -39,3 +39,19 @@ export interface SysMenuTree {
   icon?: string
   children?: SysMenuTree[]
 }
+
+export interface MenuTreeItem {
+  id: string
+  menuName: string
+  parentId: string
+  menuType: string
+  path: string
+  component: string
+  perms: string
+  icon: string
+  orderNum: number
+  status: number
+  visible: number
+  isFrame: number
+  children?: MenuTreeItem[]
+}

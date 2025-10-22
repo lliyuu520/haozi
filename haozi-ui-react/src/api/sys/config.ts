@@ -1,5 +1,6 @@
 import service from '@/utils/request'
-import type {PageResult, SysConfig, SysConfigDTO, SysConfigQuery} from '@/types/sys/config'
+import type {PageResult} from '@/types/common'
+import type {SysConfig, SysConfigDTO, SysConfigQuery} from '@/types/sys/config'
 
 // 获取系统配置分页列表
 export const getSysConfigPageApi = (params: SysConfigQuery) => {

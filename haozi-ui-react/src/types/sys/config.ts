@@ -12,11 +12,14 @@ export interface SysConfig {
   type?: string
 }
 
-export interface PageResult<T> {
-  list: T[]
-  total: number
-  page: number
-  limit: number
+export interface SysConfigItem {
+  id: string
+  configKey: string
+  configValue: string
+  configType: string
+  isSystem: number
+  remark?: string
+  createTime: string
 }
 
 export interface SysConfigQuery {

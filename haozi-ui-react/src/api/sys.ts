@@ -1,5 +1,7 @@
 import service from '@/utils/request'
-import type {DictDataItem, DictItem, DictTypeItem, MenuTreeItem, SysConfigItem} from '@/types/app'
+import type {DictDataItem, DictItem, DictTypeItem} from '@/types/sys/dict'
+import type {MenuTreeItem} from '@/types/sys/menu'
+import type {SysConfigItem} from '@/types/sys/config'
 
 // 获取完整字典数据（类型+数据）
 export const getDictListApi = () => {

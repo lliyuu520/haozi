@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from 'react'
-import {Form, Input, InputNumber, message, Modal, Select, TreeSelect} from 'antd'
+import {AutoComplete, Form, Input, InputNumber, message, Modal, Select, TreeSelect} from 'antd'
 import {createSysMenuApi, getSysMenuTreeApi, updateSysMenuApi} from '@/api/sys/menu'
 import type {SysMenu, SysMenuTree} from '@/types/sys/menu'
+import {COMMON_MENU_ICONS, renderAntdIcon} from '@/utils/icon'
 
 const { Option } = Select
 const { SHOW_PARENT } = TreeSelect
+const ICON_SUGGESTIONS = COMMON_MENU_ICONS.map(icon => ({ value: icon }))
 
 interface MenuFormProps {
   visible: boolean
@@ -29,18 +31,16 @@ const MenuForm: React.FC<MenuFormProps> = ({
   const getMenuTree = async () => {
     try {
       const response = await getSysMenuTreeApi()
-      // 确保response是数组，或者提取其中的data字段
       const treeData = Array.isArray(response) ? response : (response?.data || [])
       setMenuTree(treeData)
     } catch (error) {
       console.error('获取菜单树失败:', error)
-      setMenuTree([]) // 出错时设置为空数组
+      setMenuTree([])
     }
   }
 
-  // 树形数据转换
+  // 数据转换
   const convertToTreeData = (menus: SysMenuTree[] | any): any[] => {
-    // 安全检查：确保menus是数组
     if (!Array.isArray(menus)) {
       return []
     }
@@ -53,7 +53,7 @@ const MenuForm: React.FC<MenuFormProps> = ({
     }))
   }
 
-  // 页面加载时获取菜单树
+  // 页面打开时获取菜单树
   useEffect(() => {
     if (visible) {
       getMenuTree()
@@ -62,14 +62,14 @@ const MenuForm: React.FC<MenuFormProps> = ({
       } else if (parentData) {
         form.setFieldsValue({
           parentId: parentData.id,
-          type: 1 // 默认为按钮类型
+          type: 1,
         })
       } else {
         form.setFieldsValue({
           parentId: '0',
-          type: 0, // 默认为菜单类型
+          type: 0,
           status: 1,
-          openStyle: 0
+          openStyle: 0,
         })
       }
     }
@@ -86,21 +86,22 @@ const MenuForm: React.FC<MenuFormProps> = ({
         message.success('修改成功')
       } else {
         await createSysMenuApi(values)
-        message.success('新增成功')
+        message.success('创建成功')
       }
 
       onSuccess()
       onCancel()
     } catch (error) {
       console.error('提交失败:', error)
-      message.error('操作失败')
+      message.error('提交失败')
     } finally {
       setLoading(false)
     }
   }
 
-  // 根据菜单类型动态显示/隐藏字段
+  // 监听表单字段
   const currentType = Form.useWatch('type', form)
+  const iconValue = Form.useWatch('icon', form)
 
   return (
     <Modal
@@ -116,7 +117,7 @@ const MenuForm: React.FC<MenuFormProps> = ({
         layout="vertical"
         initialValues={{
           status: 1,
-          openStyle: 0
+          openStyle: 0,
         }}
       >
         <Form.Item
@@ -129,7 +130,7 @@ const MenuForm: React.FC<MenuFormProps> = ({
             treeData={convertToTreeData(menuTree)}
             treeDefaultExpandAll
             showCheckedStrategy={SHOW_PARENT}
-            disabled={!!editData} // 编辑时不能修改上级菜单
+            disabled={!!editData}
           />
         </Form.Item>
 
@@ -156,11 +157,26 @@ const MenuForm: React.FC<MenuFormProps> = ({
         {currentType === 0 && (
           <>
             <Form.Item
-              label="路由路径"
-              name="url"
-              rules={[{ required: true, message: '请输入路由路径' }]}
+              label="图标"
+              name="icon"
             >
-              <Input placeholder="请输入路由路径，如：/system/user" />
+              <AutoComplete
+                options={ICON_SUGGESTIONS}
+                placeholder="请输入图标名称，例如 DashboardOutlined"
+                allowClear
+                filterOption={(inputValue, option) =>
+                  (option?.value ?? '').toLowerCase().includes(inputValue.toLowerCase())
+                }
+              >
+                <Input suffix={renderAntdIcon(iconValue) ?? undefined} />
+              </AutoComplete>
+            </Form.Item>
+
+            <Form.Item
+              label="路由地址"
+              name="url"
+            >
+              <Input placeholder="请输入路由地址，例如 sys/user/index" />
             </Form.Item>
 
             <Form.Item
@@ -168,8 +184,8 @@ const MenuForm: React.FC<MenuFormProps> = ({
               name="openStyle"
             >
               <Select placeholder="请选择打开方式">
-                <Option value={0}>内部打开</Option>
-                <Option value={1}>外部打开</Option>
+                <Option value={0}>内部</Option>
+                <Option value={1}>外部</Option>
               </Select>
             </Form.Item>
           </>
@@ -181,16 +197,16 @@ const MenuForm: React.FC<MenuFormProps> = ({
             name="perms"
             rules={[{ required: true, message: '请输入权限标识' }]}
           >
-            <Input placeholder="请输入权限标识，如：sys:user:add" />
+            <Input placeholder="请输入权限标识，例如 sys:user:add" />
           </Form.Item>
         )}
 
         <Form.Item
           label="排序"
           name="weight"
-          rules={[{ required: true, message: '请输入排序' }]}
+          rules={[{ required: true, message: '请输入排序值' }]}
         >
-          <InputNumber placeholder="请输入排序" min={0} style={{ width: '100%' }} />
+          <InputNumber placeholder="请输入排序值" min={0} style={{ width: '100%' }} />
         </Form.Item>
       </Form>
     </Modal>

@@ -78,26 +78,27 @@ service.interceptors.response.use(
           message.error('登录已过期，请重新登录')
           useUserStore.getState().clear()
           window.location.href = '/login'
-          break
+          return Promise.reject(error)
         case 403:
           message.error('权限不足')
-          break
+          return Promise.reject(error)
         case 404:
           message.error('请求的资源不存在')
-          break
+          return Promise.reject(error)
         case 500:
           message.error('服务器内部错误')
-          break
+          return Promise.reject(error)
         default:
           message.error(data?.msg || '网络错误')
+          return Promise.reject(error)
       }
     } else if (error.request) {
       message.error('网络连接失败')
+      return Promise.reject(error)
     } else {
       message.error('请求配置错误')
+      return Promise.reject(error)
     }
-
-    return Promise.reject(error)
   }
 )
 

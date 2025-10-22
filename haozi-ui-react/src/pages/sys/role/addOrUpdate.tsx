@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from 'react'
-import {Form, Input, InputNumber, message, Modal, Radio, Tree} from 'antd'
+import {Form, Input, message, Modal, Tree} from 'antd'
 import type {SysMenu} from '@/types/sys/role'
 import {createSysRoleApi, getSysMenuTreeApi, getSysRoleInfoApi, updateSysRoleApi} from '@/api/sys/role'
 
-const { TextArea } = Input
 
 interface RoleFormProps {
   visible: boolean
@@ -104,41 +103,6 @@ const RoleForm: React.FC<RoleFormProps> = ({ visible, id, onSuccess, onCancel })
         >
           <Input placeholder="请输入角色名称" />
         </Form.Item>
-
-        <Form.Item
-          label="角色编码"
-          name="code"
-          rules={[{ required: true, message: '请输入角色编码' }]}
-        >
-          <Input placeholder="请输入角色编码" />
-        </Form.Item>
-
-        <Form.Item
-          label="排序"
-          name="sort"
-          rules={[{ required: true, message: '请输入排序' }]}
-        >
-          <InputNumber min={0} placeholder="请输入排序" style={{ width: '100%' }} />
-        </Form.Item>
-
-        <Form.Item
-          label="状态"
-          name="status"
-          rules={[{ required: true, message: '请选择状态' }]}
-        >
-          <Radio.Group>
-            <Radio value={1}>启用</Radio>
-            <Radio value={0}>禁用</Radio>
-          </Radio.Group>
-        </Form.Item>
-
-        <Form.Item
-          label="备注"
-          name="remark"
-        >
-          <TextArea placeholder="请输入备注" rows={3} />
-        </Form.Item>
-
         <Form.Item label="菜单权限">
           <Tree
             checkable

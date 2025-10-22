@@ -106,7 +106,7 @@ const Layout: React.FC = () => {
   return (
     <AntLayout style={{ minHeight: '100vh' }}>
       <Sidebar onCollapse={setSidebarCollapsed} menuData={menuData} />
-      <AntLayout style={{ marginLeft: sidebarCollapsed ? 64 : 200, transition: 'margin-left 0.2s' }}>
+      <AntLayout>
         <Header collapsed={sidebarCollapsed} onCollapse={setSidebarCollapsed} />
         <Content style={{ margin: '8px', padding: '16px', background: '#fff', minHeight: '280px' }}>
           <Outlet />

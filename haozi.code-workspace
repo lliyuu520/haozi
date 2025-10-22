@@ -1,0 +1,98 @@
+{
+	"folders": [
+		{
+			"name": "root",
+			"path": "."
+		},
+		{
+			"name": "backend",
+			"path": "haozi-admin"
+		},
+		{
+			"name": "frontend",
+			"path": "haozi-ui-react"
+		}
+	],
+	"settings": {
+		"java.compile.nullAnalysis.mode": "automatic",
+		"java.configuration.updateBuildConfiguration": "automatic",
+		"[java]": {
+			"editor.defaultFormatter": "redhat.java"
+		},
+		"[typescript]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"[typescriptreact]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"[javascript]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		}
+	},
+	"extensions": {
+		"recommendations": [
+			"vscjava.vscode-java-pack",
+			"esbenp.prettier-vscode",
+			"dbaeumer.vscode-eslint"
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "backend: build",
+				"type": "shell",
+				"command": "mvn -T 1C -DskipTests install",
+				"options": {
+					"cwd": "${workspaceFolder:backend}"
+				},
+				"group": "build",
+				"problemMatcher": []
+			},
+			{
+				"label": "backend: run",
+				"type": "shell",
+				"command": "mvn spring-boot:run",
+				"options": {
+					"cwd": "${workspaceFolder:backend}"
+				},
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "backend: test",
+				"type": "shell",
+				"command": "mvn test",
+				"options": {
+					"cwd": "${workspaceFolder:backend}"
+				},
+				"group": "test",
+				"problemMatcher": []
+			},
+			{
+				"label": "frontend: dev",
+				"type": "shell",
+				"command": "npm run dev",
+				"options": {
+					"cwd": "${workspaceFolder:frontend}"
+				},
+				"isBackground": true,
+				"group": "build",
+				"problemMatcher": []
+			},
+			{
+				"label": "frontend: build",
+				"type": "shell",
+				"command": "npm run build",
+				"options": {
+					"cwd": "${workspaceFolder:frontend}"
+				},
+				"group": "build",
+				"problemMatcher": []
+			}
+		]
+	}
+}

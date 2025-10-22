@@ -1,3 +1,5 @@
+import type {PageResult} from '../common'
+
 export interface SysRole {
   id: number
   name: string
@@ -9,13 +11,6 @@ export interface SysRole {
   tableFieldIdList?: number[]
   createTime?: string
   updateTime?: string
-}
-
-export interface PageResult<T> {
-  list: T[]
-  total: number
-  page: number
-  limit: number
 }
 
 export interface SysRoleQuery {

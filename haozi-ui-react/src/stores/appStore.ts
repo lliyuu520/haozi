@@ -1,7 +1,8 @@
 import {create} from 'zustand'
 import {getDictListApi, getSysConfigListApi} from '@/api/sys'
 import {dictDataApi} from '@/api/dict'
-import type {DictDataItem, DictItem, SysConfigItem} from '@/types/app'
+import type {DictDataItem, DictItem} from '@/types/sys/dict'
+import type {SysConfigItem} from '@/types/sys/config'
 
 interface AppState {
   dictList: DictItem[]

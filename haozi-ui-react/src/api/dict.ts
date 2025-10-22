@@ -1,5 +1,5 @@
 import service from '@/utils/request'
-import type {DictDataItem, DictItem, DictTypeItem} from '@/types/app'
+import type {DictDataItem, DictItem, DictTypeItem} from '@/types/sys/dict'
 
 // 字典类型相关接口
 export const dictTypeApi = {
