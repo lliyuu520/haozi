@@ -2,7 +2,7 @@ import { request, ApiResponse, PageResponse } from '@/lib/api';
 import { UserInfo } from '@/lib/auth';
 
 // 用户查询参数
-export interface UserQuery {
+export interface UserQuery extends Record<string, unknown> {
   current?: number;
   size?: number;
   username?: string;
@@ -21,6 +21,7 @@ export interface UserVO extends UserInfo {
   updateTime?: string;
   status?: number;
   roleName?: string;
+  roleId?: number;
   departmentName?: string;
 }
 

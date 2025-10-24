@@ -27,8 +27,19 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
-import { DataTable, DataTableProps } from '@/components/ui/DataTable';
-import { UserVO, UserQuery, UserCreateParams, UserUpdateParams } from '@/services/user';
+import { DataTable } from '@/components/ui/DataTable';
+import type { DataTableProps, DataTableColumn } from '@/components/ui/DataTable';
+import {
+  UserVO,
+  UserQuery,
+  UserCreateParams,
+  UserUpdateParams,
+  deleteUser,
+  updateUser,
+  createUser,
+  getUserPage,
+  batchDeleteUsers,
+} from '@/services/user';
 import { useAuthStore } from '@/stores/authStore';
 
 const { Text } = Typography;
@@ -164,7 +175,7 @@ export default function UserManagementPage() {
       title: '操作',
       key: 'action',
       width: 120,
-      render: (_, record: UserVO) => (
+      render: (_: unknown, record: UserVO) => (
         <Space>
           <Tooltip title="编辑">
             <Button
@@ -207,7 +218,7 @@ export default function UserManagementPage() {
 
   // 处理新增
   const handleAdd = () => {
-    setEditingUser({});
+    setEditingUser(null);
     setIsModalVisible(true);
     form.resetFields();
   };
@@ -276,11 +287,13 @@ export default function UserManagementPage() {
         size: pageSize,
       });
 
-      if (response?.data) {
-        setDataSource(response.data.records || []);
-        setTotal(response.data.total || 0);
-        setCurrent(response.data.current || 1);
-        setPageSize(response.data.size || 10);
+      const pageData = response?.data?.data;
+
+      if (pageData) {
+        setDataSource(pageData.records || []);
+        setTotal(pageData.total || 0);
+        setCurrent(pageData.current || 1);
+        setPageSize(pageData.size || 10);
       }
     } catch (error) {
       message.error('加载数据失败');
@@ -300,7 +313,7 @@ export default function UserManagementPage() {
   }, [current, pageSize]);
 
   const tableProps: DataTableProps<UserVO> = {
-    columns,
+    columns: columns as DataTableColumn<UserVO>[],
     dataSource,
     loading,
     pagination: {
@@ -334,7 +347,7 @@ export default function UserManagementPage() {
     },
     tableActions: {
       edit: handleEdit,
-      delete: handleDelete,
+      delete: (record: UserVO) => handleDelete(record.id),
     },
   };
 

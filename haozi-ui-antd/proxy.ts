@@ -3,9 +3,11 @@ import type { NextRequest } from 'next/server';
 
 const publicPaths = ['/login', '/register'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isPublicPath = publicPaths.some(path => pathname === path || pathname.startsWith(`${path}/`));
+  const isPublicPath = publicPaths.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  );
 
   if (isPublicPath) {
     return NextResponse.next();

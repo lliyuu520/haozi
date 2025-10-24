@@ -17,7 +17,7 @@ import {
   Dropdown,
   type MenuProps,
 } from 'antd';
-import type { ColumnsType, TableColumnType } from 'antd/es/table';
+import type { ColumnsType, ColumnType } from 'antd/es/table';
 import {
   SearchOutlined,
   ReloadOutlined,
@@ -29,7 +29,7 @@ import {
 import { debounce } from '@/lib/utils';
 
 // 数据表格列类型
-export interface DataTableColumn<T = any> extends TableColumnType<T> {
+export interface DataTableColumn<T = any> extends ColumnType<T> {
   hideInSearch?: boolean; // 是否在搜索中隐藏
   searchField?: string; // 搜索字段名
   valueType?: 'input' | 'select' | 'date' | 'dateRange'; // 搜索值类型
@@ -145,7 +145,7 @@ function DataTable<T extends Record<string, any>>({
               return (
                 <div key={searchField} className="flex-1 min-w-[200px]">
                   <label className="block text-sm font-medium mb-1">
-                    {column.title}
+                    {column.title as React.ReactNode}
                   </label>
                   <select
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -166,10 +166,12 @@ function DataTable<T extends Record<string, any>>({
             return (
               <div key={searchField} className="flex-1 min-w-[200px]">
                 <label className="block text-sm font-medium mb-1">
-                  {column.title}
+                  {column.title as React.ReactNode}
                 </label>
                 <Input
-                  placeholder={`请输入${column.title}`}
+                  placeholder={`请输入${
+                    typeof column.title === 'string' ? column.title : ''
+                  }`}
                   value={localSearch[searchField] || ''}
                   onChange={(e) => debouncedSearch(searchField, e.target.value)}
                   allowClear
@@ -201,7 +203,13 @@ function DataTable<T extends Record<string, any>>({
       width: 120,
       fixed: 'right',
       render: (_, record) => {
-        const actionItems = [];
+        const actionItems: {
+          key: string;
+          label: React.ReactNode;
+          icon?: React.ReactNode;
+          onClick?: () => void;
+          danger?: boolean;
+        }[] = [];
 
         if (tableActions.edit) {
           actionItems.push({
@@ -289,16 +297,16 @@ function DataTable<T extends Record<string, any>>({
         <Card className="mb-4" size="small">
           <div className="flex justify-between items-center">
             <Space>
-              {actions.add && (
+              {actions?.add && (
                 <Button type="primary" onClick={actions.add}>
                   新增
                 </Button>
               )}
-              {actions.delete && rowSelection && (
+              {actions?.delete && rowSelection && (
                 <Popconfirm
                   title="批量删除"
                   description="确定要删除选中的记录吗？"
-                  onConfirm={() => actions.delete!(rowSelection.selectedRows || [])}
+                  onConfirm={() => actions?.delete?.(rowSelection.selectedRows || [])}
                   disabled={!rowSelection.selectedRows?.length}
                 >
                   <Button
@@ -310,10 +318,10 @@ function DataTable<T extends Record<string, any>>({
                   </Button>
                 </Popconfirm>
               )}
-              {actions.export && (
+              {actions?.export && (
                 <Button
                   icon={<ExportOutlined />}
-                  onClick={() => actions.export!(localSearch)}
+                  onClick={() => actions?.export?.(localSearch)}
                 >
                   导出
                 </Button>
@@ -321,9 +329,9 @@ function DataTable<T extends Record<string, any>>({
             </Space>
 
             <Space>
-              {actions.refresh && (
+              {actions?.refresh && (
                 <Tooltip title="刷新">
-                  <Button icon={<ReloadOutlined />} onClick={handleRefresh} />
+                  <Button icon={<ReloadOutlined />} onClick={() => actions?.refresh?.()} />
                 </Tooltip>
               )}
               {searchColumns.length > 0 && (
@@ -360,4 +368,5 @@ function DataTable<T extends Record<string, any>>({
   );
 }
 
+export { DataTable };
 export default DataTable;

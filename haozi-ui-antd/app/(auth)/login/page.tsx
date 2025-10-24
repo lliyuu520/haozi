@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Form,
@@ -33,7 +33,7 @@ interface MobileLoginValues {
   rememberMe?: boolean;
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
   const [accountForm] = Form.useForm<AccountLoginValues>();
   const [mobileForm] = Form.useForm<MobileLoginValues>();
   const router = useRouter();
@@ -242,5 +242,26 @@ export default function LoginPage() {
         </div>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+          <Card className="w-full max-w-md shadow-xl border-0">
+            <div className="text-center mb-8">
+              <Title level={3} className="mb-2 text-blue-600">
+                Haozi Admin
+              </Title>
+              <Text type="secondary">正在加载登录信息，请稍候…</Text>
+            </div>
+          </Card>
+        </div>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
   );
 }

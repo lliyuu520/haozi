@@ -1,37 +1,27 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { request } from '@/lib/api';
+import type { MenuItem } from '@/types/menu';
 
-export interface MenuItem {
-  id: number;
-  parentId: number;
-  name: string;
-  path: string;
-  component?: string;
-  icon?: string;
-  type: 'menu' | 'button' | 'directory';
-  sort: number;
-  visible: boolean;
-  children?: MenuItem[];
-  meta?: {
-    title: string;
-    icon?: string;
-    hidden?: boolean;
-    cache?: boolean;
-    permission?: string[];
-    target?: '_blank' | '_self';
-  };
-}
+type MenuType = MenuItem['type'];
+
+export type RawMenuNode = {
+  id?: number | string;
+  parentId?: number | string;
+  name?: string;
+  weight?: number;
+  children?: RawMenuNode[];
+  extra?: Record<string, unknown>;
+};
 
 interface MenuState {
-  // 状态
   menus: MenuItem[];
   openKeys: string[];
   selectedKeys: string[];
   collapsed: boolean;
 
-  // 操作
-  fetchMenus: () => Promise<void>;
+  fetchMenus: () => Promise<MenuItem[]>;
+  setMenus: (menus: MenuItem[] | RawMenuNode[]) => void;
   setOpenKeys: (keys: string[]) => void;
   setSelectedKeys: (keys: string[]) => void;
   setCollapsed: (collapsed: boolean) => void;
@@ -42,71 +32,72 @@ interface MenuState {
   findMenuByKey: (key: string, menus?: MenuItem[]) => MenuItem | null;
 }
 
+const TYPE_MAP: Record<number, MenuType> = {
+  0: 'menu',
+  1: 'button',
+  2: 'directory',
+};
+
 export const useMenuStore = create<MenuState>()(
   persist(
     (set, get) => ({
-      // 初始状态
       menus: [],
       openKeys: [],
       selectedKeys: [],
       collapsed: false,
 
-      // 获取菜单
       fetchMenus: async () => {
         try {
-          const response = await request.get<MenuItem[]>('/sys/menu/user-menu');
-          const { data } = response.data;
-
-          if (data) {
-            set({ menus: data });
-          }
+          const response = await request.get<RawMenuNode[]>('/sys/menu/nav');
+          const rawMenus = Array.isArray(response.data?.data) ? response.data.data : [];
+          const normalizedMenus = normalizeMenuTree(rawMenus);
+          set({ menus: normalizedMenus });
+          return normalizedMenus;
         } catch (error) {
-          console.error('获取菜单失败:', error);
+          console.error('Failed to load menu tree:', error);
+          set({ menus: [] });
+          throw error;
         }
       },
 
-      // 设置展开的菜单
+      setMenus: (menus) => {
+        const normalizedMenus = normalizeMenuTree(menus as RawMenuNode[]);
+        set({ menus: normalizedMenus });
+      },
+
       setOpenKeys: (keys) => set({ openKeys: keys }),
-
-      // 设置选中的菜单
       setSelectedKeys: (keys) => set({ selectedKeys: keys }),
-
-      // 设置折叠状态
       setCollapsed: (collapsed) => set({ collapsed }),
-
-      // 切换折叠状态
       toggleCollapsed: () => set((state) => ({ collapsed: !state.collapsed })),
 
-      // 生成菜单树
       generateMenus: () => {
         const { menus } = get();
-        return buildMenuTree(menus.filter(menu => menu.type !== 'button'));
+        return filterButtonMenus(menus);
       },
 
-      // 获取扁平化菜单
       getFlattenMenus: () => {
-        const { menus } = get();
-        return flattenMenus(menus);
+        const tree = get().generateMenus();
+        return flattenMenuTree(tree);
       },
 
-      // 根据路径获取菜单
       getMenuByPath: (path) => {
         const flattenMenus = get().getFlattenMenus();
-        return flattenMenus.find(menu => menu.path === path) || null;
+        return flattenMenus.find((menu) => menu.path === path) ?? null;
       },
 
-      // 根据key查找菜单
       findMenuByKey: (key, menus) => {
-        const menuList = menus || get().menus;
+        const menuTree = menus ?? get().generateMenus();
 
-        for (const menu of menuList) {
+        for (const menu of menuTree) {
           if (menu.id.toString() === key) {
             return menu;
           }
 
-          if (menu.children) {
+          if (menu.children?.length) {
             const found = get().findMenuByKey(key, menu.children);
-            if (found) return found;
+            if (found) {
+              return found;
+            }
           }
         }
 
@@ -119,40 +110,152 @@ export const useMenuStore = create<MenuState>()(
         openKeys: state.openKeys,
         collapsed: state.collapsed,
       }),
-    }
-  )
+    },
+  ),
 );
 
-// 构建菜单树
-function buildMenuTree(menus: MenuItem[], parentId = 0): MenuItem[] {
-  const result: MenuItem[] = [];
-
-  for (const menu of menus) {
-    if (menu.parentId === parentId) {
-      const children = buildMenuTree(menus, menu.id);
-      if (children.length > 0) {
-        menu.children = children;
-      }
-      result.push(menu);
-    }
+function normalizeMenuTree(nodes: RawMenuNode[] | MenuItem[], parentId = 0): MenuItem[] {
+  if (!Array.isArray(nodes)) {
+    return [];
   }
 
-  return result.sort((a, b) => a.sort - b.sort);
-}
-
-// 扁平化菜单
-function flattenMenus(menus: MenuItem[]): MenuItem[] {
   const result: MenuItem[] = [];
 
-  const flatten = (items: MenuItem[]) => {
+  nodes.forEach((node, index) => {
+    if (isMenuItem(node)) {
+      const cloned: MenuItem = {
+        ...node,
+        parentId: node.parentId ?? parentId,
+        children: node.children ? normalizeMenuTree(node.children, node.id) : undefined,
+      };
+      result.push(cloned);
+      return;
+    }
+
+    const rawNode = node as RawMenuNode;
+    const extra = typeof rawNode.extra === 'object' && rawNode.extra ? rawNode.extra : {};
+    const id = typeof rawNode.id === 'number' ? rawNode.id : Number(rawNode.id ?? 0);
+    const resolvedParentId =
+      typeof rawNode.parentId === 'number'
+        ? rawNode.parentId
+        : Number(rawNode.parentId ?? parentId);
+    const weight =
+      typeof rawNode.weight === 'number'
+        ? rawNode.weight
+        : typeof extra.weight === 'number'
+        ? (extra.weight as number)
+        : index;
+
+    const menuType = resolveMenuType(extra.type);
+    const permissions = resolvePermissions(extra.perms);
+    const isHidden = extra.hidden === true;
+    const isVisible =
+      typeof extra.visible === 'boolean' ? (extra.visible as boolean) : !isHidden;
+
+    const children = normalizeMenuTree(rawNode.children ?? [], id);
+
+    const menu: MenuItem = {
+      id,
+      parentId: resolvedParentId,
+      name: typeof rawNode.name === 'string' ? rawNode.name : String(extra.name ?? ''),
+      path: typeof extra.url === 'string' ? extra.url : '',
+      component: typeof extra.component === 'string' ? extra.component : undefined,
+      icon: typeof extra.icon === 'string' ? extra.icon : undefined,
+      type: menuType,
+      sort: weight,
+      visible: isVisible,
+      children: children.length > 0 ? children : undefined,
+      meta: {
+        title: typeof extra.title === 'string' ? extra.title : typeof rawNode.name === 'string' ? rawNode.name : '',
+        icon: typeof extra.icon === 'string' ? extra.icon : undefined,
+        hidden: !isVisible,
+        cache: extra.cache === true,
+        permission: permissions,
+        target:
+          extra.target === '_blank' || extra.target === '_self' ? (extra.target as '_blank' | '_self') : undefined,
+        affix: extra.affix === true,
+      },
+    };
+
+    result.push(menu);
+  });
+
+  return result;
+}
+
+function filterButtonMenus(menus: MenuItem[]): MenuItem[] {
+  return menus
+    .filter((menu) => menu.type !== 'button' && menu.visible !== false)
+    .map((menu) => ({
+      ...menu,
+      children: menu.children ? filterButtonMenus(menu.children) : undefined,
+    }));
+}
+
+function flattenMenuTree(menus: MenuItem[]): MenuItem[] {
+  const result: MenuItem[] = [];
+
+  const traverse = (items: MenuItem[]) => {
     for (const item of items) {
       result.push(item);
-      if (item.children) {
-        flatten(item.children);
+      if (item.children?.length) {
+        traverse(item.children);
       }
     }
   };
 
-  flatten(menus);
+  traverse(menus);
   return result;
 }
+
+function resolveMenuType(type: unknown): MenuType {
+  if (typeof type === 'number') {
+    return TYPE_MAP[type] ?? 'menu';
+  }
+
+  if (typeof type === 'string') {
+    const trimmed = type.trim();
+    const numeric = Number(trimmed);
+    if (!Number.isNaN(numeric)) {
+      return TYPE_MAP[numeric] ?? 'menu';
+    }
+    if (trimmed === 'menu' || trimmed === 'button' || trimmed === 'directory') {
+      return trimmed as MenuType;
+    }
+  }
+
+  return 'menu';
+}
+
+function resolvePermissions(input: unknown): string[] | undefined {
+  if (!input) {
+    return undefined;
+  }
+
+  if (Array.isArray(input)) {
+    return input
+      .map((item) => item && item.toString().trim())
+      .filter((item): item is string => Boolean(item));
+  }
+
+  if (typeof input === 'string') {
+    return input
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return undefined;
+}
+
+function isMenuItem(node: unknown): node is MenuItem {
+  return Boolean(
+    node &&
+      typeof node === 'object' &&
+      'id' in node &&
+      'name' in node &&
+      'type' in node &&
+      'visible' in node,
+  );
+}
+

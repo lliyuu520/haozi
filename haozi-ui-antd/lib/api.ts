@@ -1,16 +1,14 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { message } from 'antd';
 import { getToken, removeToken } from './auth';
 
-// API 响应数据类型
-export interface ApiResponse<T = any> {
-  code: number;
+export interface ApiResponse<T = unknown> {
+  code?: number;
   data: T;
-  msg: string;
-  success: boolean;
+  msg?: string;
+  success?: boolean;
 }
 
-// 分页响应数据类型
 export interface PageResponse<T> {
   records: T[];
   total: number;
@@ -19,7 +17,6 @@ export interface PageResponse<T> {
   pages: number;
 }
 
-// 创建 axios 实例
 const service: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
   timeout: 30000,
@@ -28,18 +25,16 @@ const service: AxiosInstance = axios.create({
   },
 });
 
-// 请求拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // 添加认证token
     const token = getToken();
+
     if (token) {
       config.headers = config.headers || {};
       config.headers['Authorization'] = `Bearer ${token}`;
       config.headers['satoken'] = token;
     }
 
-    // 添加请求时间戳
     config.params = {
       ...config.params,
       _t: Date.now(),
@@ -47,97 +42,101 @@ service.interceptors.request.use(
 
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  error => Promise.reject(error),
 );
 
-// 响应拦截器
 service.interceptors.response.use(
   (response: AxiosResponse<ApiResponse>) => {
     const { data } = response;
 
-    // 如果是下载文件等二进制数据，直接返回
     if (response.config.responseType === 'blob') {
       return response;
     }
 
-    // 业务成功
-    if (data.success || data.code === 200) {
+    const isSuccess =
+      data.success === true ||
+      (typeof data.success === 'undefined' &&
+        typeof data.code === 'number' &&
+        (data.code === 0 || data.code === 200));
+
+    if (isSuccess) {
       return response;
     }
 
-    // 业务失败
-    message.error(data.msg || '请求失败');
-    return Promise.reject(new Error(data.msg || '请求失败'));
+    message.error(data.msg || 'Request failed');
+    return Promise.reject(new Error(data.msg || 'Request failed'));
   },
-  (error) => {
+  error => {
     const { response } = error;
 
     if (response) {
       const { status, data } = response;
 
       switch (status) {
-        case 401:
-          message.error('登录已过期，请重新登录');
+        case 401: {
+          message.error('Session expired, please sign in again');
           removeToken();
-          // 跳转到登录页面
           window.location.href = '/login';
           break;
+        }
         case 403:
-          message.error('没有权限访问该资源');
+          message.error('Insufficient permissions');
           break;
         case 404:
-          message.error('请求的资源不存在');
+          message.error('Resource not found');
           break;
         case 500:
-          message.error('服务器内部错误');
+          message.error('Internal server error');
           break;
         default:
-          message.error(data?.msg || `请求失败: ${status}`);
+          message.error(data?.msg || `Request failed: ${status}`);
       }
     } else if (error.code === 'ECONNABORTED') {
-      message.error('请求超时，请重试');
+      message.error('Request timed out, please retry');
     } else {
-      message.error('网络异常，请检查网络连接');
+      message.error('Network error, please check your connection');
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
-// 通用请求方法
 export const request = {
-  get<T = any>(url: string, params?: any): Promise<AxiosResponse<ApiResponse<T>>> {
-    return service.get(url, { params });
+  get<T = unknown>(url: string, params?: Record<string, unknown>): Promise<
+    AxiosResponse<ApiResponse<T>>
+  > {
+    return service.get<ApiResponse<T>>(url, { params });
   },
 
-  post<T = any>(url: string, data?: any): Promise<AxiosResponse<ApiResponse<T>>> {
-    return service.post(url, data);
+  post<T = unknown>(url: string, data?: unknown): Promise<AxiosResponse<ApiResponse<T>>> {
+    return service.post<ApiResponse<T>>(url, data);
   },
 
-  put<T = any>(url: string, data?: any): Promise<AxiosResponse<ApiResponse<T>>> {
-    return service.put(url, data);
+  put<T = unknown>(url: string, data?: unknown): Promise<AxiosResponse<ApiResponse<T>>> {
+    return service.put<ApiResponse<T>>(url, data);
   },
 
-  delete<T = any>(url: string, params?: any): Promise<AxiosResponse<ApiResponse<T>>> {
-    return service.delete(url, { params });
+  delete<T = unknown>(url: string, params?: Record<string, unknown>): Promise<
+    AxiosResponse<ApiResponse<T>>
+  > {
+    return service.delete<ApiResponse<T>>(url, { params });
   },
 
-  upload<T = any>(url: string, formData: FormData): Promise<AxiosResponse<ApiResponse<T>>> {
-    return service.post(url, formData, {
+  upload<T = unknown>(url: string, formData: FormData): Promise<
+    AxiosResponse<ApiResponse<T>>
+  > {
+    return service.post<ApiResponse<T>>(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
   },
 
-  download(url: string, params?: any): Promise<AxiosResponse> {
-    return service.get(url, {
+  download(url: string, params?: Record<string, unknown>): Promise<AxiosResponse<Blob>> {
+    return service.get<Blob>(url, {
       params,
       responseType: 'blob',
     });
   },
 };
-
 export default service;

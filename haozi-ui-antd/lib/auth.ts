@@ -1,6 +1,7 @@
-// Token 相关操作
+// Storage key constants
 const TOKEN_KEY = 'haozi_token';
 const USER_INFO_KEY = 'haozi_user_info';
+const AUTHORITIES_KEY = 'haozi_authorities';
 
 export interface UserInfo {
   id: number;
@@ -13,7 +14,7 @@ export interface UserInfo {
   permissions: string[];
 }
 
-// Token 管理
+// Token helpers
 export const getToken = (): string | null => {
   if (typeof window !== 'undefined') {
     return localStorage.getItem(TOKEN_KEY);
@@ -33,19 +34,21 @@ export const removeToken = (): void => {
   }
 };
 
-// 用户信息管理
+// User info helpers
 export const getUserInfo = (): UserInfo | null => {
   if (typeof window !== 'undefined') {
     const userInfoStr = localStorage.getItem(USER_INFO_KEY);
+
     if (userInfoStr) {
       try {
-        return JSON.parse(userInfoStr);
+        return JSON.parse(userInfoStr) as UserInfo;
       } catch {
         removeUserInfo();
         return null;
       }
     }
   }
+
   return null;
 };
 
@@ -61,13 +64,43 @@ export const removeUserInfo = (): void => {
   }
 };
 
-// 清除所有认证信息
+// Authority helpers
+export const getAuthorities = (): string[] => {
+  if (typeof window !== 'undefined') {
+    const authorities = localStorage.getItem(AUTHORITIES_KEY);
+    if (authorities) {
+      try {
+        return JSON.parse(authorities) as string[];
+      } catch {
+        removeAuthorities();
+        return [];
+      }
+    }
+  }
+
+  return [];
+};
+
+export const setAuthorities = (authorities: string[]): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(AUTHORITIES_KEY, JSON.stringify(authorities));
+  }
+};
+
+export const removeAuthorities = (): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(AUTHORITIES_KEY);
+  }
+};
+
+// Clear all persisted auth information
 export const clearAuth = (): void => {
   removeToken();
   removeUserInfo();
+  removeAuthorities();
 };
 
-// 检查是否有权限
+// Permission helpers
 export const hasPermission = (permission: string | string[]): boolean => {
   const userInfo = getUserInfo();
   if (!userInfo || !userInfo.permissions) {
@@ -75,13 +108,13 @@ export const hasPermission = (permission: string | string[]): boolean => {
   }
 
   if (Array.isArray(permission)) {
-    return permission.some(p => userInfo.permissions.includes(p));
+    return permission.some(item => userInfo.permissions.includes(item));
   }
 
   return userInfo.permissions.includes(permission);
 };
 
-// 检查是否有角色
+// Role helpers
 export const hasRole = (role: string | string[]): boolean => {
   const userInfo = getUserInfo();
   if (!userInfo || !userInfo.roles) {
@@ -89,18 +122,18 @@ export const hasRole = (role: string | string[]): boolean => {
   }
 
   if (Array.isArray(role)) {
-    return role.some(r => userInfo.roles.includes(r));
+    return role.some(item => userInfo.roles.includes(item));
   }
 
   return userInfo.roles.includes(role);
 };
 
-// 检查是否已登录
+// Logged-in state helper
 export const isLoggedIn = (): boolean => {
-  return !!getToken();
+  return Boolean(getToken());
 };
 
-// 登录
+// Login payloads
 export interface LoginParams {
   username: string;
   password: string;
@@ -109,11 +142,12 @@ export interface LoginParams {
 }
 
 export interface LoginResponse {
-  token: string;
-  userInfo: UserInfo;
+  token?: string;
+  accessToken?: string;
+  userInfo?: UserInfo;
 }
 
-// 注册
+// Register payload
 export interface RegisterParams {
   username: string;
   password: string;

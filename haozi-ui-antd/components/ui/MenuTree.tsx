@@ -13,6 +13,7 @@ import type { MenuItem } from '@/types/menu';
 import type { MenuProps } from 'antd';
 
 const { Text } = Typography;
+type AntdMenuItem = Required<MenuProps>['items'][number];
 
 interface MenuTreeProps {
   menuItems: MenuItem[];
@@ -37,7 +38,7 @@ const getIcon = (iconName?: string) => {
   return iconName ? iconMap[iconName] : null;
 };
 
-const renderMenuItem = (item: MenuItem) => {
+const renderMenuItem = (item: MenuItem): AntdMenuItem => {
   return {
     key: item.id.toString(),
     icon: getIcon(item.icon),
@@ -84,4 +85,5 @@ export function MenuTree({
 }
 
 export default MenuTree;
+
 

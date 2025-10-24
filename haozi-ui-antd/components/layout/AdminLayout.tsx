@@ -15,7 +15,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import { useAppStore } from '@/stores/appStore';
 import { useMenuStore } from '@/stores/menuStore';
-import type { MenuItem } from '@/stores/menuStore';
+import type { MenuItem } from '@/types/menu';
 import type { MenuProps } from 'antd';
 import MenuTree from '@/components/ui/MenuTree';
 import './AdminLayout.css';
@@ -305,3 +305,4 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     </Layout>
   );
 }
+
