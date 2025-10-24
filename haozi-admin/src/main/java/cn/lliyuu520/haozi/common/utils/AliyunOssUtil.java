@@ -146,11 +146,11 @@ public class AliyunOssUtil {
      */
     private String upload(final InputStream inputStream, final String originalFilename) {
         final String path = AliyunOssUtil.getPath(originalFilename);
-        final ProjectConfiguration.AliyunOssProperties aliyunOssProperties = projectConfiguration.getAliyunOssProperties();
+        final ProjectConfiguration.AliyunProperties aliyunProperties = projectConfiguration.getAliyunProperties();
 
-        final String endPoint = aliyunOssProperties.getEndPoint();
-        final OSS client = new OSSClientBuilder().build(endPoint, aliyunOssProperties.getAccessKeyId(), aliyunOssProperties.getAccessKeySecret());
-        final String bucketName = aliyunOssProperties.getBucketName();
+        final String endPoint = aliyunProperties.getEndPoint();
+        final OSS client = new OSSClientBuilder().build(endPoint, aliyunProperties.getAccessKeyId(), aliyunProperties.getAccessKeySecret());
+        final String bucketName = aliyunProperties.getBucketName();
         try {
             client.putObject(bucketName, path, inputStream);
         } catch (final Exception e) {
@@ -160,7 +160,7 @@ public class AliyunOssUtil {
                 client.shutdown();
             }
         }
-        return aliyunOssProperties.getCdnDomain() + "/" + path;
+        return aliyunProperties.getCdnDomain() + "/" + path;
     }
 
 
@@ -174,12 +174,12 @@ public class AliyunOssUtil {
     public OssPolicyVO getPolicy(String fileName) {
         // 重命名文件名
         fileName = AliyunOssUtil.getNewFileName(fileName);
-        final ProjectConfiguration.AliyunOssProperties aliyunOssProperties = projectConfiguration.getAliyunOssProperties();
+        final ProjectConfiguration.AliyunProperties aliyunProperties = projectConfiguration.getAliyunProperties();
         final DateTime now = DateUtil.date();
         final String dir = DateUtil.format(now, DatePattern.PURE_DATE_PATTERN) + "/";
-        final String endPoint = aliyunOssProperties.getEndPoint();
-        final String accessKeyId = aliyunOssProperties.getAccessKeyId();
-        final OSS client = new OSSClientBuilder().build(endPoint, accessKeyId, aliyunOssProperties.getAccessKeySecret());
+        final String endPoint = aliyunProperties.getEndPoint();
+        final String accessKeyId = aliyunProperties.getAccessKeyId();
+        final OSS client = new OSSClientBuilder().build(endPoint, accessKeyId, aliyunProperties.getAccessKeySecret());
         final PolicyConditions policyConditions = new PolicyConditions();
         policyConditions.addConditionItem(PolicyConditions.COND_CONTENT_LENGTH_RANGE, 0, 1048576000);
         final String contentDisposition = getContentDisposition(fileName);
@@ -192,7 +192,7 @@ public class AliyunOssUtil {
         final String encodedPolicy = Base64.encode(postPolicy);
         final String signature = client.calculatePostSignature(postPolicy);
 
-        return new OssPolicyVO(accessKeyId, encodedPolicy, signature, dir, "https://" + aliyunOssProperties.getBucketName() + "." + endPoint, xOssContentType, contentDisposition, aliyunOssProperties.getCdnDomain() + "/" + dir + fileName, fileName);
+        return new OssPolicyVO(accessKeyId, encodedPolicy, signature, dir, "https://" + aliyunProperties.getBucketName() + "." + endPoint, xOssContentType, contentDisposition, aliyunProperties.getCdnDomain() + "/" + dir + fileName, fileName);
 
 
     }

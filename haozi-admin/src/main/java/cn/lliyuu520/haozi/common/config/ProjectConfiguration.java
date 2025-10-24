@@ -18,11 +18,8 @@ public class ProjectConfiguration {
     /**
      * 阿里云 云存储配置项
      */
-    private final AliyunOssProperties aliyunOssProperties = new AliyunOssProperties();
-    /**
-     * 阿里云 短信配置项
-     */
-    private final AliyunSmsProperties aliyunSmsProperties = new AliyunSmsProperties();
+    private final AliyunProperties aliyunProperties = new AliyunProperties();
+
 
 
     /**
@@ -52,7 +49,7 @@ public class ProjectConfiguration {
      * 阿里云云存储配置项
      */
     @Data
-    public static class AliyunOssProperties {
+    public static class AliyunProperties {
         /**
          * 阿里云API的外网域名
          */
@@ -73,29 +70,20 @@ public class ProjectConfiguration {
          * oss域名
          */
         private String cdnDomain;
-    }
 
-    /**
-     * 阿里云短信配置项
-     */
-    @Data
-    public static class AliyunSmsProperties {
         /**
-         * 阿里云短信服务的accessKeyId
-         */
-        private String accessKeyId;
-        /**
-         * 阿里云短信服务的accessKeySecret
-         */
-        private String accessKeySecret;
-        /**
-         * 阿里云短信服务的签名
+         * 短信签名
          */
         private String signName;
         /**
-         * 阿里云短信服务的模板
+         * 短信模板
          */
         private String templateCode;
+
+        /**
+         * 短信参数模板
+         */
+        private String templateParam;
     }
 
 

@@ -28,7 +28,7 @@ public class SysAuthController {
      * @param sysAccountLoginDTO
      * @return
      */
-    @PostMapping("login")
+    @PostMapping("/login")
     @SaIgnore
     public Result<SysTokenVO> login(@RequestBody final SysAccountLoginDTO sysAccountLoginDTO) {
         final SysTokenVO token = this.sysAuthService.loginByAccount(sysAccountLoginDTO);
@@ -43,7 +43,7 @@ public class SysAuthController {
      * @return
      */
 
-    @PostMapping("logout")
+    @PostMapping("/logout")
     public Result<String> logout() {
         this.sysAuthService.logout();
 

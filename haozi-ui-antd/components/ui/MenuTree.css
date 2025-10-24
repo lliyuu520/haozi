@@ -1,0 +1,55 @@
+/* 菜单树组件样式 */
+.menu-tree {
+  border-right: none;
+}
+
+.menu-empty {
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.custom-menu .ant-menu-item {
+  margin: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-menu .ant-menu-item:hover {
+  background-color: #f0f9ff;
+}
+
+.custom-menu .ant-menu-item-selected {
+  background-color: #e6f7ff;
+  color: #1677ff;
+}
+
+.custom-menu .ant-menu-item-icon {
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+.custom-menu .ant-menu-submenu {
+  margin: 4px 8px;
+}
+
+.custom-menu .ant-menu-submenu-title {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.custom-menu .ant-menu-submenu-arrow {
+  color: #1677ff;
+}
+
+/* 响应式处理 */
+@media (max-width: 768px) {
+  .menu-tree {
+    border-right: 1px solid #f0f0f0;
+  }
+}

@@ -5,12 +5,12 @@
 			"path": "."
 		},
 		{
-			"name": "backend",
+			"name": "admin",
 			"path": "haozi-admin"
 		},
 		{
-			"name": "frontend",
-			"path": "haozi-ui-react"
+			"name": "ui",
+			"path": "haozi-ui-antd"
 		}
 	],
 	"settings": {
