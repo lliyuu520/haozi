@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, useRef } from 'react';
-import { Layout, Space, Typography, Button, Dropdown } from 'antd';
+import { Layout, Space, Typography, Button, Dropdown, message } from 'antd';
 import {
   UserOutlined,
   LogoutOutlined,
@@ -23,6 +23,60 @@ import './AdminLayout.css';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
+
+const backendToNextPathMap: Record<string, string> = {
+  '/sys/menu/index': '/system/menu',
+  '/sys/user/index': '/system/user',
+  '/sys/role/index': '/system/role',
+  '/sys/dict/type': '/system/dict',
+  '/sys/dict/index': '/system/dict',
+};
+
+const nameToPathMap: Record<string, string> = {
+  菜单管理: '/system/menu',
+  用户管理: '/system/user',
+  角色管理: '/system/role',
+  字典管理: '/system/dict',
+  部门管理: '/system/dept',
+  岗位管理: '/system/post',
+  配置管理: '/system/config',
+  通知公告: '/system/notice',
+  日志管理: '/system/log',
+  在线用户: '/monitor/online',
+  定时任务: '/monitor/job',
+  服务监控: '/monitor/server',
+  缓存监控: '/monitor/cache',
+  系统信息: '/system/info',
+};
+
+const normalizeRoutePath = (rawPath?: string | null): string | null => {
+  if (!rawPath) {
+    return null;
+  }
+
+  const trimmed = rawPath.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const prefixed = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return backendToNextPathMap[prefixed] ?? prefixed;
+};
+
+const resolveMenuRoutePath = (menu?: MenuItem | null): string | null => {
+  if (!menu) {
+    return null;
+  }
+
+  const menuWithUrl = menu as MenuItem & { url?: string };
+  let routePath = menu.path || menuWithUrl.url;
+
+  if (!routePath && menu.name) {
+    routePath = nameToPathMap[menu.name] || `/system/${menu.name.toLowerCase().replace(/\s+/g, '')}`;
+  }
+
+  return normalizeRoutePath(routePath);
+};
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -50,6 +104,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const menuTree = useMemo(() => generateMenus(), [menus, generateMenus]);
   const userDisplayName = userInfo?.nickname || userInfo?.username || '';
 
+  // 添加调试日志
+  console.log('🔍 AdminLayout Debug:', {
+    pathname,
+    menuTreeLength: menuTree.length,
+    isLoggedIn,
+    userInfo: !!userInfo,
+    userDisplayName,
+    rawMenus: menus.length,
+    firstMenu: menus[0] ? { id: menus[0].id, name: menus[0].name, path: menus[0].path, url: menus[0].url } : null,
+    firstMenuTree: menuTree[0] ? { id: menuTree[0].id, name: menuTree[0].name, path: menuTree[0].path, url: menuTree[0].url } : null,
+  });
+
   useEffect(() => {
     if (!checkAuth()) {
       router.replace('/login');
@@ -58,7 +124,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (isLoggedIn && menus.length === 0) {
-      fetchMenus().catch(() => undefined);
+      console.log('📡 Fetching menus...');
+      fetchMenus().catch((error) => {
+        console.error('❌ Failed to fetch menus:', error);
+      });
     }
   }, [isLoggedIn, menus.length, fetchMenus]);
 
@@ -77,13 +146,25 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const menuMatch = useMemo(() => {
     if (!menuTree.length) {
+      console.log('🏠 No menu tree, returning empty match');
       return { selectedKey: null as string | null, openKeyList: [] as string[] };
     }
+
+    console.log('🔍 Searching menu match for pathname:', pathname);
 
     const stack: MenuItem[] = [];
     const traverse = (items: MenuItem[]): { selectedKey: string; openKeyList: string[] } | null => {
       for (const item of items) {
-        if (item.path === pathname) {
+        // 同时检查 path 和 url 字段，确保路由匹配正确
+        const itemWithUrl = item as MenuItem & { url?: string };
+        const rawRoutePath = itemWithUrl.path || itemWithUrl.url;
+        const routePath = resolveMenuRoutePath(item);
+        console.log(
+          `🔍 Checking menu item: ${item.name}, rawPath: ${rawRoutePath}, resolvedRoutePath: ${routePath}, current pathname: ${pathname}`,
+        );
+
+        if (routePath === pathname) {
+          console.log(`✅ Found matching menu: ${item.name} (ID: ${item.id})`);
           return {
             selectedKey: item.id.toString(),
             openKeyList: stack.map(parent => parent.id.toString()),
@@ -111,21 +192,36 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     // 只在路由变化时自动同步展开项，且用户没有手动操作的情况下
     if (!isUserInteracting) {
       const nextOpenKeys = menuMatch.openKeyList;
+      console.log('🔄 Auto-syncing openKeys:', nextOpenKeys);
       setOpenKeys(nextOpenKeys);
     }
   }, [pathname, menuMatch.openKeyList, isUserInteracting]);
 
   const handleMenuSelect: MenuProps['onSelect'] = ({ key }) => {
+    console.log('??? Menu selected:', key);
+
     const flattenMenus = getFlattenMenus();
+    console.log('?? Flatten menus count:', flattenMenus.length);
+
     const target = flattenMenus.find(item => item.id.toString() === String(key));
-    if (target?.path && target.path !== pathname) {
-      router.push(target.path);
+    console.log('?? Found target menu:', target?.name, 'ID:', target?.id, 'path:', target?.path, 'url:', target?.url);
+
+    const routePath = resolveMenuRoutePath(target);
+    console.log('?? Route path resolved:', routePath, 'Current pathname:', pathname);
+
+    if (routePath && routePath !== pathname) {
+      console.log('?? Navigating to:', routePath);
+      router.push(routePath);
+    } else {
+      console.log('?? No navigation - routePath is empty or same as current');
     }
-    // 用户选择菜单项后，重置用户交互状态
+
+    // 用户选择菜单后重置用户交互状态
     setIsUserInteracting(false);
   };
 
-  const handleMenuOpenChange: MenuProps['onOpenChange'] = (keys) => {
+const handleMenuOpenChange: MenuProps['onOpenChange'] = (keys) => {
+    console.log('📂 Menu open changed:', keys);
     setOpenKeys(keys);
     // 标记用户正在手动操作菜单
     setIsUserInteracting(true);
@@ -137,6 +233,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
     // 3秒后重置用户交互状态，允许路由变化时自动同步展开项
     interactionTimerRef.current = setTimeout(() => {
+      console.log('⏰ Resetting user interaction state');
       setIsUserInteracting(false);
     }, 3000);
   };
@@ -329,4 +426,3 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     </Layout>
   );
 }
-

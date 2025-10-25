@@ -2,15 +2,9 @@
 
 import React from 'react';
 import { Menu, Typography } from 'antd';
-import {
-  AppstoreOutlined,
-  DesktopOutlined,
-  FileTextOutlined,
-  SettingOutlined,
-  TeamOutlined,
-} from '@ant-design/icons';
 import type { MenuItem } from '@/types/menu';
 import type { MenuProps } from 'antd';
+import { getMenuIcon } from '@/constants/menuIcons';
 
 const { Text } = Typography;
 type AntdMenuItem = Required<MenuProps>['items'][number];
@@ -25,23 +19,10 @@ interface MenuTreeProps {
   inlineCollapsed?: boolean;
 }
 
-const getIcon = (iconName?: string) => {
-  const iconMap: Record<string, React.ReactNode> = {
-    appstore: <AppstoreOutlined />,
-    desktop: <DesktopOutlined />,
-    file: <FileTextOutlined />,
-    setting: <SettingOutlined />,
-    team: <TeamOutlined />,
-    user: <TeamOutlined />,
-  };
-
-  return iconName ? iconMap[iconName] : null;
-};
-
 const renderMenuItem = (item: MenuItem): AntdMenuItem => {
   return {
     key: item.id.toString(),
-    icon: getIcon(item.icon),
+    icon: getMenuIcon(item.icon),
     label: item.name,
     children: item.children?.map(renderMenuItem),
   };
@@ -59,6 +40,20 @@ export function MenuTree({
   const items = menuItems
     .filter(item => item.visible !== false)
     .map(renderMenuItem);
+
+  // 添加调试日志
+  console.log('🌳 MenuTree Debug:', {
+    menuItemsCount: menuItems.length,
+    filteredCount: items.length,
+    selectedKeys,
+    openKeys,
+    mode,
+    inlineCollapsed,
+    onSelect: !!onSelect,
+    onOpenChange: !!onOpenChange,
+    firstMenuItem: menuItems[0] ? { id: menuItems[0].id, name: menuItems[0].name, path: menuItems[0].path, url: menuItems[0].url, visible: menuItems[0].visible } : null,
+    firstItem: items[0] ? { key: (items[0] as any).key, label: (items[0] as any).label } : null,
+  });
 
   return (
     <div className="menu-tree">
@@ -85,5 +80,4 @@ export function MenuTree({
 }
 
 export default MenuTree;
-
 

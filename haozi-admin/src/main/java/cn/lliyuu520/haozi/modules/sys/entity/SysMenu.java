@@ -46,6 +46,11 @@ public class SysMenu extends BaseEntity {
     private Integer weight;
 
     /**
+     * 图标
+     */
+    private String icon;
+
+    /**
      * 构建页面菜单
      */
     

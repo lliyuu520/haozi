@@ -82,7 +82,8 @@ export const useMenuStore = create<MenuState>()(
 
       getMenuByPath: (path) => {
         const flattenMenus = get().getFlattenMenus();
-        return flattenMenus.find((menu) => menu.path === path) ?? null;
+        // 同时检查 path 和 url 字段，确保路径匹配正确
+        return flattenMenus.find((menu) => (menu.path === path || menu.url === path)) ?? null;
       },
 
       findMenuByKey: (key, menus) => {
