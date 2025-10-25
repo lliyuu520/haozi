@@ -21,7 +21,7 @@ interface MenuTreeProps {
   openKeys?: string[];
   onSelect?: MenuProps['onSelect'];
   onOpenChange?: MenuProps['onOpenChange'];
-  mode?: 'vertical' | 'horizontal';
+  mode?: 'vertical' | 'horizontal' | 'inline';
   inlineCollapsed?: boolean;
 }
 
@@ -53,7 +53,7 @@ export function MenuTree({
   openKeys,
   onSelect,
   onOpenChange,
-  mode = 'vertical',
+  mode = 'inline',
   inlineCollapsed = false,
 }: MenuTreeProps) {
   const items = menuItems
@@ -69,7 +69,7 @@ export function MenuTree({
           openKeys={openKeys}
           onSelect={onSelect}
           onOpenChange={onOpenChange}
-          inlineCollapsed={inlineCollapsed}
+          inlineCollapsed={mode === 'inline' ? inlineCollapsed : undefined}
           items={items}
           className="custom-menu"
         />

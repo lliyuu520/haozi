@@ -134,11 +134,17 @@ function normalizeMenuTree(nodes: RawMenuNode[] | MenuItem[], parentId = 0): Men
 
     const rawNode = node as RawMenuNode;
     const extra = typeof rawNode.extra === 'object' && rawNode.extra ? rawNode.extra : {};
+
+    // 处理后端返回的Tree结构数据
     const id = typeof rawNode.id === 'number' ? rawNode.id : Number(rawNode.id ?? 0);
     const resolvedParentId =
       typeof rawNode.parentId === 'number'
         ? rawNode.parentId
+        : typeof rawNode.parentId === 'string'
+        ? Number(rawNode.parentId)
         : Number(rawNode.parentId ?? parentId);
+
+    // 权重优先级：节点权重 > extra权重 > 索引
     const weight =
       typeof rawNode.weight === 'number'
         ? rawNode.weight
@@ -148,10 +154,12 @@ function normalizeMenuTree(nodes: RawMenuNode[] | MenuItem[], parentId = 0): Men
 
     const menuType = resolveMenuType(extra.type);
     const permissions = resolvePermissions(extra.perms);
-    const isHidden = extra.hidden === true;
-    const isVisible =
-      typeof extra.visible === 'boolean' ? (extra.visible as boolean) : !isHidden;
 
+    // 处理菜单可见性：后端没有visible字段，默认都可见
+    const isHidden = extra.hidden === true;
+    const isVisible = typeof extra.visible === 'boolean' ? (extra.visible as boolean) : !isHidden;
+
+    // 递归处理子节点
     const children = normalizeMenuTree(rawNode.children ?? [], id);
 
     const menu: MenuItem = {

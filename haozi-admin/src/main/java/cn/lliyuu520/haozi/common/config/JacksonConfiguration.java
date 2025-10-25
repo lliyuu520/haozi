@@ -1,7 +1,10 @@
 package cn.lliyuu520.haozi.common.config;
 
 import cn.hutool.core.date.DatePattern;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.PackageVersion;
@@ -21,6 +24,7 @@ import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -46,9 +50,35 @@ public class JacksonConfiguration {
             builder.locale(Locale.CHINA);
             builder.timeZone(TimeZone.getTimeZone(ZoneId.systemDefault()));
             builder.simpleDateFormat(DatePattern.NORM_DATETIME_PATTERN);
-            builder.serializerByType(Long.class, ToStringSerializer.instance);
+            // 使用智能Long序列化器：只对超过JavaScript安全整数范围的Long转为字符串
+            builder.serializerByType(Long.class, SmartLongSerializer.INSTANCE);
             builder.modules(new MiguomaJavaTimeModule());
         };
+    }
+
+    /**
+     * 智能Long序列化器
+     * 小于等于JavaScript安全整数最大值的Long保持数字类型
+     * 超过JavaScript安全整数最大值的Long转为字符串
+     */
+    public static class SmartLongSerializer extends JsonSerializer<Long> {
+        public static final SmartLongSerializer INSTANCE = new SmartLongSerializer();
+        private static final long JS_MAX_SAFE_INTEGER = 9007199254740991L;
+
+        @Override
+        public void serialize(Long value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            if (value == null) {
+                gen.writeNull();
+                return;
+            }
+
+            // 只有超过JavaScript安全整数范围才转为字符串
+            if (Math.abs(value) > JS_MAX_SAFE_INTEGER) {
+                gen.writeString(value.toString());
+            } else {
+                gen.writeNumber(value);
+            }
+        }
     }
 
     /**

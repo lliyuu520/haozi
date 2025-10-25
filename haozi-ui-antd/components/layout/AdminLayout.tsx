@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Layout, Space, Typography, Button, Dropdown } from 'antd';
 import {
   UserOutlined,
@@ -15,6 +15,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import { useAppStore } from '@/stores/appStore';
 import { useMenuStore } from '@/stores/menuStore';
+import { useIsMounted } from '@/hooks/useIsMounted';
 import type { MenuItem } from '@/types/menu';
 import type { MenuProps } from 'antd';
 import MenuTree from '@/components/ui/MenuTree';
@@ -42,8 +43,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const [isUserInteracting, setIsUserInteracting] = useState(false);
+  const isMounted = useIsMounted();
+  const interactionTimerRef = useRef<NodeJS.Timeout>();
 
-  const menuTree = generateMenus();
+  const menuTree = useMemo(() => generateMenus(), [menus, generateMenus]);
   const userDisplayName = userInfo?.nickname || userInfo?.username || '';
 
   useEffect(() => {
@@ -104,19 +108,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const selectedKeys = menuMatch.selectedKey ? [menuMatch.selectedKey] : [];
 
   useEffect(() => {
-    const nextOpenKeys = menuMatch.openKeyList;
-    // 同步路由对应的展开项
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setOpenKeys(prev => {
-      if (
-        prev.length === nextOpenKeys.length &&
-        prev.every((key, index) => key === nextOpenKeys[index])
-      ) {
-        return prev;
-      }
-      return nextOpenKeys;
-    });
-  }, [menuMatch.openKeyList]);
+    // 只在路由变化时自动同步展开项，且用户没有手动操作的情况下
+    if (!isUserInteracting) {
+      const nextOpenKeys = menuMatch.openKeyList;
+      setOpenKeys(nextOpenKeys);
+    }
+  }, [pathname, menuMatch.openKeyList, isUserInteracting]);
 
   const handleMenuSelect: MenuProps['onSelect'] = ({ key }) => {
     const flattenMenus = getFlattenMenus();
@@ -124,7 +121,34 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     if (target?.path && target.path !== pathname) {
       router.push(target.path);
     }
+    // 用户选择菜单项后，重置用户交互状态
+    setIsUserInteracting(false);
   };
+
+  const handleMenuOpenChange: MenuProps['onOpenChange'] = (keys) => {
+    setOpenKeys(keys);
+    // 标记用户正在手动操作菜单
+    setIsUserInteracting(true);
+
+    // 清除之前的定时器
+    if (interactionTimerRef.current) {
+      clearTimeout(interactionTimerRef.current);
+    }
+
+    // 3秒后重置用户交互状态，允许路由变化时自动同步展开项
+    interactionTimerRef.current = setTimeout(() => {
+      setIsUserInteracting(false);
+    }, 3000);
+  };
+
+  // 组件卸载时清理定时器
+  useEffect(() => {
+    return () => {
+      if (interactionTimerRef.current) {
+        clearTimeout(interactionTimerRef.current);
+      }
+    };
+  }, []);
 
   const userMenuActions = [
     {
@@ -201,7 +225,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           selectedKeys={selectedKeys}
           openKeys={openKeys}
           onSelect={handleMenuSelect}
-          onOpenChange={setOpenKeys}
+          onOpenChange={handleMenuOpenChange}
           inlineCollapsed={collapsed}
         />
       </Sider>
@@ -252,7 +276,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </div>
 
             <Space>
-              {userDisplayName && !isMobile && (
+              {isMounted && userDisplayName && !isMobile && (
                 <Text className="text-white mr-2">{userDisplayName}</Text>
               )}
               <Button
@@ -269,7 +293,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 trigger={['click']}
               >
                 <Button type="text" icon={<UserOutlined />} className="text-white">
-                  {userDisplayName || '用户菜单'}
+                  {isMounted ? (userDisplayName || '用户菜单') : '用户菜单'}
                 </Button>
               </Dropdown>
             </Space>
