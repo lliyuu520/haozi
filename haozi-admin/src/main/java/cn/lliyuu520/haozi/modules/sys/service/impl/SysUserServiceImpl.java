@@ -1,6 +1,7 @@
 package cn.lliyuu520.haozi.modules.sys.service.impl;
 
 import cn.dev33.satoken.secure.SaSecureUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.comparator.CompareUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -47,12 +48,21 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, SysUser> 
     public PageVO<SysUserVO> page(SysUserQuery query) {
         // 查询参数
 
-        // 分页查询
         final IPage<SysUser> page = page(getPage(query), buildWrapper(query));
+        final List<SysUserVO> voList = SysUserConvert.INSTANCE.convertList(page.getRecords());
+        voList.forEach(vo -> {
+            final Long userId = vo.getId();
+            final List<Long> roleIdList = sysUserRoleService.getRoleIdList(userId);
+            vo.setRoleIdList(roleIdList);
+            final List<String> roleNameList = sysUserRoleService.getRoleNameList(userId);
+            if (CollUtil.isNotEmpty(roleNameList)) {
+                vo.setRoleName(String.join(",", roleNameList));
+            } else {
+                vo.setRoleName(null);
+            }
+        });
 
-        // 数据列表
-
-        return PageVO.of(SysUserConvert.INSTANCE.convertList(page.getRecords()), page.getTotal());
+        return PageVO.of(voList, page.getTotal());
     }
 
     /**
@@ -66,6 +76,14 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, SysUser> 
         final String username = query.getUsername();
         if (StrUtil.isNotBlank(username)) {
             queryWrapper.like(SysUser::getUsername, username);
+        }
+        final String phone = query.getPhone();
+        if (StrUtil.isNotBlank(phone)) {
+            queryWrapper.like(SysUser::getPhone, phone);
+        }
+        final Integer status = query.getStatus();
+        if (status != null) {
+            queryWrapper.eq(SysUser::getStatus, status);
         }
         queryWrapper.orderByAsc(SysUser::getId);
         return queryWrapper;
@@ -92,6 +110,9 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, SysUser> 
         final String password = sysUserDTO.getPassword();
         final String shaed256 = SaSecureUtil.sha256(password);
         entity.setPassword(shaed256);
+        if (entity.getStatus() == null) {
+            entity.setStatus(0);
+        }
 
         // 保存用户
         baseMapper.insert(entity);
@@ -126,7 +147,19 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, SysUser> 
             }
         }
         final SysUser sysUser = getById(userId);
-        // 更新用户
+        if (sysUser == null) {
+            throw new BaseException("用户不存在");
+        }
+        sysUser.setUsername(sysUserDTO.getUsername());
+        sysUser.setNickname(sysUserDTO.getNickname());
+        sysUser.setEmail(sysUserDTO.getEmail());
+        sysUser.setPhone(sysUserDTO.getPhone());
+        sysUser.setAvatar(sysUserDTO.getAvatar());
+        sysUser.setStatus(sysUserDTO.getStatus());
+        final String password = sysUserDTO.getPassword();
+        if (StrUtil.isNotBlank(password)) {
+            sysUser.setPassword(SaSecureUtil.sha256(password));
+        }
         updateById(sysUser);
         // 更新用户角色关系
         final List<Long> roleIdList = sysUserDTO.getRoleIdList();

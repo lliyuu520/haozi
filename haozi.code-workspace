@@ -1,98 +1,38 @@
 {
 	"folders": [
 		{
-			"name": "root",
+			"name": "haozi",
 			"path": "."
 		},
 		{
-			"name": "admin",
+			"name": "haozi-admin",
 			"path": "haozi-admin"
 		},
 		{
-			"name": "ui",
+			"name": "haozi-ui-antd",
 			"path": "haozi-ui-antd"
 		}
 	],
-	"settings": {
-		"java.compile.nullAnalysis.mode": "automatic",
-		"java.configuration.updateBuildConfiguration": "automatic",
-		"[java]": {
-			"editor.defaultFormatter": "redhat.java"
-		},
-		"[typescript]": {
-			"editor.defaultFormatter": "esbenp.prettier-vscode"
-		},
-		"[typescriptreact]": {
-			"editor.defaultFormatter": "esbenp.prettier-vscode"
-		},
-		"[javascript]": {
-			"editor.defaultFormatter": "esbenp.prettier-vscode"
-		}
-	},
-	"extensions": {
-		"recommendations": [
-			"vscjava.vscode-java-pack",
-			"esbenp.prettier-vscode",
-			"dbaeumer.vscode-eslint"
-		]
-	},
-	"tasks": {
-		"version": "2.0.0",
-		"tasks": [
+	"launch": {
+		"configurations": [
 			{
-				"label": "backend: build",
-				"type": "shell",
-				"command": "mvn -T 1C -DskipTests install",
-				"options": {
-					"cwd": "${workspaceFolder:backend}"
-				},
-				"group": "build",
-				"problemMatcher": []
+				"type": "java",
+				"name": "启动后端",
+				"request": "launch",
+				"mainClass": "cn.lliyuu520.haozi.HaoziAdminApplication",
+				"projectName": "haozi-admin",
+				"cwd": "${workspaceFolder:haozi-admin}"
 			},
 			{
-				"label": "backend: run",
-				"type": "shell",
-				"command": "mvn spring-boot:run",
-				"options": {
-					"cwd": "${workspaceFolder:backend}"
-				},
-				"group": {
-					"kind": "build",
-					"isDefault": true
-				},
-				"problemMatcher": []
-			},
-			{
-				"label": "backend: test",
-				"type": "shell",
-				"command": "mvn test",
-				"options": {
-					"cwd": "${workspaceFolder:backend}"
-				},
-				"group": "test",
-				"problemMatcher": []
-			},
-			{
-				"label": "frontend: dev",
-				"type": "shell",
-				"command": "npm run dev",
-				"options": {
-					"cwd": "${workspaceFolder:frontend}"
-				},
-				"isBackground": true,
-				"group": "build",
-				"problemMatcher": []
-			},
-			{
-				"label": "frontend: build",
-				"type": "shell",
-				"command": "npm run build",
-				"options": {
-					"cwd": "${workspaceFolder:frontend}"
-				},
-				"group": "build",
-				"problemMatcher": []
+				"type": "node-terminal",
+				"name": "启动前端",
+				"request": "launch",
+				"command": "yarn run dev",
+				"cwd": "${workspaceFolder:haozi-ui-antd}"
 			}
 		]
+	},
+	"settings": {
+		"java.compile.nullAnalysis.mode": "automatic"
 	}
 }

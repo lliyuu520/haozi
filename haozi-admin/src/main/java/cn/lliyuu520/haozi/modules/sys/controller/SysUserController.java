@@ -146,7 +146,7 @@ public class SysUserController {
      */
     @DeleteMapping
     @SaCheckPermission("sys:user:delete")
-    public Result<String> delete(final Long id) {
+    public Result<String> delete(@RequestParam("id") final Long id) {
         final Long userId = SysUserUtil.getUserInfo().getId();
         if (ObjUtil.equal(userId, id)) {
             throw new BaseException("不能删除当前用户");

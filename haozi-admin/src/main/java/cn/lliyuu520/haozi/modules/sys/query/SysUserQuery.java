@@ -18,5 +18,15 @@ public class SysUserQuery extends BaseQuery {
      */
     private String username;
 
+    /**
+     * 手机号
+     */
+    private String phone;
+
+    /**
+     * 状态
+     */
+    private Integer status;
+
 
 }

@@ -8,7 +8,6 @@ import {
   Form,
   Input,
   Modal,
-  Popconfirm,
   Select,
   Space,
   Table,
@@ -16,6 +15,7 @@ import {
   Tooltip,
   Typography,
   message,
+  Spin,
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
@@ -28,8 +28,9 @@ import {
   updateUser,
   createUser,
   getUserPage,
-  batchDeleteUsers,
+  getUserDetail,
 } from '@/services/user';
+import { getRoleList, RoleVO } from '@/services/role';
 
 const { Text } = Typography;
 
@@ -39,41 +40,61 @@ const STATUS_TAG: Record<number, { label: string; color: 'success' | 'error' | '
   2: { label: '锁定', color: 'warning' },
 };
 
+interface UserFormValues {
+  username: string;
+  nickname: string;
+  email?: string;
+  phone?: string;
+  password?: string;
+  roleId?: number;
+  status?: number;
+}
+
 export default function UserManagementPage() {
   const [filterForm] = Form.useForm<UserQuery>();
-  const [form] = Form.useForm<UserCreateParams>();
+  const [form] = Form.useForm<UserFormValues>();
   const [dataSource, setDataSource] = useState<UserVO[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [searchParams, setSearchParams] = useState<UserQuery>({});
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingUser, setEditingUser] = useState<UserVO | null>(null);
+  const [editingUserId, setEditingUserId] = useState<number | null>(null);
+  const [roleOptions, setRoleOptions] = useState<RoleVO[]>([]);
+
+  const loadRoles = useCallback(async () => {
+    try {
+      const response = await getRoleList();
+      setRoleOptions(response.data?.data ?? []);
+    } catch (error) {
+      console.error(error);
+      message.error('加载角色列表失败，请稍后重试');
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadRoles();
+  }, [loadRoles]);
 
   const loadData = useCallback(async () => {
-    setLoading(true);
+    setTableLoading(true);
     try {
       const response = await getUserPage({
         ...searchParams,
-        current,
-        size: pageSize,
+        page: current,
+        limit: pageSize,
       });
       const pageData = response.data?.data;
-      setDataSource(pageData?.records ?? []);
+      setDataSource(pageData?.list ?? []);
       setTotal(pageData?.total ?? 0);
-      if (pageData?.current) {
-        setCurrent(pageData.current);
-      }
-      if (pageData?.size) {
-        setPageSize(pageData.size);
-      }
-      setSelectedRowKeys([]);
     } catch (error) {
+      console.error(error);
       message.error('加载用户数据失败，请稍后重试');
     } finally {
-      setLoading(false);
+      setTableLoading(false);
     }
   }, [current, pageSize, searchParams]);
 
@@ -102,168 +123,187 @@ export default function UserManagementPage() {
   };
 
   const handleAdd = () => {
-    setEditingUser(null);
+    setEditingUserId(null);
+    setIsModalVisible(true);
     form.resetFields();
-    setIsModalVisible(true);
+    form.setFieldsValue({ status: 0 });
   };
 
-  const handleEdit = (record: UserVO) => {
-    setEditingUser(record);
-    form.setFieldsValue({
-      username: record.username,
-      nickname: record.nickname,
-      email: record.email,
-      phone: record.phone,
-      roleId: record.roleId,
-      status: record.status ?? 0,
+  const handleEdit = useCallback(async (record: UserVO) => {
+    setDetailLoading(true);
+    try {
+      const response = await getUserDetail(record.id);
+      const detail = response.data?.data;
+      if (!detail) {
+        throw new Error('用户详情为空');
+      }
+      setEditingUserId(detail.id);
+      form.setFieldsValue({
+        username: detail.username,
+        nickname: detail.nickname,
+        email: detail.email,
+        phone: detail.phone,
+        status: detail.status ?? 0,
+        roleId: detail.roleIdList?.[0],
+      });
+      setIsModalVisible(true);
+    } catch (error) {
+      console.error(error);
+      message.error('获取用户详情失败，请稍后再试');
+    } finally {
+      setDetailLoading(false);
+    }
+  }, []);
+
+  const handleDelete = useCallback((userId: number) => {
+    Modal.confirm({
+      title: '删除用户',
+      content: '确认删除该用户吗？该操作无法恢复。',
+      okText: '删除',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          await deleteUser(userId);
+          message.success('删除成功');
+          void loadData();
+        } catch (error) {
+          console.error(error);
+          message.error('删除失败，请稍后再试');
+        }
+      },
     });
-    setIsModalVisible(true);
-  };
+  }, [loadData]);
 
-  const handleDelete = async (userId: number) => {
+  const handleSubmit = async (values: UserFormValues) => {
+    const roleIdList = values.roleId ? [values.roleId] : [];
+    const commonPayload = {
+      nickname: values.nickname,
+      email: values.email,
+      phone: values.phone,
+      status: values.status ?? 0,
+      roleIdList,
+      avatar: undefined,
+    };
+    setSaving(true);
     try {
-      await deleteUser(userId);
-      message.success('删除成功');
-      void loadData();
-    } catch (error) {
-      message.error('删除失败，请稍后再试');
-    }
-  };
-
-  const selectedIds = useMemo(() => {
-    return dataSource
-      .filter((item) => selectedRowKeys.includes(item.id))
-      .map((item) => item.id);
-  }, [dataSource, selectedRowKeys]);
-
-  const handleBatchDelete = async () => {
-    if (selectedIds.length === 0) {
-      message.warning('请选择需要删除的用户');
-      return;
-    }
-    try {
-      await batchDeleteUsers(selectedIds as number[]);
-      message.success(`成功删除 ${selectedIds.length} 条记录`);
-      void loadData();
-    } catch (error) {
-      message.error('批量删除失败，请稍后再试');
-    }
-  };
-
-  const handleSubmit = async (values: UserCreateParams) => {
-    setLoading(true);
-    try {
-      if (editingUser) {
-        const updateParams: UserUpdateParams = {
-          id: editingUser.id,
-          nickname: values.nickname,
-          email: values.email,
-          phone: values.phone,
-          roleId: values.roleId,
-          status: values.status,
+      if (editingUserId) {
+        const params: UserUpdateParams = {
+          id: editingUserId,
+          username: values.username,
+          ...commonPayload,
         };
-        await updateUser(updateParams);
+        if (values.password) {
+          params.password = values.password;
+        }
+        await updateUser(params);
         message.success('更新成功');
       } else {
-        await createUser({
-          ...values,
-          password: values.password ?? '',
-        });
+        if (!values.password) {
+          message.error('请输入密码');
+          setSaving(false);
+          return;
+        }
+        const params: UserCreateParams = {
+          username: values.username,
+          password: values.password,
+          ...commonPayload,
+        };
+        await createUser(params);
         message.success('创建成功');
       }
       setIsModalVisible(false);
-      setEditingUser(null);
+      setEditingUserId(null);
       form.resetFields();
       void loadData();
     } catch (error) {
-      message.error(editingUser ? '更新失败，请稍后再试' : '创建失败，请稍后再试');
+      console.error(error);
+      message.error(editingUserId ? '更新失败，请稍后再试' : '创建失败，请稍后再试');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
-  const columns: ColumnsType<UserVO> = [
-    {
-      title: '头像',
-      dataIndex: 'avatar',
-      key: 'avatar',
-      width: 80,
-      render: (avatar: string | undefined) => (
-        <Avatar src={avatar} icon={<UserOutlined />} />
-      ),
-    },
-    {
-      title: '用户名',
-      dataIndex: 'username',
-      key: 'username',
-      width: 140,
-      render: (username: string) => <Text strong>{username}</Text>,
-    },
-    {
-      title: '昵称',
-      dataIndex: 'nickname',
-      key: 'nickname',
-      width: 140,
-    },
-    {
-      title: '邮箱',
-      dataIndex: 'email',
-      key: 'email',
-      width: 200,
-    },
-    {
-      title: '手机号',
-      dataIndex: 'phone',
-      key: 'phone',
-      width: 160,
-    },
-    {
-      title: '角色',
-      dataIndex: 'roleName',
-      key: 'roleName',
-      width: 140,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      width: 120,
-      render: (status: number = 0) => {
-        const meta = STATUS_TAG[status] ?? STATUS_TAG[0];
-        return <Tag color={meta.color}>{meta.label}</Tag>;
+  const columns: ColumnsType<UserVO> = useMemo(
+    () => [
+      {
+        title: '头像',
+        dataIndex: 'avatar',
+        key: 'avatar',
+        width: 80,
+        render: (avatar: string | undefined) => <Avatar src={avatar} icon={<UserOutlined />} />,
       },
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      key: 'createTime',
-      width: 200,
-    },
-    {
-      title: '操作',
-      key: 'action',
-      fixed: 'right',
-      width: 160,
-      render: (_, record) => (
-        <Space size="small">
-          <Tooltip title="编辑">
-            <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
-          </Tooltip>
-          <Popconfirm
-            title="确认删除该用户吗？"
-            onConfirm={() => handleDelete(record.id)}
-          >
-            <Button type="link" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
-  };
+      {
+        title: '用户名',
+        dataIndex: 'username',
+        key: 'username',
+        width: 140,
+        render: (username: string) => <Text strong>{username}</Text>,
+      },
+      {
+        title: '昵称',
+        dataIndex: 'nickname',
+        key: 'nickname',
+        width: 140,
+        render: (nickname?: string) => nickname || '-',
+      },
+      {
+        title: '邮箱',
+        dataIndex: 'email',
+        key: 'email',
+        width: 200,
+        render: (email?: string) => email || '-',
+      },
+      {
+        title: '手机号',
+        dataIndex: 'phone',
+        key: 'phone',
+        width: 160,
+        render: (phone?: string) => phone || '-',
+      },
+      {
+        title: '角色',
+        dataIndex: 'roleName',
+        key: 'roleName',
+        width: 160,
+        render: (roleName?: string) => roleName || '-',
+      },
+      {
+        title: '状态',
+        dataIndex: 'status',
+        key: 'status',
+        width: 120,
+        render: (status: number = 0) => {
+          const meta = STATUS_TAG[status] ?? STATUS_TAG[0];
+          return <Tag color={meta.color}>{meta.label}</Tag>;
+        },
+      },
+      {
+        title: '创建时间',
+        dataIndex: 'createTime',
+        key: 'createTime',
+        width: 200,
+        render: (time?: string) => time || '-',
+      },
+      {
+        title: '操作',
+        key: 'action',
+        fixed: 'right',
+        width: 160,
+        render: (_, record) => (
+          <Space size="small">
+            <Tooltip title="编辑">
+              <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
+            </Tooltip>
+            <Tooltip title="删除">
+              <Button type="link" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+            </Tooltip>
+          </Space>
+        ),
+      },
+    ],
+    [handleEdit, handleDelete],
+  );
 
   return (
     <div className="page-container">
@@ -273,13 +313,6 @@ export default function UserManagementPage() {
           <Space>
             <Button onClick={handleResetFilters}>重置筛选</Button>
             <Button onClick={() => void loadData()}>刷新</Button>
-            <Button
-              danger
-              disabled={selectedIds.length === 0}
-              onClick={handleBatchDelete}
-            >
-              批量删除
-            </Button>
             <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
               新建用户
             </Button>
@@ -307,7 +340,9 @@ export default function UserManagementPage() {
           </Form.Item>
           <Form.Item>
             <Space>
-              <Button type="primary" htmlType="submit">查询</Button>
+              <Button type="primary" htmlType="submit">
+                查询
+              </Button>
               <Button onClick={handleResetFilters}>清空</Button>
             </Space>
           </Form.Item>
@@ -315,16 +350,15 @@ export default function UserManagementPage() {
 
         <Table<UserVO>
           rowKey="id"
-          loading={loading}
+          loading={tableLoading}
           dataSource={dataSource}
           columns={columns}
-          rowSelection={rowSelection}
           pagination={{
             current,
             pageSize,
             total,
             showSizeChanger: true,
-            showTotal: (tot) => `共 ${tot} 条`,
+            showTotal: tot => `共 ${tot} 条`,
           }}
           scroll={{ x: 960 }}
           onChange={handleTableChange}
@@ -332,92 +366,90 @@ export default function UserManagementPage() {
       </Card>
 
       <Modal
-        title={editingUser ? '编辑用户' : '新建用户'}
+        title={editingUserId ? '编辑用户' : '新建用户'}
         open={isModalVisible}
         onCancel={() => {
           setIsModalVisible(false);
-          setEditingUser(null);
+          setEditingUserId(null);
           form.resetFields();
         }}
-        footer={[
-          <Button key="cancel" onClick={() => setIsModalVisible(false)}>
-            取消
-          </Button>,
-          <Button key="submit" type="primary" onClick={() => form.submit()} loading={loading}>
-            {editingUser ? '保存' : '创建'}
-          </Button>,
-        ]}
+        footer={null}
         destroyOnClose
         maskClosable={false}
       >
-        <Form<UserCreateParams>
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          initialValues={{ status: 0 }}
-        >
-          <Form.Item
-            name="username"
-            label="用户名"
-            rules={[{ required: !editingUser, message: '请输入用户名' }]}
+        <Spin spinning={detailLoading && !!editingUserId}>
+          <Form<UserFormValues>
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            initialValues={{ status: 0 }}
           >
-            <Input placeholder="请输入用户名" disabled={Boolean(editingUser)} />
-          </Form.Item>
-
-          <Form.Item
-            name="nickname"
-            label="昵称"
-            rules={[{ required: true, message: '请输入昵称' }]}
-          >
-            <Input placeholder="请输入昵称" />
-          </Form.Item>
-
-          <Form.Item
-            name="email"
-            label="邮箱"
-            rules={[{ type: 'email', message: '请输入有效的邮箱地址' }]}
-          >
-            <Input placeholder="请输入邮箱" />
-          </Form.Item>
-
-          <Form.Item
-            name="phone"
-            label="手机号"
-            rules={[{ required: true, message: '请输入手机号' }]}
-          >
-            <Input placeholder="请输入手机号" />
-          </Form.Item>
-
-          {!editingUser && (
             <Form.Item
-              name="password"
-              label="密码"
-              rules={[{ required: true, message: '请输入密码' }]}
+              name="username"
+              label="用户名"
+              rules={[{ required: true, message: '请输入用户名' }]}
             >
-              <Input.Password placeholder="请输入密码" />
+              <Input placeholder="请输入用户名" disabled={Boolean(editingUserId)} />
             </Form.Item>
-          )}
 
-          <Form.Item
-            name="roleId"
-            label="角色"
-            rules={[{ required: true, message: '请选择角色' }]}
-          >
-            <Select placeholder="请选择角色">
-              <Select.Option value={1}>管理员</Select.Option>
-              <Select.Option value={2}>普通用户</Select.Option>
-              <Select.Option value={3}>访客</Select.Option>
-            </Select>
-          </Form.Item>
+            <Form.Item
+              name="nickname"
+              label="昵称"
+              rules={[{ required: true, message: '请输入昵称' }]}
+            >
+              <Input placeholder="请输入昵称" />
+            </Form.Item>
 
-          <Form.Item name="status" label="状态">
-            <Select>
-              <Select.Option value={0}>启用</Select.Option>
-              <Select.Option value={1}>禁用</Select.Option>
-              <Select.Option value={2}>锁定</Select.Option>
-            </Select>
-          </Form.Item>
-        </Form>
+            <Form.Item name="email" label="邮箱" rules={[{ type: 'email', message: '请输入有效邮箱' }]}>
+              <Input placeholder="请输入邮箱" />
+            </Form.Item>
+
+            <Form.Item name="phone" label="手机号">
+              <Input placeholder="请输入手机号" />
+            </Form.Item>
+
+            {!editingUserId && (
+              <Form.Item
+                name="password"
+                label="密码"
+                rules={[{ required: true, message: '请输入密码' }]}
+              >
+                <Input.Password placeholder="请输入密码" />
+              </Form.Item>
+            )}
+
+            <Form.Item
+              name="roleId"
+              label="角色"
+              rules={[{ required: true, message: '请选择角色' }]}
+            >
+              <Select placeholder="请选择角色" loading={roleOptions.length === 0}>
+                {roleOptions.map(role => (
+                  <Select.Option key={role.id} value={role.id}>
+                    {role.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item name="status" label="状态">
+              <Select>
+                <Select.Option value={0}>启用</Select.Option>
+                <Select.Option value={1}>禁用</Select.Option>
+                <Select.Option value={2}>锁定</Select.Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item>
+              <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button onClick={() => setIsModalVisible(false)}>取消</Button>
+                <Button type="primary" loading={saving} onClick={() => form.submit()}>
+                  {editingUserId ? '保存' : '创建'}
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Spin>
       </Modal>
     </div>
   );

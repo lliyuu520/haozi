@@ -115,7 +115,7 @@ public class SysRoleController {
      */
     @DeleteMapping
     @SaCheckPermission("sys:role:delete")
-    public Result<String> delete(@RequestBody final Long id) {
+    public Result<String> delete(@RequestParam("id") final Long id) {
         sysRoleService.deleteOne(id);
 
         return Result.ok();

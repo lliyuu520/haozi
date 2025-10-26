@@ -36,11 +36,12 @@ public class SysUserRoleServiceImpl extends BaseServiceImpl<SysUserRoleMapper, S
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdate(final Long userId, final List<Long> roleIdList) {
+        final List<Long> targetRoleIdList = CollUtil.isEmpty(roleIdList) ? CollUtil.newArrayList() : roleIdList;
         // 数据库角色ID列表
         final List<Long> dbRoleIdList = this.getRoleIdList(userId);
 
         // 需要新增的角色ID
-        final Collection<Long> insertRoleIdList = CollUtil.subtract(roleIdList, dbRoleIdList);
+        final Collection<Long> insertRoleIdList = CollUtil.subtract(targetRoleIdList, dbRoleIdList);
         if (CollUtil.isNotEmpty(insertRoleIdList)) {
             final List<SysUserRole> roleList = insertRoleIdList.stream().map(roleId -> {
                 final SysUserRole entity = new SysUserRole();
@@ -54,7 +55,7 @@ public class SysUserRoleServiceImpl extends BaseServiceImpl<SysUserRoleMapper, S
         }
 
         // 需要删除的角色ID
-        final Collection<Long> deleteRoleIdList = CollUtil.subtract(dbRoleIdList, roleIdList);
+        final Collection<Long> deleteRoleIdList = CollUtil.subtract(dbRoleIdList, targetRoleIdList);
         if (CollUtil.isNotEmpty(deleteRoleIdList)) {
             final LambdaQueryWrapper<SysUserRole> queryWrapper = new LambdaQueryWrapper<>();
             this.remove(queryWrapper.eq(SysUserRole::getUserId, userId).in(SysUserRole::getRoleId, deleteRoleIdList));
@@ -70,6 +71,9 @@ public class SysUserRoleServiceImpl extends BaseServiceImpl<SysUserRoleMapper, S
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveUserList(final Long roleId, final List<Long> userIdList) {
+        if (CollUtil.isEmpty(userIdList)) {
+            return;
+        }
         final List<SysUserRole> list = userIdList.stream().map(userId -> {
             final SysUserRole entity = new SysUserRole();
             entity.setUserId(userId);
@@ -98,6 +102,9 @@ public class SysUserRoleServiceImpl extends BaseServiceImpl<SysUserRoleMapper, S
 
     @Override
     public void deleteByUserId(final Long roleId, final List<Long> userIdList) {
+        if (CollUtil.isEmpty(userIdList)) {
+            return;
+        }
         final LambdaQueryWrapper<SysUserRole> queryWrapper = new LambdaQueryWrapper<>();
         this.remove(queryWrapper.eq(SysUserRole::getRoleId, roleId).in(SysUserRole::getUserId, userIdList));
     }
@@ -117,7 +124,7 @@ public class SysUserRoleServiceImpl extends BaseServiceImpl<SysUserRoleMapper, S
     public List<String> getRoleNameList(Long userId) {
         List<Long> roleIdList = baseMapper.getRoleIdList(userId);
         if (CollUtil.isNotEmpty(roleIdList)) {
-            return sysRoleMapper.selectByIds(roleIdList).stream().map(SysRole::getName).collect(Collectors.toList());
+            return sysRoleMapper.selectBatchIds(roleIdList).stream().map(SysRole::getName).collect(Collectors.toList());
         }
         return CollUtil.newArrayList();
     }

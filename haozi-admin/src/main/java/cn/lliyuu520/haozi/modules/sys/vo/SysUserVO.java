@@ -23,5 +23,10 @@ public class SysUserVO extends SysUser {
      */
     private List<Long> roleIdList;
 
+    /**
+     * 角色名称（逗号分隔）
+     */
+    private String roleName;
+
 
 }
