@@ -1,4 +1,5 @@
 import { request } from '@/lib/api';
+import { withErrorHandling } from '@/lib/apiUtils';
 
 // 用户查询参数
 export interface UserQuery {
@@ -11,7 +12,7 @@ export interface UserQuery {
 
 // 用户响应数据
 export interface UserVO {
-  id: number;
+  id: string;              // 改为字符串类型，避免精度丢失
   username: string;
   nickname?: string;
   email?: string;
@@ -20,7 +21,7 @@ export interface UserVO {
   status?: number;
   createTime?: string;
   roleName?: string;
-  roleIdList?: number[];
+  roleIdList?: string[];    // 也改为字符串类型
 }
 
 // 用户创建参数
@@ -31,18 +32,18 @@ export interface UserCreateParams {
   phone?: string;
   password: string;
   status?: number;
-  roleIdList: number[];
+  roleIdList: string[];    // 改为字符串类型
   avatar?: string;
 }
 
 // 用户更新参数
 export interface UserUpdateParams {
-  id: number;
+  id: string;              // 改为字符串类型
   nickname?: string;
   email?: string;
   phone?: string;
   status?: number;
-  roleIdList?: number[];
+  roleIdList?: string[];    // 改为字符串类型
   password?: string;
   avatar?: string;
   username?: string;
@@ -50,25 +51,40 @@ export interface UserUpdateParams {
 
 // 分页查询用户
 export const getUserPage = (params: UserQuery) => {
-  return request.get<{ list: UserVO[]; total: number }>('/sys/user/page', params);
+  return withErrorHandling(
+    request.get<{ list: UserVO[]; total: number }>('/sys/user/page', params),
+    '获取用户列表'
+  );
 };
 
 // 获取用户详情
-export const getUserDetail = (id: number) => {
-  return request.get<UserVO>(`/sys/user/${id}`);
+export const getUserDetail = (id: string) => {
+  return withErrorHandling(
+    request.get<UserVO>(`/sys/user/${id}`),
+    '获取用户详情'
+  );
 };
 
 // 创建用户
 export const createUser = (params: UserCreateParams) => {
-  return request.post<boolean>('/sys/user', params);
+  return withErrorHandling(
+    request.post<boolean>('/sys/user', params),
+    '创建用户'
+  );
 };
 
 // 更新用户
 export const updateUser = (params: UserUpdateParams) => {
-  return request.put<boolean>('/sys/user', params);
+  return withErrorHandling(
+    request.put<boolean>('/sys/user', params),
+    '更新用户'
+  );
 };
 
 // 删除用户
-export const deleteUser = (id: number) => {
-  return request.delete<boolean>('/sys/user', { id });
+export const deleteUser = (id: string) => {
+  return withErrorHandling(
+    request.delete<boolean>('/sys/user', { id }),
+    '删除用户'
+  );
 };

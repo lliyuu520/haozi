@@ -16,9 +16,11 @@ import { useAuthStore } from '@/stores/authStore';
 import { useAppStore } from '@/stores/appStore';
 import { useMenuStore } from '@/stores/menuStore';
 import { useIsMounted } from '@/hooks/useIsMounted';
+import { RouteHelper } from '@/utils/routeHelper';
 import type { MenuItem } from '@/types/menu';
 import type { MenuProps } from 'antd';
 import MenuTree from '@/components/ui/MenuTree';
+import { ReactRouteModal } from '@/components/ui/ReactRouteModal';
 import './AdminLayout.css';
 
 const { Header, Sider, Content } = Layout;
@@ -59,6 +61,11 @@ const normalizeRoutePath = (rawPath?: string | null): string | null => {
     return null;
   }
 
+  // 如果是React风格URL，直接处理
+  if (RouteHelper.isPageRoute(trimmed)) {
+    return RouteHelper.generateRoute(trimmed);
+  }
+
   const prefixed = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
   return backendToNextPathMap[prefixed] ?? prefixed;
 };
@@ -71,12 +78,38 @@ const resolveMenuRoutePath = (menu?: MenuItem | null): string | null => {
   const menuWithUrl = menu as MenuItem & { url?: string };
   let routePath = menu.path || menuWithUrl.url;
 
+  // 优先使用URL字段，支持React风格
+  if (menuWithUrl.url) {
+    if (RouteHelper.isPageRoute(menuWithUrl.url)) {
+      return RouteHelper.generateRoute(menuWithUrl.url);
+    }
+  }
+
   if (!routePath && menu.name) {
     routePath = nameToPathMap[menu.name] || `/system/${menu.name.toLowerCase().replace(/\s+/g, '')}`;
   }
 
   return normalizeRoutePath(routePath);
 };
+
+// 全局模态框配置
+const GLOBAL_MODAL_CONFIGS = [
+  {
+    basePath: 'system/menu',
+    actions: ['create', 'edit', 'view'],
+    defaultConfig: { width: 680 }
+  },
+  {
+    basePath: 'system/user',
+    actions: ['create', 'edit', 'view'],
+    defaultConfig: { width: 800 }
+  },
+  {
+    basePath: 'system/role',
+    actions: ['create', 'edit', 'view'],
+    defaultConfig: { width: 800 }
+  }
+] as const;
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -401,6 +434,28 @@ const handleMenuOpenChange: MenuProps['onOpenChange'] = (keys) => {
           <div className="page-container">{children}</div>
         </Content>
       </Layout>
+
+      {/* 全局路由模态框支持 */}
+      {GLOBAL_MODAL_CONFIGS.map((config, index) => (
+        <ReactRouteModal
+          key={config.basePath}
+          basePath={config.basePath}
+          actions={config.actions}
+          defaultConfig={{
+            width: config.defaultConfig.width,
+            closable: true,
+            maskClosable: false,
+            destroyOnClose: true
+          }}
+        >
+          {/* 这里使用渲染模式，具体内容由对应的模态框页面处理 */}
+          {(params, close) => {
+            // 这里不需要渲染内容，因为具体的模态框页面会处理
+            // 这只是为了让路由匹配时能够显示模态框
+            return null;
+          }}
+        </ReactRouteModal>
+      ))}
 
       {isMobile && (
         <div

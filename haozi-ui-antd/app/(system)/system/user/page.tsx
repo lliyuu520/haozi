@@ -15,22 +15,17 @@ import {
   Tooltip,
   Typography,
   message,
-  Spin,
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
 import {
   UserVO,
   UserQuery,
-  UserCreateParams,
-  UserUpdateParams,
   deleteUser,
-  updateUser,
-  createUser,
   getUserPage,
-  getUserDetail,
 } from '@/services/user';
-import { getRoleList, RoleVO } from '@/services/role';
+import { useSimpleRouteModal } from '@/hooks/useRouteModalV2';
 
 const { Text } = Typography;
 
@@ -40,45 +35,19 @@ const STATUS_TAG: Record<number, { label: string; color: 'success' | 'error' | '
   2: { label: '锁定', color: 'warning' },
 };
 
-interface UserFormValues {
-  username: string;
-  nickname: string;
-  email?: string;
-  phone?: string;
-  password?: string;
-  roleId?: number;
-  status?: number;
-}
 
 export default function UserManagementPage() {
+  const router = useRouter();
+  const routeModal = useSimpleRouteModal('system/user', '用户');
   const [filterForm] = Form.useForm<UserQuery>();
-  const [form] = Form.useForm<UserFormValues>();
   const [dataSource, setDataSource] = useState<UserVO[]>([]);
   const [tableLoading, setTableLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
   const [searchParams, setSearchParams] = useState<UserQuery>({});
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingUserId, setEditingUserId] = useState<number | null>(null);
-  const [roleOptions, setRoleOptions] = useState<RoleVO[]>([]);
 
-  const loadRoles = useCallback(async () => {
-    try {
-      const response = await getRoleList();
-      setRoleOptions(response.data?.data ?? []);
-    } catch (error) {
-      console.error(error);
-      message.error('加载角色列表失败，请稍后重试');
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadRoles();
-  }, [loadRoles]);
-
+  
   const loadData = useCallback(async () => {
     setTableLoading(true);
     try {
@@ -123,37 +92,19 @@ export default function UserManagementPage() {
   };
 
   const handleAdd = () => {
-    setEditingUserId(null);
-    setIsModalVisible(true);
-    form.resetFields();
-    form.setFieldsValue({ status: 0 });
+    // 使用路由模态框Hook打开创建弹窗
+    routeModal.openModal('create');
   };
 
-  const handleEdit = useCallback(async (record: UserVO) => {
-    setDetailLoading(true);
-    try {
-      const response = await getUserDetail(record.id);
-      const detail = response.data?.data;
-      if (!detail) {
-        throw new Error('用户详情为空');
-      }
-      setEditingUserId(detail.id);
-      form.setFieldsValue({
-        username: detail.username,
-        nickname: detail.nickname,
-        email: detail.email,
-        phone: detail.phone,
-        status: detail.status ?? 0,
-        roleId: detail.roleIdList?.[0],
-      });
-      setIsModalVisible(true);
-    } catch (error) {
-      console.error(error);
-      message.error('获取用户详情失败，请稍后再试');
-    } finally {
-      setDetailLoading(false);
-    }
-  }, []);
+  const handleEdit = useCallback((record: UserVO) => {
+    // 使用路由模态框Hook打开编辑弹窗
+    routeModal.openModal('edit', { id: record.id.toString() });
+  }, [routeModal]);
+
+  const handleView = useCallback((record: UserVO) => {
+    // 使用路由模态框Hook打开查看弹窗
+    routeModal.openModal('view', { id: record.id.toString() });
+  }, [routeModal]);
 
   const handleDelete = useCallback((userId: number) => {
     Modal.confirm({
@@ -175,55 +126,7 @@ export default function UserManagementPage() {
     });
   }, [loadData]);
 
-  const handleSubmit = async (values: UserFormValues) => {
-    const roleIdList = values.roleId ? [values.roleId] : [];
-    const commonPayload = {
-      nickname: values.nickname,
-      email: values.email,
-      phone: values.phone,
-      status: values.status ?? 0,
-      roleIdList,
-      avatar: undefined,
-    };
-    setSaving(true);
-    try {
-      if (editingUserId) {
-        const params: UserUpdateParams = {
-          id: editingUserId,
-          username: values.username,
-          ...commonPayload,
-        };
-        if (values.password) {
-          params.password = values.password;
-        }
-        await updateUser(params);
-        message.success('更新成功');
-      } else {
-        if (!values.password) {
-          message.error('请输入密码');
-          setSaving(false);
-          return;
-        }
-        const params: UserCreateParams = {
-          username: values.username,
-          password: values.password,
-          ...commonPayload,
-        };
-        await createUser(params);
-        message.success('创建成功');
-      }
-      setIsModalVisible(false);
-      setEditingUserId(null);
-      form.resetFields();
-      void loadData();
-    } catch (error) {
-      console.error(error);
-      message.error(editingUserId ? '更新失败，请稍后再试' : '创建失败，请稍后再试');
-    } finally {
-      setSaving(false);
-    }
-  };
-
+  
   const columns: ColumnsType<UserVO> = useMemo(
     () => [
       {
@@ -364,93 +267,6 @@ export default function UserManagementPage() {
           onChange={handleTableChange}
         />
       </Card>
-
-      <Modal
-        title={editingUserId ? '编辑用户' : '新建用户'}
-        open={isModalVisible}
-        onCancel={() => {
-          setIsModalVisible(false);
-          setEditingUserId(null);
-          form.resetFields();
-        }}
-        footer={null}
-        destroyOnClose
-        maskClosable={false}
-      >
-        <Spin spinning={detailLoading && !!editingUserId}>
-          <Form<UserFormValues>
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-            initialValues={{ status: 0 }}
-          >
-            <Form.Item
-              name="username"
-              label="用户名"
-              rules={[{ required: true, message: '请输入用户名' }]}
-            >
-              <Input placeholder="请输入用户名" disabled={Boolean(editingUserId)} />
-            </Form.Item>
-
-            <Form.Item
-              name="nickname"
-              label="昵称"
-              rules={[{ required: true, message: '请输入昵称' }]}
-            >
-              <Input placeholder="请输入昵称" />
-            </Form.Item>
-
-            <Form.Item name="email" label="邮箱" rules={[{ type: 'email', message: '请输入有效邮箱' }]}>
-              <Input placeholder="请输入邮箱" />
-            </Form.Item>
-
-            <Form.Item name="phone" label="手机号">
-              <Input placeholder="请输入手机号" />
-            </Form.Item>
-
-            {!editingUserId && (
-              <Form.Item
-                name="password"
-                label="密码"
-                rules={[{ required: true, message: '请输入密码' }]}
-              >
-                <Input.Password placeholder="请输入密码" />
-              </Form.Item>
-            )}
-
-            <Form.Item
-              name="roleId"
-              label="角色"
-              rules={[{ required: true, message: '请选择角色' }]}
-            >
-              <Select placeholder="请选择角色" loading={roleOptions.length === 0}>
-                {roleOptions.map(role => (
-                  <Select.Option key={role.id} value={role.id}>
-                    {role.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item name="status" label="状态">
-              <Select>
-                <Select.Option value={0}>启用</Select.Option>
-                <Select.Option value={1}>禁用</Select.Option>
-                <Select.Option value={2}>锁定</Select.Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item>
-              <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button onClick={() => setIsModalVisible(false)}>取消</Button>
-                <Button type="primary" loading={saving} onClick={() => form.submit()}>
-                  {editingUserId ? '保存' : '创建'}
-                </Button>
-              </Space>
-            </Form.Item>
-          </Form>
-        </Spin>
-      </Modal>
     </div>
   );
 }

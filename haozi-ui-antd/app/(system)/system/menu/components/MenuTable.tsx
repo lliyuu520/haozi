@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { Button, Space, Table, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { EditOutlined, DeleteOutlined, TagOutlined, MenuOutlined, ApiOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, EyeOutlined, TagOutlined, MenuOutlined, ApiOutlined } from '@ant-design/icons';
 import { MenuTreeNode, MenuType, OpenStyle } from '@/services/menu';
 import { getMenuIcon } from '@/constants/menuIcons';
 
@@ -42,6 +42,7 @@ interface MenuTableProps {
   dataSource: MenuTreeNode[];
   loading?: boolean;
   onEdit: (record: MenuTreeNode) => void;
+  onView: (record: MenuTreeNode) => void;
   onDelete: (record: MenuTreeNode) => void;
 }
 
@@ -50,7 +51,13 @@ type MenuTreeRow = MenuTreeNode & {
   children?: MenuTreeRow[];
 };
 
-export function MenuTable({ dataSource, loading = false, onEdit, onDelete }: MenuTableProps) {
+export function MenuTable({
+  dataSource,
+  loading = false,
+  onEdit,
+  onView,
+  onDelete
+}: MenuTableProps) {
   // 保留树结构，附加 level 信息，满足折叠展示需求
   const treeData = useMemo(() => {
     const assignLevel = (items: MenuTreeNode[], level = 0): MenuTreeRow[] =>
@@ -76,7 +83,7 @@ export function MenuTable({ dataSource, loading = false, onEdit, onDelete }: Men
           <div style={{ paddingLeft: `${record.level * 24}px` }}>
             <Space>
               {menuIcon}
-              <Tag color={config.color} size="small">
+              <Tag color={config.color}>
                 {config.label}
               </Tag>
               <span style={{ fontWeight: record.level === 0 ? 'bold' : 'normal' }}>{name}</span>
@@ -135,9 +142,12 @@ export function MenuTable({ dataSource, loading = false, onEdit, onDelete }: Men
       title: '操作',
       key: 'action',
       fixed: 'right',
-      width: 120,
+      width: 160,
       render: (_, record) => (
         <Space size="small">
+          <Tooltip title="查看">
+            <Button type="link" size="small" icon={<EyeOutlined />} onClick={() => onView(record)} />
+          </Tooltip>
           <Tooltip title="编辑">
             <Button type="link" size="small" icon={<EditOutlined />} onClick={() => onEdit(record)} />
           </Tooltip>
@@ -162,7 +172,7 @@ export function MenuTable({ dataSource, loading = false, onEdit, onDelete }: Men
       dataSource={treeData}
       columns={columns}
       pagination={false}
-      scroll={{ x: 900 }}
+      scroll={{ x: 940 }}
       size="small"
       expandable={{
         defaultExpandedRowKeys: [],
@@ -176,3 +186,5 @@ export function MenuTable({ dataSource, loading = false, onEdit, onDelete }: Men
     />
   );
 }
+
+export default MenuTable;

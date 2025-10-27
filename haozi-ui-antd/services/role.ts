@@ -1,4 +1,5 @@
 import { request } from '@/lib/api';
+import { withErrorHandling } from '@/lib/apiUtils';
 
 export interface RoleQuery {
   page?: number;
@@ -7,43 +8,61 @@ export interface RoleQuery {
 }
 
 export interface RoleVO {
-  id: number;
+  id: string;              // 改为字符串类型，避免精度丢失
   name: string;
   remark?: string;
-  menuIdList?: number[];
+  menuIdList?: string[];    // 改为字符串类型
   createTime?: string;
 }
 
 export interface RoleCreateParams {
   name: string;
   remark?: string;
-  menuIdList?: number[];
+  menuIdList?: string[];    // 改为字符串类型
 }
 
 export interface RoleUpdateParams extends RoleCreateParams {
-  id: number;
+  id: string;              // 改为字符串类型
 }
 
 export const getRolePage = (params: RoleQuery) => {
-  return request.get<{ list: RoleVO[]; total: number }>('/sys/role/page', params);
+  return withErrorHandling(
+    request.get<{ list: RoleVO[]; total: number }>('/sys/role/page', params),
+    '获取角色列表'
+  );
 };
 
 export const getRoleList = () => {
-  return request.get<RoleVO[]>('/sys/role/list');
+  return withErrorHandling(
+    request.get<RoleVO[]>('/sys/role/list'),
+    '获取所有角色'
+  );
 };
 
 export const getRoleDetail = (id: number) => {
-  return request.get<RoleVO>(`/sys/role/${id}`);
+  return withErrorHandling(
+    request.get<RoleVO>(`/sys/role/${id}`),
+    '获取角色详情'
+  );
 };
 
 export const createRole = (params: RoleCreateParams) => {
-  return request.post<boolean>('/sys/role', params);
+  return withErrorHandling(
+    request.post<boolean>('/sys/role', params),
+    '创建角色'
+  );
 };
 
 export const updateRole = (params: RoleUpdateParams) => {
-  return request.put<boolean>('/sys/role', params);
+  return withErrorHandling(
+    request.put<boolean>('/sys/role', params),
+    '更新角色'
+  );
 };
 
 export const deleteRole = (id: number) => {
-  return request.delete<boolean>('/sys/role', { id });
+  return withErrorHandling(
+    request.delete<boolean>('/sys/role', { id }),
+    '删除角色'
+  );
 };
