@@ -51,35 +51,12 @@ public class JacksonConfiguration {
             builder.timeZone(TimeZone.getTimeZone(ZoneId.systemDefault()));
             builder.simpleDateFormat(DatePattern.NORM_DATETIME_PATTERN);
             // 使用智能Long序列化器：只对超过JavaScript安全整数范围的Long转为字符串
-            builder.serializerByType(Long.class, SmartLongSerializer.INSTANCE);
+            builder.serializerByType(Long.class, ToStringSerializer.instance);
             builder.modules(new MiguomaJavaTimeModule());
         };
     }
 
-    /**
-     * 智能Long序列化器
-     * 小于等于JavaScript安全整数最大值的Long保持数字类型
-     * 超过JavaScript安全整数最大值的Long转为字符串
-     */
-    public static class SmartLongSerializer extends JsonSerializer<Long> {
-        public static final SmartLongSerializer INSTANCE = new SmartLongSerializer();
-        private static final long JS_MAX_SAFE_INTEGER = 9007199254740991L;
 
-        @Override
-        public void serialize(Long value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-            if (value == null) {
-                gen.writeNull();
-                return;
-            }
-
-            // 只有超过JavaScript安全整数范围才转为字符串
-            if (Math.abs(value) > JS_MAX_SAFE_INTEGER) {
-                gen.writeString(value.toString());
-            } else {
-                gen.writeNumber(value);
-            }
-        }
-    }
 
     /**
      * 重写时间序列化规则

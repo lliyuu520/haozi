@@ -13,6 +13,7 @@ import cn.lliyuu520.haozi.modules.sys.entity.SysMenu;
 import cn.lliyuu520.haozi.modules.sys.service.SysMenuService;
 import cn.lliyuu520.haozi.modules.sys.vo.SysMenuVO;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/sys/menu")
 @AllArgsConstructor
+@Slf4j
 public class SysMenuController {
     private final SysMenuService sysMenuService;
 
@@ -79,11 +81,16 @@ public class SysMenuController {
     @SaCheckPermission("sys:menu:info")
     public Result<SysMenuVO> get(@PathVariable("id") final Long id) {
         final SysMenu entity = this.sysMenuService.getById(id);
+        if (entity == null) {
+           log.error("菜单不存在:{}", id);
+            return Result.error("菜单不存在");
+        }
         final SysMenuVO vo = SysMenuConvert.INSTANCE.convertToVO(entity);
 
         // 获取上级菜单名称
-        if (!Constant.ROOT.equals(entity.getParentId())) {
-            final SysMenu parentEntity = this.sysMenuService.getById(entity.getParentId());
+        final Long parentId = entity.getParentId();
+        if (!Constant.ROOT.equals(parentId)) {
+            final SysMenu parentEntity = this.sysMenuService.getById(parentId);
             vo.setParentName(parentEntity.getName());
         }
 

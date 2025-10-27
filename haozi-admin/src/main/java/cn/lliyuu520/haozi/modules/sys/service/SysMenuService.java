@@ -64,11 +64,5 @@ public interface SysMenuService extends BaseService<SysMenu> {
      */
     Set<String> getUserAuthority(UserDetail user);
 
-    /**
-     * 添加模块
-     * @param moduleName
-      * @param parentCode
-     * @param parentId
-     */
-    void addModule(String moduleCode,String parentCode,String moduleName,Long parentId);
+
 }

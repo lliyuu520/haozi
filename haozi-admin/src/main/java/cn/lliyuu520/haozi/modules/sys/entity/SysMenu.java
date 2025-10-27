@@ -1,9 +1,14 @@
 package cn.lliyuu520.haozi.modules.sys.entity;
 
 import cn.lliyuu520.haozi.common.base.entity.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 
 
 /**
@@ -14,6 +19,7 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@TableName(autoResultMap = true)
 public class SysMenu extends BaseEntity {
     /**
      * 上级ID，一级菜单为0
@@ -49,36 +55,48 @@ public class SysMenu extends BaseEntity {
      * 图标
      */
     private String icon;
+    /**
+     * 是否隐藏
+     */
+    private Boolean hidden;
+    /**
+     *  元数据
+     */
+    @TableField(typeHandler = FastjsonTypeHandler.class)
+    private Meta meta =new Meta();
 
     /**
-     * 构建页面菜单
+     * 元数据
      */
-    
-    public  static SysMenu buildPageMenu(Long parentId, String name, String url  ) {
-        final SysMenu sysMenu = new SysMenu();
-        sysMenu.setParentId(parentId);
-        sysMenu.setName(name);
-        sysMenu.setUrl(url);
-        sysMenu.setType(0);
-        sysMenu.setOpenStyle(0);
-        sysMenu.setPerms("");
-        return sysMenu;
+    @Data
+    public static class Meta implements Serializable {
+        /**
+         * 是否使用deeplink
+         */
+        private Boolean deeplink;
+        /**
+         * 是否缓存
+         */
+        private Boolean keepAlive;
+        /**
+         * 模态框
+         */
+        private Modal modal;
+
 
     }
+
     /**
-     * 构建按钮菜单
+     * 模态框
      */
+    @Data
+    public static class Modal implements Serializable {
 
-    public static SysMenu buildButtonMenu(Long parentId, String name, String perms ) {
-        final SysMenu sysMenu = new SysMenu();
-        sysMenu.setParentId(parentId);
-        sysMenu.setName(name);
-        sysMenu.setUrl("");
-        sysMenu.setType(1);
-        sysMenu.setOpenStyle(0);
-        sysMenu.setPerms(perms);
-        return sysMenu;
-        
+        private String present;
+
+        private Integer width;
+
     }
+
 
 }

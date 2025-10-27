@@ -177,6 +177,9 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> 
             map.put("openStyle", m.getOpenStyle());
             map.put("type", m.getType());
             map.put("url", m.getUrl());
+            map.put("icon", m.getIcon());
+            map.put("hidden", m.getHidden());
+            map.put("meta", m.getMeta());
 
             if(parentId==0){
                 map.put("parentName", "一级菜单");
@@ -190,36 +193,5 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> 
         return TreeUtil.build(treeNodeList, Constant.ROOT);
     }
 
-    /**
-     * 添加模块
-     *
-     * @param moduleName
-     * @pa
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void addModule(String moduleCode,String parentCode,String moduleName,Long parentId) {
-        final SysMenu parentSysMenu = SysMenu.buildPageMenu(parentId, moduleName, parentCode+"/"+moduleCode+"/index");
-        save(parentSysMenu);
-        final Long id = parentSysMenu.getId();
 
-        final SysMenu pageSysMenu = SysMenu.buildButtonMenu(id, "分页", parentCode+":"+moduleCode+":page");
-//        final SysMenu saveSysMenu = SysMenu.buildButtonMenu(id, "添加", parentCode+":"+moduleCode+":save");
-//        final SysMenu editSysMenu = SysMenu.buildButtonMenu(id, "编辑", parentCode+":"+moduleCode+":update,"+parentCode+":"+moduleCode+":info");
-//        final SysMenu delSysMenu = SysMenu.buildButtonMenu(id, "删除", parentCode+":"+moduleCode+":delete");
-        save(pageSysMenu);
-//        save(saveSysMenu);
-//        save(editSysMenu);
-//        save(delSysMenu);
-        // 保存角色菜单关系
-
-        sysRoleMenuService.save(new SysRoleMenu(1L,id));
-        sysRoleMenuService.save(new SysRoleMenu(1L,pageSysMenu.getId()));
-//        sysRoleMenuService.save(new SysRoleMenu(1L,saveSysMenu.getId()));
-//        sysRoleMenuService.save(new SysRoleMenu(1L,editSysMenu.getId()));
-//        sysRoleMenuService.save(new SysRoleMenu(1L,delSysMenu.getId()));
-
-
-
-    }
 }
