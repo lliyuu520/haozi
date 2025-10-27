@@ -20,7 +20,7 @@ export interface ReactRouteModalConfig {
   closable?: boolean;
   // 点击蒙层是否可关闭
   maskClosable?: boolean;
-  // 是否销毁时隐藏内容
+  // 是否销毁时隐藏内容 (映射到 Modal 的 destroyOnHidden 属性)
   destroyOnClose?: boolean;
 }
 
@@ -144,7 +144,7 @@ export function ReactRouteModal({
       maskClosable={defaultConfig.maskClosable ?? false}
       width={defaultConfig.width || 800}
       footer={null}
-      destroyOnClose={defaultConfig.destroyOnClose ?? true}
+      destroyOnHidden={defaultConfig.destroyOnClose ?? true}
       {...modalProps}
     >
       <Spin spinning={loading}>
