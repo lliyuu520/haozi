@@ -239,13 +239,19 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const selectedKeys = menuMatch.selectedKey ? [menuMatch.selectedKey] : [];
 
   useEffect(() => {
-    // 只在路由变化时自动同步展开项，且用户没有手动操作的情况下
-    if (!isUserInteracting) {
-      const nextOpenKeys = menuMatch.openKeyList;
-      console.log('🔄 Auto-syncing openKeys:', nextOpenKeys);
-      setOpenKeys(nextOpenKeys);
+    // 只在路由变化且用户未手动操作时同步展开项
+    if (isUserInteracting) {
+      return;
     }
-  }, [pathname, menuMatch.openKeyList, isUserInteracting]);
+
+    const nextOpenKeys = menuMatch.openKeyList;
+    if (areStringArraysEqual(openKeys, nextOpenKeys)) {
+      return;
+    }
+
+    console.log('🔄 Auto-syncing openKeys:', nextOpenKeys);
+    setOpenKeys(nextOpenKeys);
+  }, [pathname, menuMatch.openKeyList, isUserInteracting, openKeys]);
 
   const handleMenuSelect: MenuProps['onSelect'] = ({ key }) => {
     console.log('??? Menu selected:', key);
