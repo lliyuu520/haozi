@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Button,
   Card,
@@ -29,10 +29,7 @@ export default function MenuManagementPage() {
     handleDeleteConfirm
   } = useMenuManagement();
 
-  useEffect(() => {
-    void loadData();
-  }, [loadData]);
-
+  
   return (
     <div className="page-container">
       <Card

@@ -1,6 +1,6 @@
 // 菜单模块专用Hooks
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { message, Modal } from 'antd';
 import {
   MenuTreeNode,
@@ -32,6 +32,11 @@ export function useMenuManagement() {
       setLoading(false);
     }
   }, [menuType]);
+
+  // 初始加载数据
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
   // 处理添加
   const handleAdd = useCallback(() => {
