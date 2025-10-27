@@ -92,6 +92,23 @@ const resolveMenuRoutePath = (menu?: MenuItem | null): string | null => {
   return normalizeRoutePath(routePath);
 };
 
+const areStringArraysEqual = (a: string[], b: string[]): boolean => {
+  if (a === b) {
+    return true;
+  }
+
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  for (let index = 0; index < a.length; index += 1) {
+    if (a[index] !== b[index]) {
+      return false;
+    }
+  }
+
+  return true;
+};
 // 全局模态框配置
 const GLOBAL_MODAL_CONFIGS = [
   {
