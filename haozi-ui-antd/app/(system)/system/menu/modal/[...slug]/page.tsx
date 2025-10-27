@@ -40,7 +40,7 @@ export default function MenuModalPage() {
       defaultConfig={{
         width: 680,
         closable: true,
-        maskClosable: false,
+        maskClosable: true,
         destroyOnClose: true
       }}
     >

@@ -141,10 +141,12 @@ export function ReactRouteModal({
       open={modalState.isOpen}
       onCancel={handleClose}
       closable={defaultConfig.closable ?? true}
-      maskClosable={defaultConfig.maskClosable ?? false}
+      maskClosable={defaultConfig.maskClosable ?? true}
       width={defaultConfig.width || 800}
       footer={null}
       destroyOnHidden={defaultConfig.destroyOnClose ?? true}
+      zIndex={2000}
+      centered
       {...modalProps}
     >
       <Spin spinning={loading}>
