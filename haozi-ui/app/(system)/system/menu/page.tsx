@@ -1,16 +1,16 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Button, Card, Select, Space, Empty } from 'antd';
 import { PlusOutlined, MenuOutlined, TagOutlined, ApiOutlined } from '@ant-design/icons';
-import MenuModal from '@/components/modals/MenuModal';
 import { MenuTable } from '@/app/(system)/system/menu/components';
 import { MenuType } from '@/services/menu';
 import { useMenuManagement } from '@/app/(system)/system/menu/hooks';
-import { useModalState } from '@/hooks/useModalState';
 
 const { Option } = Select;
 
 export default function MenuPage() {
+  const router = useRouter();
   const {
     dataSource,
     loading,
@@ -20,18 +20,18 @@ export default function MenuPage() {
     handleDeleteConfirm
   } = useMenuManagement();
 
-  // 使用简单的模态框状态管理
-  const { modalState, openModal, closeModal } = useModalState();
-
+  
   // 重构操作方法
-  const handleAddClick = () => openModal('create');
+  const handleAddClick = () => {
+    router.push('/system/menu/create');
+  };
 
   const handleEditClick = (record: any) => {
-    openModal('edit', record.id);
+    router.push(`/system/menu/${record.id}/edit`);
   };
 
   const handleViewClick = (record: any) => {
-    openModal('view', record.id);
+    router.push(`/system/menu/${record.id}/view`);
   };
 
   return (
@@ -90,13 +90,6 @@ export default function MenuPage() {
         )}
       </Card>
 
-      {/* 简单的模态框 */}
-      <MenuModal
-        isOpen={modalState.isOpen}
-        mode={modalState.mode}
-        menuId={modalState.itemId}
-        onClose={closeModal}
-      />
     </div>
   );
 }
