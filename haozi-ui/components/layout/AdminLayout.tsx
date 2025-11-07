@@ -24,30 +24,6 @@ import './AdminLayout.css';
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
 
-const backendToNextPathMap: Record<string, string> = {
-  '/sys/menu/index': '/system/menu',
-  '/sys/user/index': '/system/user',
-  '/sys/role/index': '/system/role',
-  '/sys/dict/type': '/system/dict',
-  '/sys/dict/index': '/system/dict',
-};
-
-const nameToPathMap: Record<string, string> = {
-  菜单管理: '/system/menu',
-  用户管理: '/system/user',
-  角色管理: '/system/role',
-  字典管理: '/system/dict',
-  部门管理: '/system/dept',
-  岗位管理: '/system/post',
-  配置管理: '/system/config',
-  通知公告: '/system/notice',
-  日志管理: '/system/log',
-  在线用户: '/monitor/online',
-  定时任务: '/monitor/job',
-  服务监控: '/monitor/server',
-  缓存监控: '/monitor/cache',
-  系统信息: '/system/info',
-};
 
 const normalizeRoutePath = (rawPath?: string | null): string | null => {
   if (!rawPath?.trim()) {
@@ -55,22 +31,14 @@ const normalizeRoutePath = (rawPath?: string | null): string | null => {
   }
 
   const trimmed = rawPath.trim();
-  const prefixed = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
-
-  // 如果是React风格URL，直接处理
-  if (trimmed.endsWith('/page')) {
-    return prefixed;
-  }
-
-  return backendToNextPathMap[prefixed] ?? prefixed;
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
 };
 
 const resolveMenuRoutePath = (menu?: MenuItem | null): string | null => {
   if (!menu) return null;
 
   const menuWithUrl = menu as MenuItem & { url?: string };
-  const routePath = menu.path || menuWithUrl.url ||
-    (menu.name && (nameToPathMap[menu.name] || `/system/${menu.name.toLowerCase().replace(/\s+/g, '')}`));
+  const routePath = menu.path || menuWithUrl.url;
 
   return normalizeRoutePath(routePath);
 };
@@ -292,13 +260,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                   type="text"
                   icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                   onClick={toggleCollapsed}
-                  className="text-white mr-4"
+                  className={`${theme === 'dark' ? 'text-gray-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-500'} mr-4`}
                 />
               )}
               {showBreadcrumb && breadcrumbItems.length > 1 && (
                 <div className="hide-on-mobile">
                   {breadcrumbItems.map((item, index) => (
-                    <span key={item.href} className="mx-2">
+                    <span key={item.href} className={`mx-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                       {index === breadcrumbItems.length - 1 ? item.title : `${item.title} /`}
                     </span>
                   ))}
@@ -313,13 +281,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                     type="text"
                     icon={<HomeOutlined />}
                     onClick={() => router.push('/dashboard')}
-                    className="text-white"
+                    className={theme === 'dark' ? 'text-gray-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-500'}
                   >
                     首页
                   </Button>
                 )}
 
-                <Button type="text" icon={<BellOutlined />} className="text-white relative">
+                <Button type="text" icon={<BellOutlined />} className={`${theme === 'dark' ? 'text-gray-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-500'} relative`}>
                   通知
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                     3
@@ -330,13 +298,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
             <Space>
               {isMounted && userDisplayName && !isMobile && (
-                <Text className="text-white mr-2">{userDisplayName}</Text>
+                <Text className={theme === 'dark' ? 'text-gray-300 mr-2' : 'text-gray-600 mr-2'}>{userDisplayName}</Text>
               )}
               <Button
                 type="text"
                 icon={<UserOutlined />}
                 onClick={() => setMobileMenuVisible(!mobileMenuVisible)}
-                className="text-white md:hidden"
+                className={`${theme === 'dark' ? 'text-gray-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-500'} md:hidden`}
               >
                 菜单
               </Button>
@@ -345,7 +313,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 placement="bottomRight"
                 trigger={['click']}
               >
-                <Button type="text" icon={<UserOutlined />} className="text-white">
+                <Button type="text" icon={<UserOutlined />} className={theme === 'dark' ? 'text-gray-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-500'}>
                   {isMounted ? (userDisplayName || '用户菜单') : '用户菜单'}
                 </Button>
               </Dropdown>
