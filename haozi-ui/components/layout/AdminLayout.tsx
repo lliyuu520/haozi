@@ -70,6 +70,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isUserInteracting, setIsUserInteracting] = useState(false);
   const isMounted = useIsMounted();
   const interactionTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const headerActionClass = 'admin-header-action';
+  const headerTextClass = 'admin-header-text';
+  const breadcrumbTextClass = 'breadcrumb-text';
 
   const menuTree = useMemo(() => generateMenus(), [menus, generateMenus]);
   const userDisplayName = userInfo?.nickname || userInfo?.username || '';
@@ -226,14 +229,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     }));
 
   return (
-    <Layout className={`admin-layout ${theme === 'dark' ? 'admin-layout-dark' : ''}`} data-theme={theme}>
+    <Layout className="admin-layout">
       <Sider
         trigger={null}
         collapsible
         collapsed={collapsed}
         className={`admin-sider ${fixedSidebar ? 'fixed' : ''}`}
         width={240}
-        theme={theme}
+        theme="light"
       >
         <div className="logo-container">
           <div className={`logo ${collapsed ? 'collapsed' : ''}`}>
@@ -252,7 +255,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </Sider>
 
       <Layout>
-        <Header className={`admin-header ${fixedHeader ? 'fixed' : ''}`}>
+        <Header
+          className={`admin-header ${fixedHeader ? 'fixed' : ''}`}
+          style={{
+            backgroundColor: '#ffffff',
+            borderBottom: '1px solid #f0f0f0',
+            boxShadow: '0 1px 4px rgba(0, 0, 0, 0.08)',
+          }}
+        >
           <div className="flex justify-between items-center w-full">
             <div className="flex items-center">
               {layout === 'side' && (
@@ -260,13 +270,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                   type="text"
                   icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                   onClick={toggleCollapsed}
-                  className={`${theme === 'dark' ? 'text-gray-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-500'} mr-4`}
+                  className={`${headerActionClass} mr-4`}
                 />
               )}
               {showBreadcrumb && breadcrumbItems.length > 1 && (
                 <div className="hide-on-mobile">
                   {breadcrumbItems.map((item, index) => (
-                    <span key={item.href} className={`mx-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <span key={item.href} className={`mx-2 ${breadcrumbTextClass}`}>
                       {index === breadcrumbItems.length - 1 ? item.title : `${item.title} /`}
                     </span>
                   ))}
@@ -281,13 +291,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                     type="text"
                     icon={<HomeOutlined />}
                     onClick={() => router.push('/dashboard')}
-                    className={theme === 'dark' ? 'text-gray-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-500'}
+                    className={headerActionClass}
                   >
                     首页
                   </Button>
                 )}
 
-                <Button type="text" icon={<BellOutlined />} className={`${theme === 'dark' ? 'text-gray-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-500'} relative`}>
+                <Button type="text" icon={<BellOutlined />} className={`${headerActionClass} relative`}>
                   通知
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                     3
@@ -298,13 +308,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
             <Space>
               {isMounted && userDisplayName && !isMobile && (
-                <Text className={theme === 'dark' ? 'text-gray-300 mr-2' : 'text-gray-600 mr-2'}>{userDisplayName}</Text>
+                <Text className={`${headerTextClass} mr-2`}>{userDisplayName}</Text>
               )}
               <Button
                 type="text"
                 icon={<UserOutlined />}
                 onClick={() => setMobileMenuVisible(!mobileMenuVisible)}
-                className={`${theme === 'dark' ? 'text-gray-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-500'} md:hidden`}
+                className={`${headerActionClass} md:hidden`}
               >
                 菜单
               </Button>
@@ -313,7 +323,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 placement="bottomRight"
                 trigger={['click']}
               >
-                <Button type="text" icon={<UserOutlined />} className={theme === 'dark' ? 'text-gray-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-500'}>
+                <Button type="text" icon={<UserOutlined />} className={headerActionClass}>
                   {isMounted ? (userDisplayName || '用户菜单') : '用户菜单'}
                 </Button>
               </Dropdown>
