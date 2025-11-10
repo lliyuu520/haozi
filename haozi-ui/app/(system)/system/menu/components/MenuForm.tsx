@@ -24,8 +24,28 @@ import {
   type MenuUpdateParams,
 } from '@/services/menu';
 import { MENU_ICON_OPTIONS } from '@/constants/menuIcons';
-import type { MenuFormValues, MenuTreeSelectNode } from '@/types/menu';
-import { MODAL_PRESENT_OPTIONS } from '@/types/menu';
+import type { MenuFormValues, MenuTreeSelectNode } from '../types/menu';
+import { MODAL_PRESENT_OPTIONS } from '../types/menu';
+
+const DEFAULT_FORM_VALUES: MenuFormValues = {
+  parentId: '0',
+  name: '',
+  url: '',
+  perms: '',
+  type: MenuType.MENU,
+  openStyle: OpenStyle.INTERNAL,
+  icon: undefined,
+  weight: 0,
+  hidden: false,
+  meta: {
+    deeplink: false,
+    keepAlive: true,
+    modal: {
+      present: 'default',
+      width: 680,
+    },
+  },
+};
 
 interface MenuFormProps {
   mode: 'create' | 'edit' | 'view';
@@ -52,8 +72,7 @@ export default function MenuForm({
   // 加载菜单树数据
   const loadMenuTree = useCallback(async () => {
     try {
-      const response = await getMenuList({});
-      const menuData = response.data ?? [];
+      const menuData = await getMenuList({});
 
       // 转换为树形选择数据
       const convertToTreeData = (menus: any[]): MenuTreeSelectNode[] => {
@@ -87,29 +106,23 @@ export default function MenuForm({
 
     setDetailLoading(true);
     try {
-      const response = await getMenuDetail(menuId);
-      const menuDetail = response.data;
+      const menuDetail = await getMenuDetail(menuId);
 
       if (!menuDetail) {
         throw new Error('菜单详情为空');
       }
 
       form.setFieldsValue({
+        ...DEFAULT_FORM_VALUES,
+        ...menuDetail,
         parentId: menuDetail.parentId.toString(),
-        name: menuDetail.name,
-        url: menuDetail.url,
-        perms: menuDetail.perms,
-        type: menuDetail.type,
-        openStyle: menuDetail.openStyle,
-        weight: menuDetail.weight,
-        icon: menuDetail.icon,
-        hidden: menuDetail.hidden === 1,
+        hidden: menuDetail.hidden,
         meta: {
-          deeplink: false,
-          keepAlive: true,
+          ...DEFAULT_FORM_VALUES.meta,
+          ...menuDetail.meta,
           modal: {
-            present: 'default',
-            width: 680,
+            ...DEFAULT_FORM_VALUES.meta?.modal,
+            ...(menuDetail.meta?.modal ?? {}),
           },
         },
       });
@@ -129,15 +142,7 @@ export default function MenuForm({
       // 创建模式的默认值
       form.resetFields();
       form.setFieldsValue({
-        parentId: "0",
-        type: MenuType.MENU,
-        openStyle: OpenStyle.INTERNAL,
-        weight: 0,
-        hidden: false,
-        meta: {
-          deeplink: false,
-          keepAlive: true,
-        },
+        ...DEFAULT_FORM_VALUES,
         ...defaultValues
       });
     }
@@ -149,7 +154,6 @@ export default function MenuForm({
 
     setLoading(true);
     try {
-      // 转换 hidden 字段：boolean -> number
       const params: MenuCreateParams | MenuUpdateParams = {
         ...values,
         hidden: values.hidden ? 1 : 0,
@@ -293,10 +297,10 @@ export default function MenuForm({
                     name="url"
                     label="路由地址"
                     rules={[{ required: !isReadOnly, message: '请输入路由地址' }]}
-                    tooltip="React风格URL格式，如：system/menu/page"
+                    tooltip="React风格URL格式，如：/system/menu"
                   >
                     <Input
-                      placeholder="请输入路由地址，如：system/menu/page"
+                      placeholder="请输入路由地址，如：/system/menu"
                       readOnly={isReadOnly}
                     />
                   </Form.Item>

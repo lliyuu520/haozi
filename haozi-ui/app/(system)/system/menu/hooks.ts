@@ -32,11 +32,9 @@ export function useMenuManagement() {
   const loadData = useCallback(async (keepPagination = false) => {
     setLoading(true);
     try {
-      const response = await getMenuListNavigable({
+      const menuData = await getMenuListNavigable({
         type: menuType
       });
-
-      const menuData = response.data ?? [];
       setDataSource(menuData);
 
       // 更新分页信息 - 暂时使用数据长度作为总数
