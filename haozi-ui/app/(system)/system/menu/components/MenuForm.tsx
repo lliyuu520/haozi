@@ -80,9 +80,10 @@ export default function MenuForm({
     }
   }, []);
 
-  // 加载菜单详情（编辑模式）
+  // 加载菜单详情（编辑模式和查看模式）
   const loadMenuDetail = useCallback(async () => {
-    if (!isEdit || !menuId) return;
+    if (!isEdit && !isReadOnly) return; // 只有编辑或查看模式才加载详情
+    if (!menuId) return;
 
     setDetailLoading(true);
     try {
@@ -117,12 +118,12 @@ export default function MenuForm({
     } finally {
       setDetailLoading(false);
     }
-  }, [isEdit, menuId, form]);
+  }, [isEdit, isReadOnly, menuId]);
 
   useEffect(() => {
     void loadMenuTree();
 
-    if (isEdit) {
+    if (isEdit || isReadOnly) {
       void loadMenuDetail();
     } else {
       // 创建模式的默认值
@@ -140,7 +141,7 @@ export default function MenuForm({
         ...defaultValues
       });
     }
-  }, [form, loadMenuTree, loadMenuDetail, isEdit, defaultValues]);
+  }, [menuId, mode]); // 只依赖menuId和mode，避免重复调用
 
   // 提交表单
   const handleSubmit = async (values: MenuFormValues) => {
