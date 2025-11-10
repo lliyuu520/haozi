@@ -173,321 +173,324 @@ export default function MenuForm({
   };
 
   return (
-    <Form<MenuFormValues>
-      form={form}
-      layout="vertical"
-      onFinish={isReadOnly ? undefined : handleSubmit}
-    >
-      <Form.Item
-        name="parentId"
-        label="上级菜单"
-        rules={[{ required: !isReadOnly, message: '请选择上级菜单' }]}
-        tooltip="选择该菜单的父级菜单，根菜单请选择'根菜单'"
+    <div style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: '8px' }}>
+      <Form<MenuFormValues>
+        form={form}
+        layout="vertical"
+        onFinish={isReadOnly ? undefined : handleSubmit}
+        style={{ paddingRight: '8px' }}
       >
-        <TreeSelect
-          placeholder="请选择上级菜单"
-          treeData={treeData}
-          treeDefaultExpandAll
-          showSearch
-          allowClear
-          treeLine={{ showLeafIcon: false }}
-          disabled={isReadOnly}
-        />
-      </Form.Item>
-
-      <Form.Item
-        name="name"
-        label="菜单名称"
-        rules={[
-          { required: !isReadOnly, message: '请输入菜单名称' },
-          { min: 2, max: 20, message: '菜单名称长度应在2-20个字符之间' },
-        ]}
-        tooltip="显示在导航栏中的菜单名称"
-      >
-        <Input
-          placeholder="请输入菜单名称"
-          showCount
-          maxLength={20}
-          readOnly={isReadOnly}
-        />
-      </Form.Item>
-
-      <Form.Item
-        name="icon"
-        label="菜单图标"
-        tooltip="用于菜单树和侧边栏图标展示"
-      >
-        <Select
-          placeholder="请选择菜单图标"
-          allowClear
-          optionLabelProp="label"
-          showSearch
-          filterOption={(input, option) =>
-            (option?.label as string)?.toLowerCase().includes(input.toLowerCase())
-          }
-          disabled={isReadOnly}
+        <Form.Item
+          name="parentId"
+          label="上级菜单"
+          rules={[{ required: !isReadOnly, message: '请选择上级菜单' }]}
+          tooltip="选择该菜单的父级菜单，根菜单请选择'根菜单'"
         >
-          {MENU_ICON_OPTIONS.map(option => (
-            <Select.Option key={option.value} value={option.value} label={option.label}>
-              <Space>
-                {option.icon}
-                <span>{option.label}</span>
-              </Space>
-            </Select.Option>
-          ))}
-        </Select>
-      </Form.Item>
+          <TreeSelect
+            placeholder="请选择上级菜单"
+            treeData={treeData}
+            treeDefaultExpandAll
+            showSearch
+            allowClear
+            treeLine={{ showLeafIcon: false }}
+            disabled={isReadOnly}
+          />
+        </Form.Item>
 
-      <Form.Item
-        name="type"
-        label="菜单类型"
-        rules={[{ required: !isReadOnly, message: '请选择菜单类型' }]}
-        tooltip="不同类型的菜单有不同的用途和配置项"
-      >
-        <Select placeholder="请选择菜单类型" disabled={isReadOnly}>
-          <Select.Option value={MenuType.MENU}>
-            <div className="flex items-center justify-between">
-              <Space>
-                <MenuOutlined />
-                菜单
-              </Space>
-              <span className="text-xs text-gray-500">可导航的页面菜单项</span>
-            </div>
-          </Select.Option>
-          <Select.Option value={MenuType.BUTTON}>
-            <div className="flex items-center justify-between">
-              <Space>
-                <TagOutlined />
-                按钮
-              </Space>
-              <span className="text-xs text-gray-500">页面功能按钮的权限控制</span>
-            </div>
-          </Select.Option>
-          <Select.Option value={MenuType.INTERFACE}>
-            <div className="flex items-center justify-between">
-              <Space>
-                <ApiOutlined />
-                接口
-              </Space>
-              <span className="text-xs text-gray-500">API接口的访问权限</span>
-            </div>
-          </Select.Option>
-        </Select>
-      </Form.Item>
+        <Form.Item
+          name="name"
+          label="菜单名称"
+          rules={[
+            { required: !isReadOnly, message: '请输入菜单名称' },
+            { min: 2, max: 20, message: '菜单名称长度应在2-20个字符之间' },
+          ]}
+          tooltip="显示在导航栏中的菜单名称"
+        >
+          <Input
+            placeholder="请输入菜单名称"
+            showCount
+            maxLength={20}
+            readOnly={isReadOnly}
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="icon"
+          label="菜单图标"
+          tooltip="用于菜单树和侧边栏图标展示"
+        >
+          <Select
+            placeholder="请选择菜单图标"
+            allowClear
+            optionLabelProp="label"
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label as string)?.toLowerCase().includes(input.toLowerCase())
+            }
+            disabled={isReadOnly}
+          >
+            {MENU_ICON_OPTIONS.map(option => (
+              <Select.Option key={option.value} value={option.value} label={option.label}>
+                <Space>
+                  {option.icon}
+                  <span>{option.label}</span>
+                </Space>
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          name="type"
+          label="菜单类型"
+          rules={[{ required: !isReadOnly, message: '请选择菜单类型' }]}
+          tooltip="不同类型的菜单有不同的用途和配置项"
+        >
+          <Select placeholder="请选择菜单类型" disabled={isReadOnly}>
+            <Select.Option value={MenuType.MENU}>
+              <div className="flex items-center justify-between">
+                <Space>
+                  <MenuOutlined />
+                  菜单
+                </Space>
+                <span className="text-xs text-gray-500">可导航的页面菜单项</span>
+              </div>
+            </Select.Option>
+            <Select.Option value={MenuType.BUTTON}>
+              <div className="flex items-center justify-between">
+                <Space>
+                  <TagOutlined />
+                  按钮
+                </Space>
+                <span className="text-xs text-gray-500">页面功能按钮的权限控制</span>
+              </div>
+            </Select.Option>
+            <Select.Option value={MenuType.INTERFACE}>
+              <div className="flex items-center justify-between">
+                <Space>
+                  <ApiOutlined />
+                  接口
+                </Space>
+                <span className="text-xs text-gray-500">API接口的访问权限</span>
+              </div>
+            </Select.Option>
+          </Select>
+        </Form.Item>
 
       {/* 动态表单字段 */}
-      <Form.Item
-        noStyle
-        shouldUpdate={(prevValues, currentValues) => prevValues.type !== currentValues.type}
-      >
-        {({ getFieldValue }) => {
-          const type = getFieldValue('type');
+        <Form.Item
+          noStyle
+          shouldUpdate={(prevValues, currentValues) => prevValues.type !== currentValues.type}
+        >
+          {({ getFieldValue }) => {
+            const type = getFieldValue('type');
 
-          if (type === MenuType.MENU) {
-            return (
-              <>
+            if (type === MenuType.MENU) {
+              return (
+                <>
+                  <Form.Item
+                    name="url"
+                    label="路由地址"
+                    rules={[{ required: !isReadOnly, message: '请输入路由地址' }]}
+                    tooltip="React风格URL格式，如：system/menu/page"
+                  >
+                    <Input
+                      placeholder="请输入路由地址，如：system/menu/page"
+                      readOnly={isReadOnly}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="openStyle"
+                    label="打开方式"
+                    rules={[{ required: !isReadOnly, message: '请选择打开方式' }]}
+                    tooltip="选择菜单的打开方式"
+                  >
+                    <Select placeholder="请选择打开方式" disabled={isReadOnly}>
+                      <Select.Option value={OpenStyle.INTERNAL}>
+                        <Space>
+                          <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                          内部打开
+                          <span className="text-xs text-gray-500">在当前应用内打开</span>
+                        </Space>
+                      </Select.Option>
+                      <Select.Option value={OpenStyle.EXTERNAL}>
+                        <Space>
+                          <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
+                          外部打开
+                          <span className="text-xs text-gray-500">在新窗口或标签页打开</span>
+                        </Space>
+                      </Select.Option>
+                    </Select>
+                  </Form.Item>
+                </>
+              );
+            }
+
+            if (type === MenuType.BUTTON || type === MenuType.INTERFACE) {
+              return (
                 <Form.Item
-                  name="url"
-                  label="路由地址"
-                  rules={[{ required: !isReadOnly, message: '请输入路由地址' }]}
-                  tooltip="React风格URL格式，如：system/menu/page"
+                  name="perms"
+                  label="权限标识"
+                  rules={[
+                    { required: !isReadOnly, message: '请输入权限标识' },
+                    { pattern: /^[a-zA-Z:]+$/, message: '权限标识只能包含字母和冒号' },
+                  ]}
+                  tooltip={
+                    type === MenuType.BUTTON
+                      ? "用于控制页面按钮的显示权限，如：sys:user:add"
+                      : "用于控制API接口的访问权限，如：sys:user:api"
+                  }
                 >
                   <Input
-                    placeholder="请输入路由地址，如：system/menu/page"
+                    placeholder={
+                      type === MenuType.BUTTON
+                        ? "请输入权限标识，如：sys:user:add"
+                        : "请输入权限标识，如：sys:user:api"
+                    }
                     readOnly={isReadOnly}
                   />
                 </Form.Item>
-
-                <Form.Item
-                  name="openStyle"
-                  label="打开方式"
-                  rules={[{ required: !isReadOnly, message: '请选择打开方式' }]}
-                  tooltip="选择菜单的打开方式"
-                >
-                  <Select placeholder="请选择打开方式" disabled={isReadOnly}>
-                    <Select.Option value={OpenStyle.INTERNAL}>
-                      <Space>
-                        <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
-                        内部打开
-                        <span className="text-xs text-gray-500">在当前应用内打开</span>
-                      </Space>
-                    </Select.Option>
-                    <Select.Option value={OpenStyle.EXTERNAL}>
-                      <Space>
-                        <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
-                        外部打开
-                        <span className="text-xs text-gray-500">在新窗口或标签页打开</span>
-                      </Space>
-                    </Select.Option>
-                  </Select>
-                </Form.Item>
-              </>
-            );
-          }
-
-          if (type === MenuType.BUTTON || type === MenuType.INTERFACE) {
-            return (
-              <Form.Item
-                name="perms"
-                label="权限标识"
-                rules={[
-                  { required: !isReadOnly, message: '请输入权限标识' },
-                  { pattern: /^[a-zA-Z:]+$/, message: '权限标识只能包含字母和冒号' },
-                ]}
-                tooltip={
-                  type === MenuType.BUTTON
-                    ? "用于控制页面按钮的显示权限，如：sys:user:add"
-                    : "用于控制API接口的访问权限，如：sys:user:api"
-                }
-              >
-                <Input
-                  placeholder={
-                    type === MenuType.BUTTON
-                      ? "请输入权限标识，如：sys:user:add"
-                      : "请输入权限标识，如：sys:user:api"
-                  }
-                  readOnly={isReadOnly}
-                />
-              </Form.Item>
-            );
-          }
-
-          return null;
-        }}
-      </Form.Item>
-
-      <Form.Item
-        name="weight"
-        label="排序权重"
-        rules={[
-          { required: !isReadOnly, message: '请输入排序权重' },
-          { type: 'number', min: 0, max: 9999, message: '排序权重应在0-9999之间' },
-        ]}
-        tooltip="数字越小越靠前显示，相同数字按创建时间排序"
-      >
-        <InputNumber
-          placeholder="请输入排序权重"
-          style={{ width: '100%' }}
-          min={0}
-          max={9999}
-          precision={0}
-          disabled={isReadOnly}
-        />
-      </Form.Item>
-
-      <Form.Item
-        name="hidden"
-        label="显示状态"
-        valuePropName="checked"
-        tooltip="控制菜单在前端的显示状态"
-      >
-        <Switch
-          checkedChildren="显示"
-          unCheckedChildren="隐藏"
-          disabled={isReadOnly}
-        />
-      </Form.Item>
-
-      {/* 元数据配置 */}
-      <Form.Item label="元数据配置">
-        <div className="space-y-4">
-          <Form.Item
-            name={['meta', 'deeplink']}
-            label={
-              <Space>
-                深度链接
-                <Tooltip title="是否支持通过URL直接访问该页面">
-                  <InfoCircleOutlined className="text-gray-400" />
-                </Tooltip>
-              </Space>
+              );
             }
-            valuePropName="checked"
-          >
-            <Switch disabled={isReadOnly} />
-          </Form.Item>
 
-          <Form.Item
-            name={['meta', 'keepAlive']}
-            label={
-              <Space>
-                页面缓存
-                <Tooltip title="是否缓存该页面状态，提升导航性能">
-                  <InfoCircleOutlined className="text-gray-400" />
-                </Tooltip>
-              </Space>
-            }
-            valuePropName="checked"
-          >
-            <Switch disabled={isReadOnly} />
-          </Form.Item>
+            return null;
+          }}
+        </Form.Item>
 
-          {/* 弹窗配置 - 仅菜单类型显示 */}
-          <Form.Item
-            noStyle
-            shouldUpdate={(prevValues, currentValues) => prevValues.type !== currentValues.type}
-          >
-            {({ getFieldValue }) => {
-              const type = getFieldValue('type');
-              if (type === MenuType.MENU) {
-                return (
-                  <div className="border-t pt-4">
-                    <div className="text-sm font-medium mb-3 flex items-center">
-                      弹窗配置
-                      <Tooltip title="配置该页面以弹窗方式打开时的参数">
-                        <InfoCircleOutlined className="text-gray-400 ml-2" />
-                      </Tooltip>
-                    </div>
+        <Form.Item
+          name="weight"
+          label="排序权重"
+          rules={[
+            { required: !isReadOnly, message: '请输入排序权重' },
+            { type: 'number', min: 0, max: 9999, message: '排序权重应在0-9999之间' },
+          ]}
+          tooltip="数字越小越靠前显示，相同数字按创建时间排序"
+        >
+          <InputNumber
+            placeholder="请输入排序权重"
+            style={{ width: '100%' }}
+            min={0}
+            max={9999}
+            precision={0}
+            disabled={isReadOnly}
+          />
+        </Form.Item>
 
-                    <div className="space-y-4">
-                      <Form.Item
-                        name={['meta', 'modal', 'present']}
-                        label="展示方式"
-                      >
-                        <Select
-                          placeholder="请选择弹窗展示方式"
-                          allowClear
-                          options={[...MODAL_PRESENT_OPTIONS]}
-                          disabled={isReadOnly}
-                        />
-                      </Form.Item>
+        <Form.Item
+          name="hidden"
+          label="显示状态"
+          valuePropName="checked"
+          tooltip="控制菜单在前端的显示状态"
+        >
+          <Switch
+            checkedChildren="显示"
+            unCheckedChildren="隐藏"
+            disabled={isReadOnly}
+          />
+        </Form.Item>
 
-                      <Form.Item
-                        name={['meta', 'modal', 'width']}
-                        label="弹窗宽度"
-                      >
-                        <InputNumber
-                          placeholder="弹窗宽度（像素）"
-                          style={{ width: '100%' }}
-                          min={400}
-                          max={1200}
-                          step={50}
-                          precision={0}
-                          addonAfter="px"
-                          disabled={isReadOnly}
-                        />
-                      </Form.Item>
-                    </div>
-                  </div>
-                );
+        {/* 元数据配置 */}
+        <Form.Item label="元数据配置">
+          <div className="space-y-4">
+            <Form.Item
+              name={['meta', 'deeplink']}
+              label={
+                <Space>
+                  深度链接
+                  <Tooltip title="是否支持通过URL直接访问该页面">
+                    <InfoCircleOutlined className="text-gray-400" />
+                  </Tooltip>
+                </Space>
               }
-              return null;
-            }}
-          </Form.Item>
-        </div>
-      </Form.Item>
+              valuePropName="checked"
+            >
+              <Switch disabled={isReadOnly} />
+            </Form.Item>
 
-      <Form.Item>
-        <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button onClick={onCancel}>
-            {isReadOnly ? '关闭' : '取消'}
-          </Button>
-          {!isReadOnly && (
-            <Button type="primary" loading={loading} onClick={() => form.submit()}>
-              {isEdit ? '更新' : '创建'}
+            <Form.Item
+              name={['meta', 'keepAlive']}
+              label={
+                <Space>
+                  页面缓存
+                  <Tooltip title="是否缓存该页面状态，提升导航性能">
+                    <InfoCircleOutlined className="text-gray-400" />
+                  </Tooltip>
+                </Space>
+              }
+              valuePropName="checked"
+            >
+              <Switch disabled={isReadOnly} />
+            </Form.Item>
+
+            {/* 弹窗配置 - 仅菜单类型显示 */}
+            <Form.Item
+              noStyle
+              shouldUpdate={(prevValues, currentValues) => prevValues.type !== currentValues.type}
+            >
+              {({ getFieldValue }) => {
+                const type = getFieldValue('type');
+                if (type === MenuType.MENU) {
+                  return (
+                    <div className="border-t pt-4">
+                      <div className="text-sm font-medium mb-3 flex items-center">
+                        弹窗配置
+                        <Tooltip title="配置该页面以弹窗方式打开时的参数">
+                          <InfoCircleOutlined className="text-gray-400 ml-2" />
+                        </Tooltip>
+                      </div>
+
+                      <div className="space-y-4">
+                        <Form.Item
+                          name={['meta', 'modal', 'present']}
+                          label="展示方式"
+                        >
+                          <Select
+                            placeholder="请选择弹窗展示方式"
+                            allowClear
+                            options={[...MODAL_PRESENT_OPTIONS]}
+                            disabled={isReadOnly}
+                          />
+                        </Form.Item>
+
+                        <Form.Item
+                          name={['meta', 'modal', 'width']}
+                          label="弹窗宽度"
+                        >
+                          <InputNumber
+                            placeholder="弹窗宽度（像素）"
+                            style={{ width: '100%' }}
+                            min={400}
+                            max={1200}
+                            step={50}
+                            precision={0}
+                            addonAfter="px"
+                            disabled={isReadOnly}
+                          />
+                        </Form.Item>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            </Form.Item>
+          </div>
+        </Form.Item>
+
+          <Form.Item style={{ marginTop: '24px', marginBottom: 0 }}>
+          <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button onClick={onCancel}>
+              {isReadOnly ? '关闭' : '取消'}
             </Button>
-          )}
-        </Space>
-      </Form.Item>
-    </Form>
+            {!isReadOnly && (
+              <Button type="primary" loading={loading} onClick={() => form.submit()}>
+                {isEdit ? '更新' : '创建'}
+              </Button>
+            )}
+          </Space>
+        </Form.Item>
+      </Form>
+    </div>
   );
 }

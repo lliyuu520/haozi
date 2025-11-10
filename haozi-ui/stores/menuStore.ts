@@ -9,6 +9,8 @@ export type RawMenuNode = {
   parentId?: number | string;
   name?: string;
   weight?: number;
+  url?: string;
+  icon?: string;
   children?: RawMenuNode[];
   extra?: Record<string, unknown>;
 };
@@ -166,9 +168,10 @@ function normalizeMenuTree(nodes: RawMenuNode[] | MenuItem[], parentId = 0): Men
       id: String(id),
       parentId: String(resolvedParentId),
       name: typeof rawNode.name === 'string' ? rawNode.name : String(extra.name ?? ''),
-      path: typeof extra.url === 'string' ? extra.url : '',
+      url: typeof rawNode.url === 'string' ? rawNode.url : (typeof extra.url === 'string' ? extra.url : ''),
+      path: typeof rawNode.url === 'string' ? rawNode.url : (typeof extra.url === 'string' ? extra.url : ''),
       component: typeof extra.component === 'string' ? extra.component : undefined,
-      icon: typeof extra.icon === 'string' ? extra.icon : undefined,
+      icon: typeof extra.icon === 'string' ? extra.icon : (typeof rawNode.icon === 'string' ? rawNode.icon : undefined),
       type: menuType,
       openStyle: OpenStyle.INTERNAL,
       weight: weight,

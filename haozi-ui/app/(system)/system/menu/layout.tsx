@@ -1,9 +1,8 @@
 'use client';
 
 import React from 'react';
-import { AdminLayout } from '@/components/layout/AdminLayout';
 
-export default function SystemLayout({
+export default function MenuLayout({
   children,
   modal,
 }: {
@@ -12,7 +11,7 @@ export default function SystemLayout({
 }) {
   return (
     <>
-      <AdminLayout>{children}</AdminLayout>
+      {children}
       {modal}
     </>
   );
