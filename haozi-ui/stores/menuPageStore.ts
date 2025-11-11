@@ -1,28 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { shallow } from 'zustand/shallow';
-
-// 定义基本类型，避免业务逻辑依赖
-export enum MenuType {
-  MENU = 0,
-  BUTTON = 1,
-  INTERFACE = 2,
-}
-
-export interface MenuTreeNode {
-  id: string;
-  parentId: string;
-  name: string;
-  url?: string;
-  perms?: string;
-  type: MenuType;
-  openStyle: number;
-  weight: number;
-  icon?: string;
-  hidden?: number;
-  children?: MenuTreeNode[];
-  [key: string]: any;
-}
+import { MenuType, type MenuTreeNode } from '@/types/menu';
 
 /**
  * 菜单页面状态管理接口

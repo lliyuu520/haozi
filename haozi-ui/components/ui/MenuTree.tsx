@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Menu, Typography } from 'antd';
-import type { MenuItem } from '@/types/menu';
+import type { MenuTreeNode } from '@/types/menu';
 import type { MenuProps } from 'antd';
 import { getMenuIcon } from '@/constants/menuIcons';
 
@@ -10,7 +10,7 @@ const { Text } = Typography;
 type AntdMenuItem = Required<MenuProps>['items'][number];
 
 interface MenuTreeProps {
-  menuItems: MenuItem[];
+  menuItems: MenuTreeNode[];
   selectedKeys?: string[];
   openKeys?: string[];
   onSelect?: MenuProps['onSelect'];
@@ -19,7 +19,7 @@ interface MenuTreeProps {
   inlineCollapsed?: boolean;
 }
 
-const renderMenuItem = (item: MenuItem): AntdMenuItem => {
+const renderMenuItem = (item: MenuTreeNode): AntdMenuItem => {
   return {
     key: item.id.toString(),
     icon: getMenuIcon(item.icon),

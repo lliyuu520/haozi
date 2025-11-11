@@ -13,7 +13,7 @@ import {
 } from '@/lib/auth';
 import { request } from '@/lib/api';
 import { useMenuStore } from '@/stores/menuStore';
-import type { RawMenuNode } from '@/stores/menuStore';
+import type { RawMenuNode } from '@/types/menu';
 import {API} from "@/lib/apiEndpoints";
 
 interface AuthState {

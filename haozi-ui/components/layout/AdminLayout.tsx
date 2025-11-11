@@ -16,7 +16,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useAppStore } from '@/stores/appStore';
 import { useMenuStore } from '@/stores/menuStore';
 import { useIsMounted } from '@/hooks/useIsMounted';
-import type { MenuItem } from '@/types/menu';
+import type { MenuTreeNode } from '@/types/menu';
 import type { MenuProps } from 'antd';
 import MenuTree from '@/components/ui/MenuTree';
 import './AdminLayout.css';
@@ -34,10 +34,10 @@ const normalizeRoutePath = (rawPath?: string | null): string | null => {
   return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
 };
 
-const resolveMenuRoutePath = (menu?: MenuItem | null): string | null => {
+const resolveMenuRoutePath = (menu?: MenuTreeNode | null): string | null => {
   if (!menu) return null;
 
-  const menuWithUrl = menu as MenuItem & { url?: string };
+  const menuWithUrl = menu as MenuTreeNode & { url?: string };
   const routePath =  menuWithUrl.url;
 
   return normalizeRoutePath(routePath);
@@ -109,7 +109,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       return { selectedKey: null as string | null, openKeyList: [] as string[] };
     }
 
-    const findMenuMatch = (items: MenuItem[], stack: MenuItem[] = []): { selectedKey: string; openKeyList: string[] } | null => {
+    const findMenuMatch = (items: MenuTreeNode[], stack: MenuTreeNode[] = []): { selectedKey: string; openKeyList: string[] } | null => {
       for (const item of items) {
         const routePath = resolveMenuRoutePath(item);
 

@@ -10,13 +10,7 @@ export interface ApiResponse<T = unknown> {
   success?: boolean;
 }
 
-export interface PageResponse<T> {
-  records: T[];
-  total: number;
-  size: number;
-  current: number;
-  pages: number;
-}
+
 
 const service: AxiosInstance = axios.create({
   baseURL: API_CONFIG.baseURL,
@@ -31,9 +25,7 @@ service.interceptors.request.use(
     const token = getToken();
 
     if (token) {
-      config.headers = config.headers || {};
       config.headers['Authorization'] = `Bearer ${token}`;
-      config.headers['satoken'] = token;
     }
 
     config.params = {

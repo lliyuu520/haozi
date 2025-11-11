@@ -24,8 +24,11 @@ import {
   type MenuUpdateParams,
 } from '@/services/menu';
 import { MENU_ICON_OPTIONS } from '@/constants/menuIcons';
-import type { MenuFormValues, MenuTreeSelectNode } from '../types/menu';
-import { MODAL_PRESENT_OPTIONS } from '../types/menu';
+import {
+  MODAL_PRESENT_OPTIONS,
+  type MenuFormValues,
+  type MenuTreeSelectNode,
+} from '@/types/menu';
 
 const DEFAULT_FORM_VALUES: MenuFormValues = {
   parentId: '0',
@@ -34,7 +37,7 @@ const DEFAULT_FORM_VALUES: MenuFormValues = {
   perms: '',
   type: MenuType.MENU,
   openStyle: OpenStyle.INTERNAL,
-  icon: undefined,
+  icon: '',
   weight: 0,
   hidden: false,
   meta: {
@@ -112,17 +115,19 @@ export default function MenuForm({
         throw new Error('菜单详情为空');
       }
 
+      const { id: _id, children: _children, visible: _visible, ...detailForForm } = menuDetail;
+
       form.setFieldsValue({
         ...DEFAULT_FORM_VALUES,
-        ...menuDetail,
-        parentId: menuDetail.parentId.toString(),
-        hidden: menuDetail.hidden,
+        ...detailForForm,
+        parentId: detailForForm.parentId.toString(),
+        hidden: detailForForm.hidden,
         meta: {
           ...DEFAULT_FORM_VALUES.meta,
-          ...menuDetail.meta,
+          ...detailForForm.meta,
           modal: {
             ...DEFAULT_FORM_VALUES.meta?.modal,
-            ...(menuDetail.meta?.modal ?? {}),
+            ...(detailForForm.meta?.modal ?? {}),
           },
         },
       });
@@ -156,7 +161,10 @@ export default function MenuForm({
     try {
       const params: MenuCreateParams | MenuUpdateParams = {
         ...values,
-        hidden: values.hidden ? 1 : 0,
+        url: values.url ?? '',
+        perms: values.perms ?? '',
+        icon: values.icon ?? '',
+        hidden: values.hidden ?? false,
       };
 
       if (isEdit && menuId) {

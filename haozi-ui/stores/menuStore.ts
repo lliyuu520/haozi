@@ -1,36 +1,26 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { request } from '@/lib/api';
-import type { MenuItem } from '@/types/menu';
-import { MenuType, OpenStyle } from '@/types/menu';
+import { MenuType, OpenStyle, type MenuTreeNode, type RawMenuNode } from '@/types/menu';
 
-export type RawMenuNode = {
-  id?: number | string;
-  parentId?: number | string;
-  name?: string;
-  weight?: number;
-  url?: string;
-  icon?: string;
-  children?: RawMenuNode[];
-  extra?: Record<string, unknown>;
-};
+type RawMenuExtra = NonNullable<RawMenuNode['extra']>;
 
 interface MenuState {
-  menus: MenuItem[];
+  menus: MenuTreeNode[];
   openKeys: string[];
   selectedKeys: string[];
   collapsed: boolean;
 
-  fetchMenus: () => Promise<MenuItem[]>;
-  setMenus: (menus: MenuItem[] | RawMenuNode[]) => void;
+  fetchMenus: () => Promise<MenuTreeNode[]>;
+  setMenus: (menus: MenuTreeNode[] | RawMenuNode[]) => void;
   setOpenKeys: (keys: string[]) => void;
   setSelectedKeys: (keys: string[]) => void;
   setCollapsed: (collapsed: boolean) => void;
   toggleCollapsed: () => void;
-  generateMenus: () => MenuItem[];
-  getFlattenMenus: () => MenuItem[];
-  getMenuByPath: (path: string) => MenuItem | null;
-  findMenuByKey: (key: string, menus?: MenuItem[]) => MenuItem | null;
+  generateMenus: () => MenuTreeNode[];
+  getFlattenMenus: () => MenuTreeNode[];
+  getMenuByPath: (path: string) => MenuTreeNode | null;
+  findMenuByKey: (key: string, menus?: MenuTreeNode[]) => MenuTreeNode | null;
 }
 
 const TYPE_MAP: Record<number, MenuType> = {
@@ -62,7 +52,7 @@ export const useMenuStore = create<MenuState>()(
       },
 
       setMenus: (menus) => {
-        const normalizedMenus = normalizeMenuTree(menus as RawMenuNode[]);
+        const normalizedMenus = normalizeMenuTree(menus as (RawMenuNode | MenuTreeNode)[]);
         set({ menus: normalizedMenus });
       },
 
@@ -84,7 +74,7 @@ export const useMenuStore = create<MenuState>()(
       getMenuByPath: (path) => {
         const flattenMenus = get().getFlattenMenus();
         // 同时检查 path 和 url 字段，确保路径匹配正确
-        return flattenMenus.find((menu) => (menu.path === path || menu.url === path)) ?? null;
+        return flattenMenus.find((menu) => ( menu.url === path)) ?? null;
       },
 
       findMenuByKey: (key, menus) => {
@@ -116,16 +106,16 @@ export const useMenuStore = create<MenuState>()(
   ),
 );
 
-function normalizeMenuTree(nodes: RawMenuNode[] | MenuItem[], parentId = 0): MenuItem[] {
+function normalizeMenuTree(nodes: RawMenuNode[] | MenuTreeNode[], parentId = 0): MenuTreeNode[] {
   if (!Array.isArray(nodes)) {
     return [];
   }
 
-  const result: MenuItem[] = [];
+  const result: MenuTreeNode[] = [];
 
   nodes.forEach((node, index) => {
-    if (isMenuItem(node)) {
-      const cloned: MenuItem = {
+    if (isMenuTreeNode(node)) {
+      const cloned: MenuTreeNode = {
         ...node,
         parentId: node.parentId ?? parentId,
         children: node.children ? normalizeMenuTree(node.children, Number(node.id)) : undefined,
@@ -135,7 +125,7 @@ function normalizeMenuTree(nodes: RawMenuNode[] | MenuItem[], parentId = 0): Men
     }
 
     const rawNode = node as RawMenuNode;
-    const extra = typeof rawNode.extra === 'object' && rawNode.extra ? rawNode.extra : {};
+    const extra = (typeof rawNode.extra === 'object' && rawNode.extra ? rawNode.extra : {}) as RawMenuExtra;
 
     // 处理后端返回的Tree结构数据
     const id = typeof rawNode.id === 'number' ? rawNode.id : Number(rawNode.id ?? 0);
@@ -164,21 +154,23 @@ function normalizeMenuTree(nodes: RawMenuNode[] | MenuItem[], parentId = 0): Men
     // 递归处理子节点
     const children = normalizeMenuTree(rawNode.children ?? [], id);
 
-    const menu: MenuItem = {
+    const menu: MenuTreeNode = {
       id: String(id),
       parentId: String(resolvedParentId),
       name: typeof rawNode.name === 'string' ? rawNode.name : String(extra.name ?? ''),
       url: typeof rawNode.url === 'string' ? rawNode.url : (typeof extra.url === 'string' ? extra.url : ''),
+      perms: typeof rawNode.perms === 'string' ? rawNode.perms : (typeof extra.perms === 'string' ? extra.perms : undefined),
       path: typeof rawNode.url === 'string' ? rawNode.url : (typeof extra.url === 'string' ? extra.url : ''),
       component: typeof extra.component === 'string' ? extra.component : undefined,
       icon: typeof extra.icon === 'string' ? extra.icon : (typeof rawNode.icon === 'string' ? rawNode.icon : undefined),
       type: menuType,
       openStyle: OpenStyle.INTERNAL,
       weight: weight,
+      hidden: isHidden,
       visible: isVisible,
       children: children.length > 0 ? children : undefined,
       meta: {
-        title: typeof extra.title === 'string' ? extra.title : typeof rawNode.name === 'string' ? rawNode.name : '',
+        title: typeof extra.title === 'string' ? extra.title : typeof rawNode.name === 'string' ? rawNode.name : undefined,
         icon: typeof extra.icon === 'string' ? extra.icon : undefined,
         hidden: !isVisible,
         cache: extra.cache === true,
@@ -186,6 +178,16 @@ function normalizeMenuTree(nodes: RawMenuNode[] | MenuItem[], parentId = 0): Men
         target:
           extra.target === '_blank' || extra.target === '_self' ? (extra.target as '_blank' | '_self') : undefined,
         affix: extra.affix === true,
+        deeplink: extra.deeplink === true,
+        keepAlive: extra.keepAlive === true,
+        modal:
+          extra.modal && typeof extra.modal === 'object'
+            ? {
+                present:
+                  typeof extra.modal.present === 'string' ? extra.modal.present : undefined,
+                width: typeof extra.modal.width === 'number' ? extra.modal.width : undefined,
+              }
+            : undefined,
       },
     };
 
@@ -195,7 +197,7 @@ function normalizeMenuTree(nodes: RawMenuNode[] | MenuItem[], parentId = 0): Men
   return result;
 }
 
-function filterButtonMenus(menus: MenuItem[]): MenuItem[] {
+function filterButtonMenus(menus: MenuTreeNode[]): MenuTreeNode[] {
   return menus
     .filter((menu) => menu.type !== MenuType.BUTTON && menu.visible !== false)
     .map((menu) => ({
@@ -204,10 +206,10 @@ function filterButtonMenus(menus: MenuItem[]): MenuItem[] {
     }));
 }
 
-function flattenMenuTree(menus: MenuItem[]): MenuItem[] {
-  const result: MenuItem[] = [];
+function flattenMenuTree(menus: MenuTreeNode[]): MenuTreeNode[] {
+  const result: MenuTreeNode[] = [];
 
-  const traverse = (items: MenuItem[]) => {
+  const traverse = (items: MenuTreeNode[]) => {
     for (const item of items) {
       result.push(item);
       if (item.children?.length) {
@@ -222,14 +224,14 @@ function flattenMenuTree(menus: MenuItem[]): MenuItem[] {
 
 function resolveMenuType(type: unknown): MenuType {
   if (typeof type === 'number') {
-    return TYPE_MAP[type] ?? 'menu';
+    return TYPE_MAP[type] ?? MenuType.MENU;
   }
 
   if (typeof type === 'string') {
     const trimmed = type.trim();
     const numeric = Number(trimmed);
     if (!Number.isNaN(numeric)) {
-      return TYPE_MAP[numeric] ?? 'menu';
+      return TYPE_MAP[numeric] ?? MenuType.MENU;
     }
     switch (trimmed) {
       case 'menu': return MenuType.MENU;
@@ -262,14 +264,12 @@ function resolvePermissions(input: unknown): string[] | undefined {
   return undefined;
 }
 
-function isMenuItem(node: unknown): node is MenuItem {
+function isMenuTreeNode(node: unknown): node is MenuTreeNode {
   return Boolean(
     node &&
       typeof node === 'object' &&
       'id' in node &&
-      'name' in node &&
-      'type' in node &&
-      'visible' in node,
+      'parentId' in node &&
+      'type' in node,
   );
 }
-

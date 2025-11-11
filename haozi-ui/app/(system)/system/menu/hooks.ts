@@ -7,7 +7,8 @@ import {
   getMenuListNavigable,
   deleteMenu
 } from '@/services/menu';
-import { useMenuPageStore, MenuType, useDataSource, useLoading, useMenuType, useSearchKeyword, usePagination } from '@/stores/menuPageStore';
+import { MenuType } from '@/types/menu';
+import { useMenuPageStore, useDataSource, useLoading, useMenuType, useSearchKeyword, usePagination } from '@/stores/menuPageStore';
 
 /**
  * 菜单管理Hook - 使用全局状态管理

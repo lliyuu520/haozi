@@ -1,12 +1,12 @@
 import {ApiResponse, request} from '@/lib/api';
 import {withErrorHandling} from '@/lib/apiUtils';
-import {MenuItem, MenuType, OpenStyle,} from '@/types/menu';
+import {MenuItem, MenuType, OpenStyle, type MenuTreeNode as MenuTreeNodeType} from '@/types/menu';
 import {API} from '@/lib/apiEndpoints';
 
 // 统一导出常用的枚举，方便业务层直接复用
 export {MenuType, OpenStyle};
 
-export type MenuTreeNode = MenuItem;
+export type MenuTreeNode = MenuTreeNodeType;
 
 export interface MenuDetail extends MenuTreeNode {
     parentName?: string;
@@ -30,14 +30,14 @@ type MenuPayloadBase = {
     openStyle: OpenStyle;
     icon: string;
     weight: number;
-    hidden: number;
+    hidden: boolean;
     meta?: MenuMetaPayload;
 };
 
 export type MenuCreateParams = MenuPayloadBase;
 export type MenuUpdateParams = MenuPayloadBase & { id: string };
 
-export interface MenuQueryParams {
+export interface MenuQueryParams extends Record<string, unknown> {
     type?: MenuType;
 }
 
@@ -71,9 +71,12 @@ const DEFAULT_MENU_VALUES: MenuDetail = {
     icon: '',
     hidden: false,
     meta: {
-        title: '',
-        hidden: false,
-        cache: true,
+        deeplink: false,
+        keepAlive: false,
+        modal: {
+            present: 'default',
+            width: 800,
+        }
     },
 };
 
@@ -104,11 +107,7 @@ const unwrapResponse = <T>(response: { data?: ApiResponse<T> }, fallback: T): T 
 
 const toMenuDetail = (data: Partial<MenuItem> & { parentName?: string }): MenuDetail => ({
     ...DEFAULT_MENU_VALUES,
-    ...data,
-    meta: {
-        ...DEFAULT_MENU_VALUES.meta,
-        ...(data.meta || {}),
-    },
+    ...data
 });
 
 const toBackendPayload = (payload: MenuPayloadBase | (MenuPayloadBase & { id: string })) => {
@@ -116,15 +115,15 @@ const toBackendPayload = (payload: MenuPayloadBase | (MenuPayloadBase & { id: st
         parentId: payload.parentId,
         name: payload.name,
         url: payload.url,
-        perms: payload.perms || '',
+        perms: payload.perms,
         type: payload.type,
         openStyle: payload.openStyle,
-        icon: payload.icon || '',
+        icon: payload.icon,
         weight: payload.weight,
         hidden: payload.hidden,
         meta: {
             ...payload.meta,
-            hidden: payload.hidden === 1,
+            hidden: payload.hidden,
         },
     };
 
