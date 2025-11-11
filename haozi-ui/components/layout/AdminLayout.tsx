@@ -38,7 +38,7 @@ const resolveMenuRoutePath = (menu?: MenuItem | null): string | null => {
   if (!menu) return null;
 
   const menuWithUrl = menu as MenuItem & { url?: string };
-  const routePath = menu.path || menuWithUrl.url;
+  const routePath =  menuWithUrl.url;
 
   return normalizeRoutePath(routePath);
 };

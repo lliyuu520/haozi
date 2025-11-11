@@ -1,6 +1,7 @@
 import {ApiResponse, request} from '@/lib/api';
 import {withErrorHandling} from '@/lib/apiUtils';
 import {MenuItem, MenuType, OpenStyle,} from '@/types/menu';
+import {API} from '@/lib/apiEndpoints';
 
 // 统一导出常用的枚举，方便业务层直接复用
 export {MenuType, OpenStyle};
@@ -120,7 +121,7 @@ const toBackendPayload = (payload: MenuPayloadBase | (MenuPayloadBase & { id: st
         openStyle: payload.openStyle,
         icon: payload.icon || '',
         weight: payload.weight,
-        hidden: payload.hidden ?? 0,
+        hidden: payload.hidden,
         meta: {
             ...payload.meta,
             hidden: payload.hidden === 1,
@@ -142,26 +143,26 @@ const buildNavigation = (menu: MenuItem): MenuNavigation => ({
 });
 
 export async function getMenuList(params?: MenuQueryParams): Promise<MenuItem[]> {
-    const response = await request.get<MenuItem[]>('/sys/menu/list', params);
+    const response = await request.get<MenuItem[]>(API.menu.list(), params);
     return unwrapResponse(response, [] as MenuItem[]);
 }
 
 export async function getMenuDetail(id: string): Promise<MenuDetail> {
-    const response = await request.get<MenuItem & { parentName?: string }>(`/sys/menu/${id}`);
+    const response = await request.get<MenuItem & { parentName?: string }>(API.menu.detail(id));
     const raw = unwrapResponse(response, {} as MenuItem & { parentName?: string });
     return toMenuDetail(raw);
 }
 
 export function createMenu(data: MenuCreateParams) {
-    return withErrorHandling(request.post('/sys/menu', toBackendPayload(data)), '创建菜单');
+    return withErrorHandling(request.post(API.menu.create(), toBackendPayload(data)), '创建菜单');
 }
 
 export function updateMenu(data: MenuUpdateParams) {
-    return withErrorHandling(request.put('/sys/menu', toBackendPayload(data)), '更新菜单');
+    return withErrorHandling(request.put(API.menu.update(), toBackendPayload(data)), '更新菜单');
 }
 
 export function deleteMenu(id: string) {
-    return withErrorHandling(request.delete('/sys/menu', {id}), '删除菜单');
+    return withErrorHandling(request.delete(API.menu.delete(id)), '删除菜单');
 }
 
 export class MenuNavigationHelper {

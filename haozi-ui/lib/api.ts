@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { message } from 'antd';
 import { getToken, removeToken } from './auth';
+import { API_CONFIG } from './apiEndpoints';
 
 export interface ApiResponse<T = unknown> {
   code?: number;
@@ -18,8 +19,8 @@ export interface PageResponse<T> {
 }
 
 const service: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
-  timeout: 30000,
+  baseURL: API_CONFIG.baseURL,
+  timeout: API_CONFIG.timeout,
   headers: {
     'Content-Type': 'application/json;charset=UTF-8',
   },

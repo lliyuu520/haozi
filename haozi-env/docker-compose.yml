@@ -1,0 +1,32 @@
+services:
+  mysql:
+    container_name: haozi_mysql
+    build: mysql
+    hostname: mysql
+    restart: 'no'
+    privileged: true
+    ports:
+      - '3306:3306'
+    networks:
+      - haozi-env
+    volumes:
+      - mysql_data:/var/lib/mysql
+  redis:
+    container_name: haozi_redis
+    build: redis
+    hostname: redis
+    restart: 'no'
+    privileged: true
+    ports:
+      - '6379:6379'
+    networks:
+      - haozi-env
+    volumes:
+      - redis_data:/var/lib/data
+networks:
+  haozi-env:
+    driver: bridge
+    name: haozi-env
+volumes:
+  mysql_data: {}
+  redis_data: {}

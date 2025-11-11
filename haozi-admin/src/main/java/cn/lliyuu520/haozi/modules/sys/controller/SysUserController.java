@@ -68,7 +68,7 @@ public class SysUserController {
      *
      * @return
      */
-    @GetMapping("info")
+    @GetMapping("/info")
     public Result<SysUserVO> info() {
         final Long id = SysUserUtil.getUserInfo().getId();
         final SysUser entity = this.sysUserService.getById(id);

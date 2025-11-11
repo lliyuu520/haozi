@@ -14,6 +14,7 @@ import {
 import { request } from '@/lib/api';
 import { useMenuStore } from '@/stores/menuStore';
 import type { RawMenuNode } from '@/stores/menuStore';
+import {API} from "@/lib/apiEndpoints";
 
 interface AuthState {
   // State
@@ -75,7 +76,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ loading: true });
 
     try {
-      const response = await request.post<LoginResponse>('/sys/auth/login', params);
+      const response = await request.post<LoginResponse>(API.auth.login(), params);
       const payload = response.data?.data;
       const token = payload?.token ?? payload?.accessToken;
 
@@ -90,7 +91,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       let userInfo = payload?.userInfo ?? null;
 
       if (!userInfo) {
-        const userInfoResponse = await request.get<UserInfo>('/sys/user/info');
+        const userInfoResponse = await request.get<UserInfo>(API.user.info());
         userInfo = userInfoResponse.data?.data ?? null;
       }
 
@@ -99,15 +100,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       const [menuResponse, authorityResponse] = await Promise.all([
-        request.get<RawMenuNode[]>('/sys/menu/nav'),
-        request.get<string[]>('/sys/menu/authority'),
+        request.get<RawMenuNode[]>(API.menu.navigation.list()),
+        request.get<string[]>(API.menu.navigation.authority()),
       ]);
 
       const menus = Array.isArray(menuResponse.data?.data)
         ? (menuResponse.data.data as RawMenuNode[])
         : [];
       const authorities = Array.isArray(authorityResponse.data?.data)
-        ? authorityResponse.data.data.filter((item): item is string => typeof item === 'string')
+        ? authorityResponse.data.data.filter((item): item is string => false)
         : [];
 
       const userInfoWithPermissions: UserInfo = {
