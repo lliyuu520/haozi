@@ -5,7 +5,7 @@ import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.lliyuu520.haozi.common.base.page.PageVO;
 import cn.lliyuu520.haozi.common.exception.BaseException;
-import cn.lliyuu520.haozi.common.satoken.user.UserDetail;
+import cn.lliyuu520.haozi.common.satoken.user.SysUserCache;
 import cn.lliyuu520.haozi.common.utils.Result;
 import cn.lliyuu520.haozi.common.utils.SysUserUtil;
 import cn.lliyuu520.haozi.modules.sys.convert.SysUserConvert;
@@ -13,6 +13,7 @@ import cn.lliyuu520.haozi.modules.sys.dto.SysUserDTO;
 import cn.lliyuu520.haozi.modules.sys.dto.SysUserPasswordDTO;
 import cn.lliyuu520.haozi.modules.sys.entity.SysUser;
 import cn.lliyuu520.haozi.modules.sys.query.SysUserQuery;
+import cn.lliyuu520.haozi.modules.sys.service.SysMenuService;
 import cn.lliyuu520.haozi.modules.sys.service.SysUserRoleService;
 import cn.lliyuu520.haozi.modules.sys.service.SysUserService;
 import cn.lliyuu520.haozi.modules.sys.vo.SysUserVO;
@@ -32,6 +33,7 @@ import java.util.List;
 public class SysUserController {
     private final SysUserService sysUserService;
     private final SysUserRoleService sysUserRoleService;
+    private final SysMenuService sysMenuService;
 
     /**
      * 分页查询用户列表
@@ -87,7 +89,7 @@ public class SysUserController {
      */
     @PutMapping("/password")
     public Result<String> password(@RequestBody final SysUserPasswordDTO sysUserPasswordDTO) {
-        final UserDetail user = SysUserUtil.getUserInfo();
+        final SysUserCache user = SysUserUtil.getUserInfo();
         sysUserPasswordDTO.setId(user.getId());
         // 修改密码
         this.sysUserService.updatePassword(sysUserPasswordDTO);

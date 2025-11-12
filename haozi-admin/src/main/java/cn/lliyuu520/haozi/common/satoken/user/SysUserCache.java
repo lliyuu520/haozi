@@ -17,9 +17,7 @@ import java.util.List;
  * @author lliyuu520
  */
 @Data
-@NoArgsConstructor
-@Accessors(chain = true)
-public class UserDetail implements Serializable {
+public class SysUserCache implements Serializable {
 
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
@@ -30,7 +28,7 @@ public class UserDetail implements Serializable {
 
     private List<Long> roleIdList;
 
-    private List<Long> roleNameList;
+
 
     /**
      * 快速创建 UserDetail
@@ -38,13 +36,12 @@ public class UserDetail implements Serializable {
      * @param sysUser
      * @return
      */
-    public static UserDetail of(final SysUser sysUser) {
-        final UserDetail userDetail = new UserDetail();
-        userDetail.setId(sysUser.getId());
-        userDetail.setUsername(sysUser.getUsername());
-        userDetail.setRoleIdList(new ArrayList<>());    
-        userDetail.setRoleNameList(new ArrayList<>());
-        return userDetail;
+    public static SysUserCache of(final SysUser sysUser) {
+        final SysUserCache sysUserCache = new SysUserCache();
+        sysUserCache.setId(sysUser.getId());
+        sysUserCache.setUsername(sysUser.getUsername());
+        sysUserCache.setRoleIdList(new ArrayList<>());
+        return sysUserCache;
 
     }
 

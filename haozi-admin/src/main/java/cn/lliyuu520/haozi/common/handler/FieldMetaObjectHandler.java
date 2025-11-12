@@ -1,7 +1,7 @@
 package cn.lliyuu520.haozi.common.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import cn.lliyuu520.haozi.common.satoken.user.UserDetail;
+import cn.lliyuu520.haozi.common.satoken.user.SysUserCache;
 import cn.lliyuu520.haozi.common.utils.SysUserUtil;
 import org.apache.ibatis.reflection.MetaObject;
 
@@ -21,7 +21,7 @@ public class FieldMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void insertFill(final MetaObject metaObject) {
-        final UserDetail user = SysUserUtil.getUserInfo();
+        final SysUserCache user = SysUserUtil.getUserInfo();
         final LocalDateTime now = LocalDateTime.now();
 
         // 创建者

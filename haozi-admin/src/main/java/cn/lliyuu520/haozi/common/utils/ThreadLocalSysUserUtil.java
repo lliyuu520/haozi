@@ -1,6 +1,6 @@
 package cn.lliyuu520.haozi.common.utils;
 
-import cn.lliyuu520.haozi.common.satoken.user.UserDetail;
+import cn.lliyuu520.haozi.common.satoken.user.SysUserCache;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -11,14 +11,14 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class ThreadLocalSysUserUtil {
 
-    private static final ThreadLocal<UserDetail> USER_DETAIL_THREAD_LOCAL = new ThreadLocal<>();
+    private static final ThreadLocal<SysUserCache> USER_DETAIL_THREAD_LOCAL = new ThreadLocal<>();
 
     /**
      * 获取用户信息
      *
      * @return
      */
-    public UserDetail getUserInfo() {
+    public SysUserCache getUserInfo() {
 
         return USER_DETAIL_THREAD_LOCAL.get();
     }
@@ -26,18 +26,18 @@ public class ThreadLocalSysUserUtil {
     /**
      * 保存用户信息
      *
-     * @param userDetail
+     * @param sysUserCache
      */
-    public void setUserInfo(final UserDetail userDetail) {
-        USER_DETAIL_THREAD_LOCAL.set(userDetail);
+    public void setUserInfo(final SysUserCache sysUserCache) {
+        USER_DETAIL_THREAD_LOCAL.set(sysUserCache);
     }
 
     /**
      * 设置临时用户信息
      */
     public void setTempUserInfo() {
-        final UserDetail userDetail = new UserDetail();
-        USER_DETAIL_THREAD_LOCAL.set(userDetail);
+        final SysUserCache sysUserCache = new SysUserCache();
+        USER_DETAIL_THREAD_LOCAL.set(sysUserCache);
     }
 
     /**

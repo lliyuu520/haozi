@@ -54,12 +54,6 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, SysUser> 
             final Long userId = vo.getId();
             final List<Long> roleIdList = sysUserRoleService.getRoleIdList(userId);
             vo.setRoleIdList(roleIdList);
-            final List<String> roleNameList = sysUserRoleService.getRoleNameList(userId);
-            if (CollUtil.isNotEmpty(roleNameList)) {
-                vo.setRoleName(String.join(",", roleNameList));
-            } else {
-                vo.setRoleName(null);
-            }
         });
 
         return PageVO.of(voList, page.getTotal());
@@ -77,13 +71,10 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, SysUser> 
         if (StrUtil.isNotBlank(username)) {
             queryWrapper.like(SysUser::getUsername, username);
         }
-        final String phone = query.getPhone();
-        if (StrUtil.isNotBlank(phone)) {
-            queryWrapper.like(SysUser::getPhone, phone);
-        }
-        final Integer status = query.getStatus();
-        if (status != null) {
-            queryWrapper.eq(SysUser::getStatus, status);
+
+        final Boolean enabled = query.getEnabled();
+        if (enabled != null) {
+            queryWrapper.eq(SysUser::getEnabled, enabled);
         }
         queryWrapper.orderByAsc(SysUser::getId);
         return queryWrapper;
@@ -110,9 +101,6 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, SysUser> 
         final String password = sysUserDTO.getPassword();
         final String shaed256 = SaSecureUtil.sha256(password);
         entity.setPassword(shaed256);
-        if (entity.getStatus() == null) {
-            entity.setStatus(0);
-        }
 
         // 保存用户
         baseMapper.insert(entity);
@@ -151,11 +139,6 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, SysUser> 
             throw new BaseException("用户不存在");
         }
         sysUser.setUsername(sysUserDTO.getUsername());
-        sysUser.setNickname(sysUserDTO.getNickname());
-        sysUser.setEmail(sysUserDTO.getEmail());
-        sysUser.setPhone(sysUserDTO.getPhone());
-        sysUser.setAvatar(sysUserDTO.getAvatar());
-        sysUser.setStatus(sysUserDTO.getStatus());
         final String password = sysUserDTO.getPassword();
         if (StrUtil.isNotBlank(password)) {
             sysUser.setPassword(SaSecureUtil.sha256(password));

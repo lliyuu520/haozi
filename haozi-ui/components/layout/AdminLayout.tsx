@@ -52,7 +52,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { userInfo, logout, checkAuth, isLoggedIn } = useAuthStore();
+  const { userInfo, logout, checkAuth } = useAuthStore();
   const {
     collapsed,
     theme,
@@ -74,8 +74,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const headerTextClass = 'admin-header-text';
   const breadcrumbTextClass = 'breadcrumb-text';
 
-  const menuTree = useMemo(() => generateMenus(), [menus, generateMenus]);
-  const userDisplayName = userInfo?.nickname || userInfo?.username || '';
+  const menuTree = useMemo(() => generateMenus(), [generateMenus]);
+  const userDisplayName =  userInfo?.username || '';
 
   useEffect(() => {
     if (!checkAuth()) {
@@ -84,12 +84,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   }, [checkAuth, router]);
 
   useEffect(() => {
-    if (isLoggedIn && menus.length === 0) {
+    if ( menus.length === 0) {
       fetchMenus().catch((error) => {
         console.error('❌ Failed to fetch menus:', error);
       });
     }
-  }, [isLoggedIn, menus.length, fetchMenus]);
+  }, [menus.length, fetchMenus]);
 
   useEffect(() => {
     const handleResize = () => {

@@ -2,7 +2,7 @@ package cn.lliyuu520.haozi.modules.sys.service;
 
 import cn.hutool.core.lang.tree.Tree;
 import cn.lliyuu520.haozi.common.base.service.BaseService;
-import cn.lliyuu520.haozi.common.satoken.user.UserDetail;
+import cn.lliyuu520.haozi.common.satoken.user.SysUserCache;
 import cn.lliyuu520.haozi.modules.sys.dto.SysMenuDTO;
 import cn.lliyuu520.haozi.modules.sys.entity.SysMenu;
 
@@ -50,7 +50,7 @@ public interface SysMenuService extends BaseService<SysMenu> {
      * @param user 用户
      * @param type 菜单类型
      */
-    List<Tree<Long>> getUserMenuList(UserDetail user, Integer type);
+    List<Tree<Long>> getUserMenuList(SysUserCache user, Integer type);
 
     /**
      * 获取子菜单的数量
@@ -62,7 +62,7 @@ public interface SysMenuService extends BaseService<SysMenu> {
     /**
      * 获取用户权限列表
      */
-    Set<String> getUserAuthority(UserDetail user);
+    Set<String> getUserAuthority(SysUserCache user);
 
 
 }

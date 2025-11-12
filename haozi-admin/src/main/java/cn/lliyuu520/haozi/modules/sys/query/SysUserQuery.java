@@ -26,7 +26,7 @@ public class SysUserQuery extends BaseQuery {
     /**
      * 状态
      */
-    private Integer status;
+    private Boolean enabled;
 
 
 }

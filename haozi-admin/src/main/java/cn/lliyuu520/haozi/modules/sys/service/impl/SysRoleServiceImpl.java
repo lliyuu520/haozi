@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import cn.lliyuu520.haozi.common.base.page.PageVO;
 import cn.lliyuu520.haozi.common.base.service.impl.BaseServiceImpl;
 import cn.lliyuu520.haozi.common.cache.RollPermissionCache;
-import cn.lliyuu520.haozi.common.satoken.user.UserDetail;
+import cn.lliyuu520.haozi.common.satoken.user.SysUserCache;
 import cn.lliyuu520.haozi.common.utils.SysUserUtil;
 import cn.lliyuu520.haozi.modules.sys.convert.SysRoleConvert;
 import cn.lliyuu520.haozi.modules.sys.dto.SysRoleDTO;
@@ -185,7 +185,7 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleMapper, SysRole> 
      */
     @Override
     public List<String> getPermission() {
-        UserDetail userInfo = SysUserUtil.getUserInfo();
+        SysUserCache userInfo = SysUserUtil.getUserInfo();
         List<Long> roleIdList = userInfo.getRoleIdList();
         List<String> permissionList = CollUtil.newArrayList();
         roleIdList.forEach(roleId -> {

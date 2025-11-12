@@ -3,7 +3,7 @@ package cn.lliyuu520.haozi.modules.sys.controller;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.core.lang.tree.Tree;
 import cn.lliyuu520.haozi.common.base.page.PageVO;
-import cn.lliyuu520.haozi.common.satoken.user.UserDetail;
+import cn.lliyuu520.haozi.common.satoken.user.SysUserCache;
 import cn.lliyuu520.haozi.common.utils.Result;
 import cn.lliyuu520.haozi.common.utils.SysUserUtil;
 import cn.lliyuu520.haozi.modules.sys.convert.SysRoleConvert;
@@ -128,7 +128,7 @@ public class SysRoleController {
      */
     @GetMapping("menu")
     public Result<List<Tree<Long>>> menu() {
-        final UserDetail user = SysUserUtil.getUserInfo();
+        final SysUserCache user = SysUserUtil.getUserInfo();
         final List<Tree<Long>> list = sysMenuService.getUserMenuList(user, null);
 
         return Result.ok(list);

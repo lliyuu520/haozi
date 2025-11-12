@@ -9,11 +9,10 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import cn.lliyuu520.haozi.common.base.service.impl.BaseServiceImpl;
 import cn.lliyuu520.haozi.common.constant.Constant;
 import cn.lliyuu520.haozi.common.exception.BaseException;
-import cn.lliyuu520.haozi.common.satoken.user.UserDetail;
+import cn.lliyuu520.haozi.common.satoken.user.SysUserCache;
 import cn.lliyuu520.haozi.modules.sys.convert.SysMenuConvert;
 import cn.lliyuu520.haozi.modules.sys.dto.SysMenuDTO;
 import cn.lliyuu520.haozi.modules.sys.entity.SysMenu;
-import cn.lliyuu520.haozi.modules.sys.entity.SysRoleMenu;
 import cn.lliyuu520.haozi.modules.sys.mapper.SysMenuMapper;
 import cn.lliyuu520.haozi.modules.sys.service.SysMenuService;
 import cn.lliyuu520.haozi.modules.sys.service.SysRoleMenuService;
@@ -109,7 +108,7 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> 
      * @return
      */
     @Override
-    public List<Tree<Long>> getUserMenuList(final UserDetail user, final Integer type) {
+    public List<Tree<Long>> getUserMenuList(final SysUserCache user, final Integer type) {
         final List<SysMenu> menuList;
 
         if (StrUtil.equals("admin", user.getUsername())) {
@@ -139,7 +138,7 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> 
      * @return
      */
     @Override
-    public Set<String> getUserAuthority(final UserDetail user) {
+    public Set<String> getUserAuthority(final SysUserCache user) {
         // 系统管理员，拥有最高权限
         final List<String> authorityList;
 

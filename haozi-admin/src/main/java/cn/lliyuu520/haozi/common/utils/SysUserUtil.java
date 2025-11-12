@@ -6,7 +6,7 @@ import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.spring.SpringMVCUtil;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.lliyuu520.haozi.common.exception.BaseException;
-import cn.lliyuu520.haozi.common.satoken.user.UserDetail;
+import cn.lliyuu520.haozi.common.satoken.user.SysUserCache;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,24 +26,24 @@ public class SysUserUtil {
      *
      * @return
      */
-    public UserDetail getUserInfo() {
+    public SysUserCache getUserInfo() {
         if (!SpringMVCUtil.isWeb()) {
-            final UserDetail userInfo = ThreadLocalSysUserUtil.getUserInfo();
+            final SysUserCache userInfo = ThreadLocalSysUserUtil.getUserInfo();
             if (userInfo != null) {
                 return userInfo;
             }
-            return new UserDetail();
+            return new SysUserCache();
         }
         try {
             final SaSession session = StpUtil.getSession();
             if (session == null) {
-                return new UserDetail();
+                return new SysUserCache();
             }
-            return (UserDetail) session.get(SESSION_KEY);
+            return (SysUserCache) session.get(SESSION_KEY);
 
         } catch (final NotLoginException e1) {
             // 有很多数据库插入,fill之类的,获取不到用户是正常的,所以这里不处理
-            return new UserDetail();
+            return new SysUserCache();
 
         } catch (final SaTokenException e2) {
             // 这里是明确的异常
@@ -58,10 +58,10 @@ public class SysUserUtil {
     /**
      * 保存用户信息
      *
-     * @param userDetail
+     * @param sysUserCache
      */
-    public void setUserInfo(final UserDetail userDetail) {
-        StpUtil.getSession().set(SESSION_KEY, userDetail);
+    public void setUserInfo(final SysUserCache sysUserCache) {
+        StpUtil.getSession().set(SESSION_KEY, sysUserCache);
     }
 
 

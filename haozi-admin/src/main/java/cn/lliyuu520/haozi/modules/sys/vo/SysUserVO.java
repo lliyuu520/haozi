@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 系统用户VO类（View Object）
@@ -23,10 +24,8 @@ public class SysUserVO extends SysUser {
      */
     private List<Long> roleIdList;
 
-    /**
-     * 角色名称（逗号分隔）
-     */
-    private String roleName;
+
+
 
 
 }

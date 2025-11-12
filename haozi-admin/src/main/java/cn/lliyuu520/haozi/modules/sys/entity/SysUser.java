@@ -24,30 +24,12 @@ public class SysUser extends BaseEntity {
      */
     private String password;
 
-    /**
-     * 昵称，用于展示友好名称
-     */
-    private String nickname;
+
 
     /**
-     * 邮箱
+     * 是否有效
      */
-    private String email;
-
-    /**
-     * 手机号
-     */
-    private String phone;
-
-    /**
-     * 头像地址
-     */
-    private String avatar;
-
-    /**
-     * 用户状态 0-启用 1-禁用 2-锁定
-     */
-    private Integer status;
+    private Boolean enabled;
 
 
 

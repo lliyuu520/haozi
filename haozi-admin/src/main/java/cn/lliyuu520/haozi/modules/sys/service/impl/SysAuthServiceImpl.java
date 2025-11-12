@@ -3,11 +3,14 @@ package cn.lliyuu520.haozi.modules.sys.service.impl;
 import cn.dev33.satoken.secure.SaSecureUtil;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ArrayUtil;
+import cn.lliyuu520.haozi.common.enums.MenuTypeEnum;
+import cn.lliyuu520.haozi.modules.sys.service.SysMenuService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import cn.lliyuu520.haozi.common.exception.BaseException;
-import cn.lliyuu520.haozi.common.satoken.user.UserDetail;
+import cn.lliyuu520.haozi.common.satoken.user.SysUserCache;
 import cn.lliyuu520.haozi.common.utils.SysUserUtil;
 import cn.lliyuu520.haozi.modules.sys.dto.SysAccountLoginDTO;
 import cn.lliyuu520.haozi.modules.sys.entity.SysUser;
@@ -21,6 +24,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 权限认证服务
@@ -35,6 +39,7 @@ public class SysAuthServiceImpl implements SysAuthService {
     private final SysUserService sysUserService;
     private final SysUserRoleService sysUserRoleService;
     private final Environment environment;
+    private final SysMenuService sysMenuService;
 
     /**
      * 账号密码登录
@@ -63,14 +68,26 @@ public class SysAuthServiceImpl implements SysAuthService {
             log.error("用户名或密码错误:{},{}", username, password);
             throw new BaseException("用户名或密码错误");
         }
-        final UserDetail userDetail = UserDetail.of(sysUser);
-        final Long userId = userDetail.getId();
+        final SysUserCache sysUserCache = SysUserCache.of(sysUser);
+        final Long userId = sysUserCache.getId();
         final List<Long> roleList = sysUserRoleService.getRoleIdList(userId);
-        userDetail.setRoleIdList(roleList);
-        StpUtil.login(userDetail.getId());
-        SysUserUtil.setUserInfo(userDetail);
+        sysUserCache.setRoleIdList(roleList);
+        StpUtil.login(sysUserCache.getId());
+        SysUserUtil.setUserInfo(sysUserCache);
         final SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
-        return new SysTokenVO(tokenInfo.getTokenValue());
+        final String tokenValue = tokenInfo.getTokenValue();
+        // 菜单
+        final List<Tree<Long>> list = sysMenuService.getUserMenuList(sysUserCache, MenuTypeEnum.MENU.getValue());
+// 权限
+        final Set<String> set = this.sysMenuService.getUserAuthority(sysUserCache);
+
+        final SysTokenVO sysTokenVO = new SysTokenVO();
+        sysTokenVO.setAccessToken(tokenValue);
+        sysTokenVO.setSysUserCache(sysUserCache);
+        sysTokenVO.setMenuTree(list);
+        sysTokenVO.setPermissions(set);
+
+        return sysTokenVO;
     }
 
     /**

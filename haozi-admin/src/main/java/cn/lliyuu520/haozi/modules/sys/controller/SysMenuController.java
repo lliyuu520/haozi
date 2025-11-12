@@ -4,7 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.core.lang.tree.Tree;
 import cn.lliyuu520.haozi.common.constant.Constant;
 import cn.lliyuu520.haozi.common.enums.MenuTypeEnum;
-import cn.lliyuu520.haozi.common.satoken.user.UserDetail;
+import cn.lliyuu520.haozi.common.satoken.user.SysUserCache;
 import cn.lliyuu520.haozi.common.utils.Result;
 import cn.lliyuu520.haozi.common.utils.SysUserUtil;
 import cn.lliyuu520.haozi.modules.sys.convert.SysMenuConvert;
@@ -38,7 +38,7 @@ public class SysMenuController {
      */
     @GetMapping("/nav")
     public Result<List<Tree<Long>>> nav() {
-        UserDetail user = SysUserUtil.getUserInfo();
+        SysUserCache user = SysUserUtil.getUserInfo();
         final List<Tree<Long>> list = this.sysMenuService.getUserMenuList(user, MenuTypeEnum.MENU.getValue());
 
         return Result.ok(list);
@@ -51,7 +51,7 @@ public class SysMenuController {
      */
     @GetMapping("/authority")
     public Result<Set<String>> authority() {
-        final UserDetail user = SysUserUtil.getUserInfo();
+        final SysUserCache user = SysUserUtil.getUserInfo();
         final Set<String> set = this.sysMenuService.getUserAuthority(user);
 
         return Result.ok(set);
