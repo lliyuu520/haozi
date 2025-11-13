@@ -2,8 +2,6 @@ package cn.lliyuu520.haozi.common.base.service.impl;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.metadata.OrderItem;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lliyuu520.haozi.common.base.query.BaseQuery;
@@ -24,16 +22,8 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, 
      * @param baseQuery 分页参数
      */
     protected IPage<T> getPage(final BaseQuery baseQuery) {
-        final Page<T> page = new Page<>(baseQuery.getPage(), baseQuery.getLimit());
+        final Page<T> page = new Page<>(baseQuery.getCurrent(), baseQuery.getPageSize());
 
-        // 排序
-        if (StringUtils.isNotBlank(baseQuery.getOrder())) {
-            if (baseQuery.isAsc()) {
-                return page.addOrder(OrderItem.asc(baseQuery.getOrder()));
-            } else {
-                return page.addOrder(OrderItem.desc(baseQuery.getOrder()));
-            }
-        }
 
         return page;
     }

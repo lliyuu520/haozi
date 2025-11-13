@@ -6,7 +6,7 @@ import {
   MenuTreeNode,
   getMenuListNavigable,
   deleteMenu
-} from '@/services/menu';
+} from '@/services/menuService';
 import { MenuType } from '@/types/menu';
 import { useMenuPageStore, useDataSource, useLoading, useMenuType, useSearchKeyword, usePagination } from '@/stores/menuPageStore';
 

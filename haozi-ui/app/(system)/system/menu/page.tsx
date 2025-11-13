@@ -12,7 +12,7 @@ import {
   ClearOutlined
 } from '@ant-design/icons';
 import { MenuTable } from '@/app/(system)/system/menu/components';
-import { MenuType } from '@/services/menu';
+import { MenuType } from '@/services/menuService';
 import { useMenuManagement } from '@/app/(system)/system/menu/hooks';
 import { useSelectedRows, useSetSelectedRows } from '@/stores/menuPageStore';
 

@@ -38,8 +38,8 @@ public class SysRoleController {
      * @param query 角色查询条件，包含分页参数和角色筛选条件
      * @return 返回分页后的角色列表数据
      */
-    @GetMapping("page")
-    @SaCheckPermission("sys:role:page")
+    @GetMapping("/page")
+//    @SaCheckPermission("sys:role:page")
     public Result<PageVO<SysRoleVO>> page(final SysRoleQuery query) {
         final PageVO<SysRoleVO> page = sysRoleService.page(query);
 
@@ -51,7 +51,7 @@ public class SysRoleController {
      *
      * @return 返回所有角色列表数据
      */
-    @GetMapping("list")
+    @GetMapping("/list")
     public Result<List<SysRoleVO>> list() {
         final List<SysRoleVO> list = sysRoleService.getList(new SysRoleQuery());
 
@@ -64,9 +64,9 @@ public class SysRoleController {
      * @param id 角色ID
      * @return 返回角色详细信息，包含角色基本信息和关联的菜单ID列表
      */
-    @GetMapping("{id}")
-    @SaCheckPermission("sys:role:info")
-    public Result<SysRoleVO> get(@PathVariable("id") final Long id) {
+    @GetMapping("/{id}")
+//    @SaCheckPermission("sys:role:info")
+    public Result<SysRoleVO> get(@PathVariable final Long id) {
         final SysRole entity = sysRoleService.getById(id);
 
         // 转换对象
@@ -86,7 +86,7 @@ public class SysRoleController {
      * @return 返回操作结果
      */
     @PostMapping
-    @SaCheckPermission("sys:role:save")
+//    @SaCheckPermission("sys:role:save")
     public Result<String> save(@RequestBody final SysRoleDTO dto) {
         sysRoleService.save(dto);
 
@@ -100,7 +100,7 @@ public class SysRoleController {
      * @return 返回操作结果
      */
     @PutMapping
-    @SaCheckPermission("sys:role:update")
+//    @SaCheckPermission("sys:role:update")
     public Result<String> update(@RequestBody final SysRoleDTO dto) {
         sysRoleService.update(dto);
 
@@ -114,8 +114,8 @@ public class SysRoleController {
      * @return 返回操作结果
      */
     @DeleteMapping
-    @SaCheckPermission("sys:role:delete")
-    public Result<String> delete(@RequestParam("id") final Long id) {
+//    @SaCheckPermission("sys:role:delete")
+    public Result<String> delete(@PathVariable final Long id) {
         sysRoleService.deleteOne(id);
 
         return Result.ok();
@@ -126,7 +126,7 @@ public class SysRoleController {
      *
      * @return 返回当前用户有权限访问的菜单树结构
      */
-    @GetMapping("menu")
+    @GetMapping("/menu")
     public Result<List<Tree<Long>>> menu() {
         final SysUserCache user = SysUserUtil.getUserInfo();
         final List<Tree<Long>> list = sysMenuService.getUserMenuList(user, null);

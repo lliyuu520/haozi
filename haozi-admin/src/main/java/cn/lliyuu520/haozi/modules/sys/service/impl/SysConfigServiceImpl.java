@@ -45,7 +45,8 @@ public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigMapper, SysCo
         final IPage<SysConfig> page = page(getPage(query), buildWrapper(query));
 
         // 转换为VO并返回
-        return PageVO.of(SysConfigConvert.INSTANCE.convertToVOList(page.getRecords()), page.getTotal());
+        final List<SysConfigVO> sysConfigVOList = SysConfigConvert.INSTANCE.convertToVOList(page.getRecords());
+        return PageVO.of(sysConfigVOList, page);
     }
 
     /**

@@ -52,14 +52,15 @@ const API_ENDPOINTS = {
         INFO: '/sys/user/info',
     },
 
-    // 角色模块 (预留)
+    // 角色模块
     ROLE: {
+        PAGE: '/sys/role/page',
         LIST: '/sys/role/list',
         DETAIL: (id: string) => `/sys/role/${id}`,
         CREATE: '/sys/role',
         UPDATE: '/sys/role',
         DELETE: (id:string)=>`/sys/role/${id}`,
-        PERMISSIONS: '/sys/role/permissions',
+        MENU: '/sys/role/menu',
     },
 } as const;
 
@@ -118,12 +119,13 @@ export const API = {
     },
     // 角色相关
     role: {
+        page: () => API_ENDPOINTS.ROLE.PAGE,
         list: () => API_ENDPOINTS.ROLE.LIST,
         detail: (id: string) => API_ENDPOINTS.ROLE.DETAIL(id),
         create: () => API_ENDPOINTS.ROLE.CREATE,
         update: () => API_ENDPOINTS.ROLE.UPDATE,
-        delete: () => API_ENDPOINTS.ROLE.DELETE,
-        permissions: () => API_ENDPOINTS.ROLE.PERMISSIONS,
+        delete: (id:string) => API_ENDPOINTS.ROLE.DELETE(id),
+        menu: () => API_ENDPOINTS.ROLE.MENU,
     }
 } as const;
 

@@ -22,7 +22,7 @@ import {
   getMenuDetail,
   type MenuCreateParams,
   type MenuUpdateParams,
-} from '@/services/menu';
+} from '@/services/menuService';
 import { MENU_ICON_OPTIONS } from '@/constants/menuIcons';
 import {
   MODAL_PRESENT_OPTIONS,

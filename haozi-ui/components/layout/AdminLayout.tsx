@@ -74,7 +74,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const headerTextClass = 'admin-header-text';
   const breadcrumbTextClass = 'breadcrumb-text';
 
-  const menuTree = useMemo(() => generateMenus(), [generateMenus]);
+  const menuTree = useMemo(() => generateMenus(), [generateMenus, menus]);
   const userDisplayName =  userInfo?.username || '';
 
   useEffect(() => {

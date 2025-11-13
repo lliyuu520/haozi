@@ -56,7 +56,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, SysUser> 
             vo.setRoleIdList(roleIdList);
         });
 
-        return PageVO.of(voList, page.getTotal());
+        return PageVO.of(voList, page);
     }
 
     /**

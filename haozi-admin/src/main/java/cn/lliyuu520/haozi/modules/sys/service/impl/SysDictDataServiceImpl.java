@@ -32,7 +32,7 @@ public class SysDictDataServiceImpl extends BaseServiceImpl<SysDictDataMapper, S
     public PageVO<SysDictDataVO> pageVO(final SysDictDataQuery query) {
         final IPage<SysDictData> page = baseMapper.selectPage(getPage(query), getWrapper(query));
 
-        return PageVO.of(SysDictDataConvert.INSTANCE.convertList(page.getRecords()), page.getTotal());
+        return PageVO.of(SysDictDataConvert.INSTANCE.convertList(page.getRecords()), page);
     }
 
     private Wrapper<SysDictData> getWrapper(final SysDictDataQuery query) {

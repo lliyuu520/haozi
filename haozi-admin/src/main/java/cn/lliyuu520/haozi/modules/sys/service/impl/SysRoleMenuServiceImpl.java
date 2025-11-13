@@ -22,8 +22,8 @@ public class SysRoleMenuServiceImpl extends BaseServiceImpl<SysRoleMenuMapper, S
 
     /**
      * 保存或更新角色菜单关系
-     * 
-     * @param roleId 角色ID
+     *
+     * @param roleId     角色ID
      * @param menuIdList 菜单ID列表
      */
     @Override
@@ -44,7 +44,7 @@ public class SysRoleMenuServiceImpl extends BaseServiceImpl<SysRoleMenuMapper, S
 
     /**
      * 根据角色ID获取菜单ID列表
-     * 
+     *
      * @param roleId 角色ID
      * @return 菜单ID列表
      */
@@ -55,7 +55,7 @@ public class SysRoleMenuServiceImpl extends BaseServiceImpl<SysRoleMenuMapper, S
 
     /**
      * 根据角色ID删除角色菜单关系
-     * 
+     *
      * @param id 角色ID
      */
     @Override
@@ -67,7 +67,7 @@ public class SysRoleMenuServiceImpl extends BaseServiceImpl<SysRoleMenuMapper, S
 
     /**
      * 根据菜单ID删除角色菜单关系
-     * 
+     *
      * @param menuId 菜单ID
      */
     @Override

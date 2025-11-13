@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { MenuNavigationHelper, NavigableMenuItem } from '@/services/menu';
+import { MenuNavigationHelper, NavigableMenuItem } from '@/services/menuService';
 
 /**
  * 菜单导航 Hook

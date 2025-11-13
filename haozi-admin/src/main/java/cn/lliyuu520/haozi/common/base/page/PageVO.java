@@ -16,7 +16,6 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class PageVO<T> implements Serializable {
 
     /**
@@ -27,27 +26,40 @@ public class PageVO<T> implements Serializable {
      * 总条数
      */
     private long total;
+    /**
+     * 当前页
+     */
+    private long current;
 
+    /**
+     * 每页条数
+     */
+    private long pageSize;
 
-    public static <T> PageVO<T> of(final List<T> list, final long total) {
-        return new PageVO<>(list, total);
+    public  static <T> PageVO<T> of(IPage<T> page) {
+        final PageVO<T> objectPageVO = new PageVO<>();
+        objectPageVO.setList(page.getRecords());
+        objectPageVO.setTotal(page.getTotal());
+        objectPageVO.setCurrent(page.getCurrent());
+        objectPageVO.setPageSize(page.getSize());
+        return objectPageVO;
+
     }
 
-    public static <T> PageVO<T> of(final IPage<T> page) {
-        return new PageVO<>(page.getRecords(), page.getTotal());
+    public  static <T> PageVO<T> of(List<T> list,IPage page) {
+        final PageVO<T> objectPageVO = new PageVO<>();
+        objectPageVO.setList(list);
+        objectPageVO.setTotal(page.getTotal());
+        objectPageVO.setCurrent(page.getCurrent());
+        objectPageVO.setPageSize(page.getSize());
+        return objectPageVO;
+
     }
+
+
 
   
 
-    /**
-     * 空数据
-     *
-     * @param <T>
-     * @return
-     */
-    public static <T> PageVO<T> empty() {
-        return new PageVO<>(CollUtil.newArrayList(), 0L);
-    }
 
 
 }

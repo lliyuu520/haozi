@@ -16,9 +16,7 @@ import com.aliyun.oss.model.PolicyConditions;
 import cn.lliyuu520.haozi.common.config.ProjectConfiguration;
 import cn.lliyuu520.haozi.common.exception.BaseException;
 import cn.lliyuu520.haozi.common.vo.OssPolicyVO;
-import cn.lliyuu520.haozi.modules.sys.entity.SysDownloadCenter;
 import cn.lliyuu520.haozi.modules.sys.enums.SseNotifyType;
-import cn.lliyuu520.haozi.modules.sys.mapper.SysDownloadCenterMapper;
 import cn.lliyuu520.haozi.modules.sys.service.SseService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -44,7 +42,7 @@ import java.util.List;
 public class AliyunOssUtil {
 
     private final ProjectConfiguration projectConfiguration;
-    private final SysDownloadCenterMapper sysDownloadCenterMapper;
+
     private  final  SseService sseService;
 
     /**
@@ -112,29 +110,6 @@ public class AliyunOssUtil {
         final String originalFilename = FileUtil.getName(file);
 
         return upload(inputStream, originalFilename);
-    }
-
-    /**
-     * 上传excel
-     *
-     * @param sysDownloadCenterId
-     * @param list
-     * @return
-     */
-    public <D> void uploadExcel(final Long sysDownloadCenterId, final List<D> list) {
-        final SysDownloadCenter sysDownloadCenter = sysDownloadCenterMapper.selectById(sysDownloadCenterId);
-        final String name = sysDownloadCenter.getName();
-
-        final File file = FileUtil.newFile(name);
-        EasyExcel.write(file,list.get(0).getClass()).sheet("Sheet1").doWrite(list);
-        final String uploadExcelUrl = upload(file);
-        sysDownloadCenter.setUrl(uploadExcelUrl);
-        sysDownloadCenter.setCompletedDateTime(LocalDateTime.now());
-        sysDownloadCenterMapper.updateById(sysDownloadCenter);
-        // 删除文件
-        FileUtil.del(file);
-
-        sseService.sendDownloadNotification(sysDownloadCenter.getCreator(), SseNotifyType.FILE_DOWNLOAD_SUCCESS,"uploadExcelUrl",name);
     }
 
     /**

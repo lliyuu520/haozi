@@ -14,16 +14,13 @@ public class BaseQuery implements Serializable {
     /**
      * 当前页
      */
-    private Integer page = 1;
+    private Integer current = 1;
 
     /**
      * 每页条数
      */
-    private Integer limit = 10;
+    private Integer pageSize = 10;
 
-    private String order;
-
-    private boolean asc;
 
 
 }

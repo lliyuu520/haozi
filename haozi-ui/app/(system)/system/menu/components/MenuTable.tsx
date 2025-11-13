@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { Button, Space, Table, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { EditOutlined, DeleteOutlined, EyeOutlined, TagOutlined, MenuOutlined, ApiOutlined } from '@ant-design/icons';
-import { MenuTreeNode, MenuType, OpenStyle } from '@/services/menu';
+import { MenuTreeNode, MenuType, OpenStyle } from '@/services/menuService';
 import { getMenuIcon } from '@/constants/menuIcons';
 
 // 菜单类型配置
