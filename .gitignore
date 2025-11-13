@@ -18,3 +18,4 @@ haozi-ui-react/.vite/
 # Backend (Maven)
 **/target/
 
+haozi-admin/haozi-admin.jar.tmp
