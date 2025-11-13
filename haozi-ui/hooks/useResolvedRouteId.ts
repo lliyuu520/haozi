@@ -8,7 +8,7 @@ import { useParams } from 'next/navigation';
  * @param paramKey 路由段中的参数名称（如 `[id]` → 'id'）
  * @param explicitId 可选的外部 ID（优先级最高）
  */
-export function useResolvedRouteId<T extends string | number | undefined>(
+export function useResolvedRouteId<T extends string>(
   paramKey: string,
   explicitId?: T,
 ) {

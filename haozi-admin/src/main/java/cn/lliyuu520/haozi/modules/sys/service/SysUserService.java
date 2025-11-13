@@ -53,6 +53,12 @@ public interface SysUserService extends BaseService<SysUser> {
      */
     void updatePassword(SysUserPasswordDTO sysUserPasswordDTO);
 
+    /**
+     *  重置密码
+     * @param id
+     */
+    void resetPassword(Long id);
+
 
 
 

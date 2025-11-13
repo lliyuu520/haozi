@@ -1,15 +1,15 @@
 'use client';
 
-import React from 'react';
-import { Button, Empty, Space, Tag, Tooltip } from 'antd';
+import React, { useState } from 'react';
+import { Button, Empty, Modal, Space, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
-  DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
-  UserOutlined,
-  UnlockOutlined,
-  PlusOutlined,
+    DeleteOutlined,
+    EditOutlined,
+    EyeOutlined,
+    UserOutlined,
+    UnlockOutlined,
+    PlusOutlined, ReloadOutlined,
 } from '@ant-design/icons';
 import type { User } from '@/types/user';
 import ManagementTable from '@/components/ManagementTable';
@@ -51,6 +51,9 @@ export function UserTable({
   onRefresh,
   onCreate,
 }: UserTableProps) {
+  const [pendingResetUser, setPendingResetUser] = useState<User | null>(null);
+  const [resetLoading, setResetLoading] = useState(false);
+
   // 获取状态标签
   const getStatusTag = (enabled: boolean) => {
     return enabled ? (
@@ -117,8 +120,8 @@ export function UserTable({
             <Button
               type="text"
               size="small"
-              icon={<UnlockOutlined />}
-              onClick={() => onResetPassword(record)}
+              icon={<ReloadOutlined />}
+              onClick={() => setPendingResetUser(record)}
               className="text-orange-600 hover:text-orange-700"
             />
           </Tooltip>
@@ -164,25 +167,58 @@ export function UserTable({
     </Empty>
   );
 
+  const handleResetConfirm = async () => {
+    if (!pendingResetUser) return;
+    try {
+      setResetLoading(true);
+      await onResetPassword(pendingResetUser);
+    } finally {
+      setResetLoading(false);
+      setPendingResetUser(null);
+    }
+  };
+
+  const handleResetCancel = () => {
+    if (!resetLoading) {
+      setPendingResetUser(null);
+    }
+  };
+
   return (
-    <ManagementTable<User>
-      dataSource={dataSource}
-      loading={loading}
-      pagination={pagination}
-      searchKeyword={searchKeyword}
-      statusFilter={statusFilter}
-      showStatusFilter={true}
-      columns={columns}
-      rowKey="id"
-      onSearch={onSearch}
-      onStatusFilter={onStatusFilter}
-      onPaginationChange={onPaginationChange}
-      onRefresh={onRefresh}
-      extraActions={extraActions}
-      emptyContent={emptyContent}
-      searchPlaceholder="请输入用户名搜索"
-      statusFilterPlaceholder="状态筛选"
-      tableSize="middle"
-    />
+    <>
+      <ManagementTable<User>
+        dataSource={dataSource}
+        loading={loading}
+        pagination={pagination}
+        searchKeyword={searchKeyword}
+        statusFilter={statusFilter}
+        showStatusFilter={true}
+        columns={columns}
+        rowKey="id"
+        onSearch={onSearch}
+        onStatusFilter={onStatusFilter}
+        onPaginationChange={onPaginationChange}
+        onRefresh={onRefresh}
+        extraActions={extraActions}
+        emptyContent={emptyContent}
+        searchPlaceholder="请输入用户名或手机号"
+        statusFilterPlaceholder="状态筛选"
+        tableSize="middle"
+      />
+
+      <Modal
+        open={Boolean(pendingResetUser)}
+        title="重置密码"
+        okText="确认重置"
+        cancelText="取消"
+        confirmLoading={resetLoading}
+        onOk={handleResetConfirm}
+        onCancel={handleResetCancel}
+      >
+        {pendingResetUser ? (
+          <p>确认要重置用户 "{pendingResetUser.username}" 的密码吗？重置后密码将改为：123456</p>
+        ) : null}
+      </Modal>
+    </>
   );
 }

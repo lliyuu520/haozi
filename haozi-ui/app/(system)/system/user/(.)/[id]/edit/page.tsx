@@ -5,9 +5,11 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button, Card, Space, Breadcrumb } from 'antd';
 import Link from 'next/link';
 import UserForm from '../../../components/UserForm';
+import { useResolvedRouteId } from '@/hooks/useResolvedRouteId';
 
-export default function EditUserPage({ params }: { params: { id: string } }) {
+export default function EditUserPage() {
   const router = useRouter();
+  const userId = useResolvedRouteId('id');
 
   const handleSuccess = () => {
     router.push('/system/user');
@@ -40,7 +42,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
       <Card title="编辑用户">
         <UserForm
           mode="edit"
-          userId={params.id}
+          userId={userId}
           onSuccess={handleSuccess}
           onCancel={handleCancel}
         />

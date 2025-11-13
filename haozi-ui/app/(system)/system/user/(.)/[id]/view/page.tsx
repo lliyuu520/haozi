@@ -5,12 +5,15 @@ import { ArrowLeftOutlined, EditOutlined } from '@ant-design/icons';
 import { Button, Card, Space, Breadcrumb } from 'antd';
 import Link from 'next/link';
 import UserForm from '../../../components/UserForm';
+import { useResolvedRouteId } from '@/hooks/useResolvedRouteId';
 
-export default function ViewUserPage({ params }: { params: { id: string } }) {
+export default function ViewUserPage() {
   const router = useRouter();
+  const userId = useResolvedRouteId('id');
 
   const handleEdit = () => {
-    router.push(`/system/user/${params.id}/edit`);
+    if (!userId) return;
+    router.push(`/system/user/${userId}/edit`);
   };
 
   const handleBack = () => {
@@ -50,7 +53,7 @@ export default function ViewUserPage({ params }: { params: { id: string } }) {
       >
         <UserForm
           mode="view"
-          userId={params.id}
+          userId={userId}
           onSuccess={handleBack}
           onCancel={handleBack}
         />

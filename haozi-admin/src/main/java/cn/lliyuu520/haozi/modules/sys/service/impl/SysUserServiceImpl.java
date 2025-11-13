@@ -4,6 +4,7 @@ import cn.dev33.satoken.secure.SaSecureUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.comparator.CompareUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.lliyuu520.haozi.common.constant.Constant;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -193,5 +194,21 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, SysUser> 
 
     }
 
+    /**
+     * 重置密码
+     *
+     * @param id
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void resetPassword(Long id) {
+        final SysUser user = getById(id);
+        if (user == null) {
+            log.error("用户不存在:{}", id);
+            throw new BaseException("用户不存在");
+        }
+        user.setPassword(SaSecureUtil.sha256(Constant.DEFAULT_PASSWORD));
+        updateById(user);
 
+    }
 }

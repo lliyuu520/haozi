@@ -111,25 +111,13 @@ export function useUserManagement() {
 
   const handleResetPassword = useCallback(
     async (user: User) => {
-      Modal.confirm({
-        title: '重置密码',
-        content: `确认要重置用户 "${user.username}" 的密码吗？重置后密码将设置为：123456`,
-        okText: '确认重置',
-        okType: 'primary',
-        cancelText: '取消',
-        onOk: async () => {
-          try {
-            const params: ResetPasswordParams = {
-              newPassword: '123456',
-            };
-            await resetUserPassword(user.id, params);
-            message.success('重置密码成功');
-          } catch (error) {
-            console.error('重置密码失败:', error);
-            message.error('重置密码失败，请稍后重试');
-          }
-        },
-      });
+      try {
+        await resetUserPassword(user.id);
+        message.success('密码重置成功');
+      } catch (error) {
+        console.error('密码重置失败:', error);
+        message.error('密码重置失败，请稍后重试');
+      }
     },
     [],
   );
@@ -180,3 +168,4 @@ export function useUserForm(mode: 'create' | 'edit' | 'view', _userId?: string) 
     isEdit,
   };
 }
+

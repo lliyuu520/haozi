@@ -97,13 +97,13 @@ public class SysUserController {
     }
 
     /**
-     * 修改他人密码
+     * 重置密码
      */
-    @PutMapping("/updatePassword")
+    @PutMapping("/{id}/resetPassword")
     @SaCheckPermission("sys:user:update")
-    public Result<String> resetPassword(@RequestBody final SysUserPasswordDTO sysUserPasswordDTO) {
+    public Result<String> resetPassword(@PathVariable Long id ) {
 
-        this.sysUserService.updatePassword(sysUserPasswordDTO);
+        this.sysUserService.resetPassword(id);
         return Result.ok();
     }
 

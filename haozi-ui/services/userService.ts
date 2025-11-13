@@ -75,47 +75,31 @@ export async function deleteUser(id: string): Promise<void> {
 /**
  * 重置用户密码
  */
-export async function resetUserPassword(id: string, params: ResetPasswordParams): Promise<void> {
-  await request.put('/sys/user/updatePassword', { id, newPassword: params.newPassword });
+export async function resetUserPassword(id: string): Promise<void> {
+    await request.put(API.user.resetPassword(id))
 }
-
 /**
  * 获取角色列表（用于用户分配）
  */
 export async function getRoleListForUser(): Promise<RoleOption[]> {
-  const response = await request.get('/sys/role/list');
+  const response = await request.get(API.role.list());
   const data = response.data?.data ?? [];
 
-  // 转换为RoleOption格式
-  return data.map((role: any) => ({
+  // 确保data是数组，转换为RoleOption格式
+  return Array.isArray(data) ? data.map((role: { id: string; name: string }) => ({
     id: role.id,
     name: role.name,
     key: role.id,
     title: role.name,
-  }));
+  })) : [];
 }
 
 /**
  * 获取当前用户信息
  */
 export async function getCurrentUserInfo(): Promise<User | null> {
-  const response = await request.get<User>(API.user.info);
+  const response = await request.get<User>(API.user.info());
   return response.data?.data ?? null;
 }
 
-/**
- * 更新用户头像
- */
-export async function updateUserAvatar(avatar: string): Promise<void> {
-  await request.put(API.user.profile, { avatar });
-}
 
-/**
- * 修改密码
- */
-export async function changePassword(oldPassword: string, newPassword: string): Promise<void> {
-  await request.post('/sys/auth/change-password', {
-    oldPassword,
-    newPassword,
-  });
-}

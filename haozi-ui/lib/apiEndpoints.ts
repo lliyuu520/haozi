@@ -51,7 +51,7 @@ const API_ENDPOINTS = {
         DELETE: (id:string)=>`/sys/user/${id}`,
         PROFILE: '/sys/user/profile',
         INFO: '/sys/user/info',
-        RESET_PASSWORD: (id: string) => `/sys/user/${id}/reset-password`,
+        RESET_PASSWORD: (id: string) => `/sys/user/${id}/resetPassword`,
         CHANGE_STATUS: (id: string) => `/sys/user/${id}/status`,
     },
 
