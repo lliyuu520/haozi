@@ -149,7 +149,7 @@ export default function RoleForm({
     } catch (error) {
       console.error('加载角色详情失败:', error);
     }
-  }, [roleId, form, isEdit, isReadOnly]);
+  }, [roleId, form]);
 
   // 根据模式/ID 变更重构菜单树，避免 App Router 复用组件时出现附归数据
   useEffect(() => {

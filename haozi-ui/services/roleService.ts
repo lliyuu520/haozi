@@ -11,7 +11,7 @@ export async function getRolePage(params: RoleQueryParams = {}): Promise<RolePag
         total?: number;
         current?: number;
         pageSize?: number;
-    }>(API.role.page(), {params});
+    }>(API.role.page(), params as Record<string, unknown>);
 
     const payload = response.data?.data ?? {};
     const list = Array.isArray(payload.list) ? payload.list : [];
@@ -31,7 +31,7 @@ export async function getRolePage(params: RoleQueryParams = {}): Promise<RolePag
  * 获取角色列表（不分页）
  */
 export async function getRoleList(params: RoleQueryParams = {}): Promise<Role[]> {
-    const response = await request.get<Role[]>(API.role.list(), {params});
+    const response = await request.get<Role[]>(API.role.list(), params as Record<string, unknown>);
     return response.data?.data ?? [];
 }
 

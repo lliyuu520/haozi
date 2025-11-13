@@ -30,9 +30,9 @@ export function useRoleManagement() {
       setLoading(true);
       try {
         const params: RoleQueryParams = {
-          current:current,
+          current: current,
           pageSize: pageSize,
-          name: keyword.trim() || undefined,
+          ...(keyword.trim() && { name: keyword.trim() }),
         };
 
         const response = await getRolePage(params);

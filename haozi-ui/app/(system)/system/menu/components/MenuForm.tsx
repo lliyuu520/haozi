@@ -347,19 +347,19 @@ export default function MenuForm({
                   label="权限标识"
                   rules={[
                     { required: !isReadOnly, message: '请输入权限标识' },
-                    { pattern: /^[a-zA-Z:]+$/, message: '权限标识只能包含字母和冒号' },
+                    { pattern: /^[a-zA-z:,]+$/, message: '权限标识只能包含字母、冒号和逗号' },
                   ]}
                   tooltip={
                     type === MenuType.BUTTON
-                      ? "用于控制页面按钮的显示权限，如：sys:user:add"
-                      : "用于控制API接口的访问权限，如：sys:user:api"
+                      ? "用于控制页面按钮的显示权限，单个权限如：sys:user:add，多个权限用逗号分隔如：sys:user:add,sys:user:edit"
+                      : "用于控制API接口的访问权限，单个权限如：sys:user:api，多个权限用逗号分隔如：sys:user:list,sys:user:detail"
                   }
                 >
                   <Input
                     placeholder={
                       type === MenuType.BUTTON
-                        ? "请输入权限标识，如：sys:user:add"
-                        : "请输入权限标识，如：sys:user:api"
+                        ? "请输入权限标识，如：sys:user:add 或 sys:user:add,sys:user:edit"
+                        : "请输入权限标识，如：sys:user:api 或 sys:user:list,sys:user:detail"
                     }
                     readOnly={isReadOnly}
                   />
