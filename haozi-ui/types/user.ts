@@ -1,4 +1,6 @@
 // 用户接口，匹配后端 SysUserVO
+import {BasePageResponse, BaseQueryParams} from "@/types/baseQuery";
+
 export interface User {
   id: string;
   username: string;
@@ -11,6 +13,7 @@ export interface User {
 
 // 用户表单值类型，匹配后端 SysUserDTO
 export interface UserFormValues {
+    id?: string;
   username: string;
   password?: string; // 创建时必填，更新时可选
   enabled: boolean;
@@ -32,20 +35,14 @@ export interface UserUpdateParams extends Omit<UserCreateParams, 'password'> {
 }
 
 // 用户查询参数，匹配后端 SysUserQuery
-export interface UserQueryParams {
+export interface UserQueryParams extends BaseQueryParams{
   username?: string;
-  phone?: string;
   enabled?: boolean;
-  current?: number;
-  pageSize?: number;
 }
 
 // 用户分页响应，匹配后端 PageVO
-export interface UserPageResponse {
+export interface UserPageResponse extends BasePageResponse{
   list: User[];
-  total: number;
-  current: number;
-  pageSize: number;
 }
 
 // 重置密码参数

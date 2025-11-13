@@ -67,9 +67,9 @@ project:
   aliyun-properties:
     access-key-id: ${access-key-id}
     access-key-secret: ${access-key-secret}
-    cdn-domain: ${cdn-domain}
-    bucket-name: ${bucket-name}
-    endpoint: ${endpoint}
-    sign-name: ${sign-name}
-    template-code: ${template-code}
+    cdn-domain: "https://oss.lliyuu520.cn"
+    bucket-name: "lliyuu520"
+    endpoint: "oss-cn-chengdu.aliyuncs.com"
+    sign-name: "速通互联验证码"
+    template-code: "100001"
 

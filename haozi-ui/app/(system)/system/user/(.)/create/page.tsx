@@ -40,7 +40,6 @@ export default function CreateUserPage() {
       <Card title="新建用户">
         <UserForm
           mode="create"
-          userId=""
           onSuccess={handleSuccess}
           onCancel={handleCancel}
         />

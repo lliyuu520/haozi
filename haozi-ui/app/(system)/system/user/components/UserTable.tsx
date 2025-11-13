@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import {Button, Empty, Space, Tag, Tooltip} from 'antd';
-import type {ColumnsType} from 'antd/es/table';
+import { Button, Empty, Space, Tag, Tooltip } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import {
   DeleteOutlined,
   EditOutlined,
@@ -11,7 +11,7 @@ import {
   UnlockOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import type {User} from '@/types/user';
+import type { User } from '@/types/user';
 import ManagementTable from '@/components/ManagementTable';
 
 interface UserTableProps {

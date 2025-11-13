@@ -1,5 +1,7 @@
 
 // 角色接口，匹配后端 SysRoleVO
+import {BasePageResponse, BaseQueryParams} from "@/types/baseQuery";
+
 export interface Role {
   id: string;
   name: string;
@@ -24,18 +26,13 @@ export interface RoleUpdateParams extends RoleCreateParams {
 }
 
 // 角色查询参数，匹配后端 SysRoleQuery
-export interface RoleQueryParams {
+export interface RoleQueryParams extends BaseQueryParams{
   name?: string;
-  current?: number;
-  pageSize?: number;
 }
 
 // 角色分页响应，匹配后端 PageVO
-export interface RolePageResponse {
+export interface RolePageResponse extends BasePageResponse{
   list: Role[];
-  total: number;
-  current: number;
-  pageSize: number;
 }
 
 // 菜单权限树节点

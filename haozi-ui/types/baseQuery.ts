@@ -1,0 +1,1 @@
+import {Role} from "@/types/role";export interface BaseQueryParams {    current?: number;    pageSize?: number;}export interface BasePageResponse {    total: number;    current: number;    pageSize: number;}

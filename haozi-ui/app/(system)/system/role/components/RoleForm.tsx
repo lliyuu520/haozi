@@ -28,6 +28,7 @@ import {
   type RoleCreateParams,
   type MenuPermissionNode,
 } from '@/types/role';
+import { useResolvedRouteId } from '@/hooks/useResolvedRouteId';
 
 const DEFAULT_FORM_VALUES: RoleFormValues = {
   name: '',
@@ -36,7 +37,7 @@ const DEFAULT_FORM_VALUES: RoleFormValues = {
 interface RoleFormProps {
   mode: 'create' | 'edit' | 'view';
 
-  roleId: string;
+  roleId?: string;
 
   onSuccess: () => void;
 
@@ -63,6 +64,8 @@ export default function RoleForm({
   const [menuTreeData, setMenuTreeData] = useState<MenuPermissionNode[]>([]);
 
   const [checkedMenuKeys, setCheckedMenuKeys] = useState<string[]>([]);
+
+  const resolvedRoleId = useResolvedRouteId('id', roleId);
 
   const isReadOnly = mode === 'view';
 
@@ -119,10 +122,10 @@ export default function RoleForm({
   const loadRoleDetail = useCallback(async () => {
     if (!isEdit && !isReadOnly) return;
 
-    if (!roleId) return;
+    if (!resolvedRoleId) return;
 
     try {
-      const roleDetail = await getRoleDetail(roleId);
+      const roleDetail = await getRoleDetail(resolvedRoleId);
 
       if (!roleDetail) {
         throw new Error('角色详情为空');
@@ -149,12 +152,12 @@ export default function RoleForm({
     } catch (error) {
       console.error('加载角色详情失败:', error);
     }
-  }, [roleId, form]);
+  }, [resolvedRoleId, form, isEdit, isReadOnly]);
 
   // 根据模式/ID 变更重构菜单树，避免 App Router 复用组件时出现附归数据
   useEffect(() => {
     void loadMenuTree();
-  }, [loadMenuTree, roleId, mode]);
+  }, [loadMenuTree, resolvedRoleId, mode]);
 
   // 当roleId或mode变化时，重新加载角色详情或设置默认值
   useEffect(() => {
@@ -169,7 +172,7 @@ export default function RoleForm({
         ...defaultValues,
       });
     }
-  }, [roleId, mode, isEdit, isReadOnly, defaultValues, form]);
+  }, [resolvedRoleId, mode, isEdit, isReadOnly, defaultValues, form]);
 
   // 处理菜单选择变化
   const handleMenuCheck: TreeProps['onCheck'] = (checkedKeys) => {
@@ -193,8 +196,8 @@ export default function RoleForm({
         menuIdList: checkedMenuKeys,
       };
 
-      if (isEdit && roleId) {
-        await updateRole({ ...params, id: roleId } as RoleUpdateParams);
+      if (isEdit && resolvedRoleId) {
+        await updateRole({ ...params, id: resolvedRoleId } as RoleUpdateParams);
       } else {
         await createRole(params as RoleCreateParams);
       }
