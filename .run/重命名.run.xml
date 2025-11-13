@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="重命名" type="PowerShellRunType" factoryName="PowerShell" activateToolWindowBeforeRun="false" scriptUrl="D:\project\haozi\copy-jar.ps1" executablePath="C:/Program Files/PowerShell/7/pwsh.exe">
+    <envs />
+    <method v="2" />
+  </configuration>
+</component>

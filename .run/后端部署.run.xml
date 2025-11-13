@@ -1,0 +1,41 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="后端部署" type="DEPLOY_HOST_RUN_CONFIGURATION" factoryName="Deploy to Host">
+    <option name="accountModel" />
+    <option name="accountModels" />
+    <option name="address" />
+    <option name="afterCommand" value="sh /root/project/haozi-admin.sh restart" />
+    <option name="alreadyReset" value="true" />
+    <option name="autoOpen" value="true" />
+    <option name="beforeCommand" value="" />
+    <option name="defaultTabIdx" value="0" />
+    <option name="ecsInstance">
+      <EcsInstance>
+        <option name="OSType" />
+        <option name="instanceId" />
+        <option name="instanceName" />
+        <option name="netType" />
+        <option name="privateIps" />
+        <option name="publicIps" />
+        <option name="regionId" />
+        <option name="tags" />
+      </EcsInstance>
+    </option>
+    <option name="ecsInstances" />
+    <option name="hostIds">
+      <list>
+        <option value="6" />
+      </list>
+    </option>
+    <option name="hostTagId" value="0" />
+    <option name="location" value="/root/project" />
+    <option name="pathOrUrl" value="D:\project\haozi\haozi-admin\haozi-admin.jar.tmp" />
+    <option name="tagId" value="0" />
+    <option name="terminalCommand" value="sh /root/project/haozi-admin.sh log" />
+    <option name="type" value="HOST" />
+    <option name="uploadType" value="FILE" />
+    <method v="2">
+      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/pom.xml" goal="clean package" />
+      <option name="RunConfigurationTask" enabled="false" run_configuration_name="重命名" run_configuration_type="PowerShellRunType" />
+    </method>
+  </configuration>
+</component>

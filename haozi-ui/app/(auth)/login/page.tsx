@@ -39,23 +39,22 @@ function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = useMemo(() => searchParams?.get('redirect') ?? '/dashboard', [searchParams]);
-  const { login, loading, checkAuth, isLoggedIn } = useAuthStore();
+  const { login, loading, checkAuth } = useAuthStore();
 
   const [loginType, setLoginType] = useState<'account' | 'mobile'>('account');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
-    if (isLoggedIn || checkAuth()) {
+    if ( checkAuth()) {
       router.replace(redirect);
     }
-  }, [checkAuth, isLoggedIn, redirect, router]);
+  }, [checkAuth, redirect, router]);
 
   const performLogin = async (payload: LoginParams) => {
     setErrorMessage('');
     try {
       const success = await login({
-        ...payload,
-        rememberMe: payload.rememberMe ?? false,
+        ...payload
       });
 
       if (success) {
@@ -79,7 +78,6 @@ function LoginPageContent() {
     await performLogin({
       username: values.phone,
       password: values.password,
-      rememberMe: values.rememberMe,
     });
   };
 
