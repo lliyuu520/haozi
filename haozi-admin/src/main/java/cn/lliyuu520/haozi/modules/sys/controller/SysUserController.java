@@ -41,7 +41,7 @@ public class SysUserController {
      * @param query
      * @return
      */
-    @GetMapping("page")
+    @GetMapping("/page")
     @SaCheckPermission("sys:user:page")
     public Result<PageVO<SysUserVO>> page(final SysUserQuery query) {
         final PageVO<SysUserVO> page = this.sysUserService.page(query);
@@ -49,14 +49,14 @@ public class SysUserController {
     }
 
     /**
-     * 获取用户信息
+     * 详情
      *
      * @param id
      * @return
      */
     @GetMapping("/{id}")
     @SaCheckPermission("sys:user:info")
-    public Result<SysUserVO> get(@PathVariable("id") final Long id) {
+    public Result<SysUserVO> get(@PathVariable final Long id) {
         final SysUser entity = this.sysUserService.getById(id);
         final SysUserVO vo = SysUserConvert.INSTANCE.convertToVO(entity);
         // 用户角色列表
@@ -66,7 +66,7 @@ public class SysUserController {
     }
 
     /**
-     * 详情
+     * 当前用户详情
      *
      * @return
      */
@@ -146,9 +146,9 @@ public class SysUserController {
      * @param id
      * @return
      */
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @SaCheckPermission("sys:user:delete")
-    public Result<String> delete(@RequestParam("id") final Long id) {
+    public Result<String> delete(@PathVariable("id") final Long id) {
         final Long userId = SysUserUtil.getUserInfo().getId();
         if (ObjUtil.equal(userId, id)) {
             throw new BaseException("不能删除当前用户");

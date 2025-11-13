@@ -347,7 +347,7 @@ export default function MenuForm({
                   label="权限标识"
                   rules={[
                     { required: !isReadOnly, message: '请输入权限标识' },
-                    { pattern: /^[a-zA-z:,]+$/, message: '权限标识只能包含字母、冒号和逗号' },
+                    { pattern: /^[a-zA-Z0-9:,\s]+$/, message: '权限标识只能包含字母、数字、冒号、逗号及空格' },
                   ]}
                   tooltip={
                     type === MenuType.BUTTON

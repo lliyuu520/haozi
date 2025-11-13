@@ -150,7 +150,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     if (storedToken && storedUserInfo) {
       setAuthCookie(storedToken);
-      void useMenuStore.getState().fetchMenus().catch(() => undefined);
+      const menuStore = useMenuStore.getState();
+
+      // 同时刷新菜单导航和权限
+      void Promise.all([
+        menuStore.fetchMenus().catch(() => undefined),
+        menuStore.refreshAuthority().catch(() => undefined),
+      ]).catch(() => undefined);
 
       set({
         token: storedToken,

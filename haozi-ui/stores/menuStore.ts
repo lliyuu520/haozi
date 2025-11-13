@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { request } from '@/lib/api';
+import { API } from '@/lib/apiEndpoints';
 import { MenuType, OpenStyle, type MenuTreeNode, type RawMenuNode } from '@/types/menu';
 
 type RawMenuExtra = NonNullable<RawMenuNode['extra']>;
@@ -12,6 +13,7 @@ interface MenuState {
   collapsed: boolean;
 
   fetchMenus: () => Promise<MenuTreeNode[]>;
+  refreshAuthority: () => Promise<void>;
   setMenus: (menus: MenuTreeNode[] | RawMenuNode[]) => void;
   setOpenKeys: (keys: string[]) => void;
   setSelectedKeys: (keys: string[]) => void;
@@ -47,6 +49,23 @@ export const useMenuStore = create<MenuState>()(
         } catch (error) {
           console.error('Failed to load menu tree:', error);
           set({ menus: [] });
+          throw error;
+        }
+      },
+
+      refreshAuthority: async () => {
+        try {
+          // 刷新菜单导航
+          const navResponse = await request.get<RawMenuNode[]>(API.menu.navigation.list());
+          const rawMenus = Array.isArray(navResponse.data?.data) ? navResponse.data.data : [];
+          const normalizedMenus = normalizeMenuTree(rawMenus);
+          set({ menus: normalizedMenus });
+
+          // 刷新菜单权限
+          await request.get(API.menu.navigation.authority());
+          console.log('Menu authority refreshed successfully');
+        } catch (error) {
+          console.error('Failed to refresh menu authority:', error);
           throw error;
         }
       },

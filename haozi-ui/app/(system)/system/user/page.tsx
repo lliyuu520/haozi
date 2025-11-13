@@ -1,38 +1,45 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import {useRouter} from 'next/navigation';
 import {Card, Space} from 'antd';
-import { TeamOutlined } from '@ant-design/icons';
-import { RoleTable } from './components/RoleTable';
-import { useRoleManagement } from './hooks';
+import {UserOutlined} from '@ant-design/icons';
+import {UserTable} from './components/UserTable';
+import {useUserManagement} from './hooks';
 
-export default function RolePage() {
+export default function UserPage() {
   const router = useRouter();
   const {
     dataSource,
     loading,
     searchKeyword,
+    statusFilter,
     pagination,
+    setSearchKeyword,
+    setStatusFilter,
     refresh,
     handleDeleteConfirm,
+    handleResetPassword,
     handlePaginationChange,
-    setSearchKeyword,
-  } = useRoleManagement();
+  } = useUserManagement();
 
   const handleAddClick = () => {
-    router.push('/system/role/create');
+    router.push('/system/user/create');
   };
 
   const handleEditClick = (record: any) => {
-    router.push(`/system/role/${record.id}/edit`);
+    router.push(`/system/user/${record.id}/edit`);
   };
 
   const handleViewClick = (record: any) => {
-    router.push(`/system/role/${record.id}/view`);
+    router.push(`/system/user/${record.id}/view`);
   };
 
   const handleSearch = (keyword: string) => {
     setSearchKeyword(keyword);
+  };
+
+  const handleStatusFilter = (status: boolean | undefined) => {
+    setStatusFilter(status);
   };
 
   const handleRefresh = () => {
@@ -44,20 +51,23 @@ export default function RolePage() {
       <Card
         title={
           <Space>
-            <TeamOutlined className="text-blue-500" />
-            <span>角色管理</span>
+            <UserOutlined className="text-blue-500" />
+            <span>用户管理</span>
           </Space>
         }
       >
-        <RoleTable
+        <UserTable
           dataSource={dataSource}
           loading={loading}
           pagination={pagination}
           searchKeyword={searchKeyword}
+          statusFilter={statusFilter}
           onEdit={handleEditClick}
           onView={handleViewClick}
           onDelete={handleDeleteConfirm}
+          onResetPassword={handleResetPassword}
           onSearch={handleSearch}
+          onStatusFilter={handleStatusFilter}
           onPaginationChange={handlePaginationChange}
           onRefresh={handleRefresh}
           onCreate={handleAddClick}

@@ -202,3 +202,19 @@ export function updateMenuWithNavigation(data: MenuUpdateParams) {
         url: MenuNavigationHelper.normalizeMenuUrl(data.url),
     });
 }
+
+/**
+ * 获取用户菜单权限
+ */
+export async function getMenuAuthority() {
+    const response = await request.get(API.menu.navigation.authority());
+    return response.data?.data ?? [];
+}
+
+/**
+ * 获取用户菜单导航
+ */
+export async function getMenuNavigation() {
+    const response = await request.get(API.menu.navigation.list());
+    return response.data?.data ?? [];
+}

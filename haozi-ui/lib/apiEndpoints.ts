@@ -41,8 +41,9 @@ const API_ENDPOINTS = {
         },
     },
 
-    // 用户模块 (预留)
+    // 用户模块
     USER: {
+        PAGE: '/sys/user/page',
         LIST: '/sys/user/list',
         DETAIL: (id: string) => `/sys/user/${id}`,
         CREATE: '/sys/user',
@@ -50,6 +51,8 @@ const API_ENDPOINTS = {
         DELETE: (id:string)=>`/sys/user/${id}`,
         PROFILE: '/sys/user/profile',
         INFO: '/sys/user/info',
+        RESET_PASSWORD: (id: string) => `/sys/user/${id}/reset-password`,
+        CHANGE_STATUS: (id: string) => `/sys/user/${id}/status`,
     },
 
     // 角色模块
@@ -109,11 +112,14 @@ export const API = {
     },
     // 用户相关
     user: {
+        page: () => API_ENDPOINTS.USER.PAGE,
         list: () => API_ENDPOINTS.USER.LIST,
         detail: (id: string) => API_ENDPOINTS.USER.DETAIL(id),
         create: () => API_ENDPOINTS.USER.CREATE,
         update: () => API_ENDPOINTS.USER.UPDATE,
         delete: (id:string) => API_ENDPOINTS.USER.DELETE(id),
+        resetPassword: (id: string) => API_ENDPOINTS.USER.RESET_PASSWORD(id),
+        changeStatus: (id: string) => API_ENDPOINTS.USER.CHANGE_STATUS(id),
         profile: () => API_ENDPOINTS.USER.PROFILE,
         info: () => API_ENDPOINTS.USER.INFO,
     },
