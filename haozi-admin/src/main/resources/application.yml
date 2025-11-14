@@ -12,9 +12,9 @@ spring:
     time-zone: GMT+8
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/haozi?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://rm-2vc653b9c8w3c8n1c7o.mysql.cn-chengdu.rds.aliyuncs.com:3306/haozi?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: Mysql@200722
+    password: 6#Y@CfaQIVjd8%y1
   data:
     redis:
       database: 4
