@@ -9,8 +9,8 @@
 			"path": "haozi-admin"
 		},
 		{
-			"name": "haozi-ui-antd",
-			"path": "haozi-ui-antd"
+			"name": "haozi-ui",
+			"path": "haozi-ui"
 		}
 	],
 	"launch": {
@@ -28,7 +28,7 @@
 				"name": "启动前端",
 				"request": "launch",
 				"command": "yarn run dev",
-				"cwd": "${workspaceFolder:haozi-ui-antd}"
+				"cwd": "${workspaceFolder:haozi-ui}"
 			}
 		]
 	},

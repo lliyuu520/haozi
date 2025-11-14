@@ -69,16 +69,28 @@ const API_ENDPOINTS = {
 
 
 /**
- * API 端点类型定义（内部使用）
+ * 解析基础 URL：开发环境默认回退到本地；生产环境必须显式提供
  */
-type ApiEndpointType = typeof API_ENDPOINTS;
+const resolveBaseURL = (): string => {
+    const configuredURL = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+    if (configuredURL) {
+        return configuredURL;
+    }
 
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+        return 'http://localhost:8080';
+    }
+
+    throw new Error(
+        'NEXT_PUBLIC_API_BASE_URL 未配置：生产环境必须在构建阶段提供该变量以指向正确的 API',
+    );
+};
 
 /**
  * API 配置
  */
 export const API_CONFIG: ApiEndpointConfig = {
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
+    baseURL: resolveBaseURL(),
     timeout: 30000,
 };
 
@@ -92,10 +104,6 @@ export const API = {
         login: () => API_ENDPOINTS.AUTH.LOGIN,
         logout: () => API_ENDPOINTS.AUTH.LOGOUT,
         userInfo: () => API_ENDPOINTS.AUTH.USER_INFO,
-        refreshToken: () => API_ENDPOINTS.AUTH.REFRESH_TOKEN,
-        changePassword: () => API_ENDPOINTS.AUTH.CHANGE_PASSWORD,
-        sendCaptcha: () => API_ENDPOINTS.AUTH.SEND_CAPTCHA,
-        loginByCaptcha: () => API_ENDPOINTS.AUTH.LOGIN_BY_CAPTCHA,
     },
 
     // 菜单相关
