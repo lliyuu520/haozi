@@ -1,16 +1,4 @@
 services:
-  mysql:
-    container_name: haozi_mysql
-    build: mysql
-    hostname: mysql
-    restart: 'no'
-    privileged: true
-    ports:
-      - '3306:3306'
-    networks:
-      - haozi-env
-    volumes:
-      - mysql_data:/var/lib/mysql
   redis:
     container_name: haozi_redis
     build: redis
@@ -22,11 +10,17 @@ services:
     networks:
       - haozi-env
     volumes:
-      - redis_data:/var/lib/data
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    # 小服务器资源限制
+    deploy:
+      resources:
+        limits:
+          memory: 192M
+          cpus: '0.5'
 networks:
   haozi-env:
     driver: bridge
     name: haozi-env
 volumes:
-  mysql_data: {}
   redis_data: {}

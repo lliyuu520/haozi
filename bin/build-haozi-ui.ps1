@@ -42,6 +42,26 @@ if (-not (Test-Path $ProjectPath)) {
     exit 1
 }
 
+# 进入项目目录
+Push-Location $ProjectPath
+Write-Host "📍 进入项目目录: $(Get-Location)" -ForegroundColor Blue
+
+# 执行构建
+Write-Host "🔨 开始构建项目 (yarn run build)..." -ForegroundColor Yellow
+try {
+    yarn run build
+    Write-Host "✅ 项目构建成功!" -ForegroundColor Green
+}
+catch {
+    Write-Host "❌ 项目构建失败: $($_.Exception.Message)" -ForegroundColor Red
+    exit 1
+}
+finally {
+    # 返回原目录
+    Pop-Location
+    Write-Host "📍 返回脚本目录: $(Get-Location)" -ForegroundColor Blue
+}
+
 # 定义要包含的文件和目录
 $filesToInclude = @(
     "$ProjectPath\.next",

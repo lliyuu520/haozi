@@ -15,8 +15,7 @@ if [ ! -d "$UI_DIR" ]; then
 fi
 
 echo "🚀 开始部署 haozi-ui..."
-echo "📂 切换到 $UI_DIR"
-cd "$UI_DIR"
+echo "📂 当前目录: $(pwd)"
 
 # 检查是否在正确的目录
 if [ ! -f "package.json" ]; then
@@ -54,24 +53,22 @@ echo "   Node.js: $(node --version)"
 echo "   Yarn: $(yarn --version)"
 echo "   PM2: $(pm2 --version)"
 
-# 备份当前的 node_modules（如果存在）
+# 检查 node_modules 是否存在
 if [ -d "node_modules" ]; then
-    echo "💾 备份现有的 node_modules..."
-    mv node_modules node_modules.backup.$(date +%Y%m%d_%H%M%S)
+    echo "✅ 发现现有 node_modules，跳过依赖安装"
+    echo "📦 依赖已存在，无需重新安装"
+else
+    echo "📦 未发现 node_modules，开始安装依赖..."
+    echo "   执行命令: yarn install -production"
+    yarn install -production
+
+    # 检查依赖安装是否成功
+    if [ ! -d "node_modules" ]; then
+        echo "❌ 错误: 依赖安装失败"
+        exit 1
+    fi
+    echo "✅ 依赖安装完成"
 fi
-
-# 安装生产依赖
-echo "📦 安装依赖（包含构建所需 devDependencies）..."
-echo "   执行命令: yarn install --frozen-lockfile"
-yarn install --frozen-lockfile
-
-# 检查依赖安装是否成功
-if [ ! -d "node_modules" ]; then
-    echo "❌ 错误: 依赖安装失败"
-    exit 1
-fi
-
-echo "✅ 依赖安装完成"
 
 # 检查 ecosystem.config.js 配置文件
 echo "🔧 检查 PM2 配置文件..."
@@ -95,11 +92,12 @@ source .env.production
 set +a
 echo "   NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-未定义}"
 
-# 生产构建，确保打包产物使用最新的环境变量
-echo "🏗️ 构建生产包..."
-NODE_ENV=production yarn build
-
-echo "✅ 生产构建完成"
+# 不再服务器构建，直接使用预先拷贝的 .next 产物
+if [ ! -d ".next" ]; then
+    echo "❌ 错误: 未发现 .next 目录，请先在本地构建并将产物上传至服务器"
+    exit 1
+fi
+echo "⏭️ 跳过服务器构建，使用现有 .next 产物"
 
 # 检查 PM2 中是否已存在 haozi-ui 进程
 echo "🔍 检查 PM2 进程状态..."

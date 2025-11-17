@@ -1,4 +1,5 @@
-FROM redis
+FROM redis:7.2.5-alpine
 ENV TZ Asia/Shanghai
-CMD [ "redis-server" ,"--requirepass Redis@200722" ]
+COPY redis.conf /usr/local/etc/redis/redis.conf
+CMD [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
 
