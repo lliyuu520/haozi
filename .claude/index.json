@@ -1,0 +1,80 @@
+{
+  "timestamp": "2025-11-26T15:00:58+08:00",
+  "project": {
+    "name": "haozi",
+    "summary": "多模块全栈项目，包含前端管理系统和后端API服务",
+    "modules_count": 2,
+    "total_files_scanned": 50,
+    "coverage_percentage": 35,
+    "truncated": false
+  },
+  "modules": [
+    {
+      "name": "haozi-ui",
+      "path": "haozi-ui",
+      "type": "frontend",
+      "language": "TypeScript/Next.js",
+      "entry_point": "haozi-ui/app/layout.tsx",
+      "test_directory": null,
+      "config_files": [
+        "haozi-ui/package.json",
+        "haozi-ui/next.config.js",
+        "haozi-ui/tailwind.config.js"
+      ],
+      "key_directories": [
+        "haozi-ui/app",
+        "haozi-ui/services",
+        "haozi-ui/components"
+      ],
+      "coverage": {
+        "scanned_files": 15,
+        "total_files_estimate": 100,
+        "percentage": 15
+      },
+      "gaps": [
+        "components目录结构需要详细扫描",
+        "API配置文件缺失",
+        "类型定义文件未找到"
+      ]
+    },
+    {
+      "name": "haozi-admin",
+      "path": "haozi-admin",
+      "type": "backend",
+      "language": "Java/Spring Boot",
+      "entry_point": "haozi-admin/src/main/java/cn/lliyuu520/haozi/HaoziAdminApplication.java",
+      "test_directory": null,
+      "config_files": [
+        "haozi-admin/pom.xml",
+        "haozi-admin/src/main/resources/application.yml"
+      ],
+      "key_directories": [
+        "haozi-admin/src/main/java/cn/lliyuu520/haozi/modules",
+        "haozi-admin/src/main/java/cn/lliyuu520/haozi/common",
+        "haozi-admin/src/main/resources/mapper"
+      ],
+      "coverage": {
+        "scanned_files": 35,
+        "total_files_estimate": 80,
+        "percentage": 44
+      },
+      "gaps": [
+        "service层实现需要详细扫描",
+        "实体类关系未完全识别",
+        "测试策略未找到"
+      ]
+    }
+  ],
+  "ignored_stats": {
+    "node_modules_files": 1000,
+    "target_files": 50,
+    "idea_files": 10
+  },
+  "next_scan_priorities": [
+    "haozi-ui/components目录深度扫描",
+    "haozi-ui/lib/api配置文件",
+    "haozi-admin/service层实现类",
+    "haozi-admin/entity实体关系映射",
+    "项目测试文件和策略"
+  ]
+}

@@ -4,20 +4,19 @@ import cn.dev33.satoken.secure.SaSecureUtil;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.lang.tree.Tree;
-import cn.hutool.core.util.ArrayUtil;
 import cn.lliyuu520.haozi.common.enums.MenuTypeEnum;
-import cn.lliyuu520.haozi.modules.sys.service.SysMenuService;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import cn.lliyuu520.haozi.common.exception.BaseException;
 import cn.lliyuu520.haozi.common.satoken.user.SysUserCache;
 import cn.lliyuu520.haozi.common.utils.SysUserUtil;
 import cn.lliyuu520.haozi.modules.sys.dto.SysAccountLoginDTO;
 import cn.lliyuu520.haozi.modules.sys.entity.SysUser;
 import cn.lliyuu520.haozi.modules.sys.service.SysAuthService;
+import cn.lliyuu520.haozi.modules.sys.service.SysMenuService;
 import cn.lliyuu520.haozi.modules.sys.service.SysUserRoleService;
 import cn.lliyuu520.haozi.modules.sys.service.SysUserService;
 import cn.lliyuu520.haozi.modules.sys.vo.SysTokenVO;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
@@ -54,14 +53,9 @@ public class SysAuthServiceImpl implements SysAuthService {
 
         final LambdaQueryWrapper<SysUser> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(SysUser::getUsername, username);
+        final String shaed256 = SaSecureUtil.sha256(password);
+        wrapper.eq(SysUser::getPassword, shaed256);
 
-        final String[] activeProfiles = environment.getActiveProfiles();
-        if (ArrayUtil.contains(activeProfiles, "dev")) {
-            log.info("测试环境启动,不检查密码 用户名:{},密码:{}", username, password);
-        } else {
-            final String shaed256 = SaSecureUtil.sha256(password);
-            wrapper.eq(SysUser::getPassword, shaed256);
-        }
 
         final SysUser sysUser = sysUserService.getOne(wrapper);
         if (sysUser == null) {
