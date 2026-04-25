@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "hncsbj"
+		},
+		{
+			"path": "hncsbj-ui-vue",
+			"name": "hncsbj-ui-vue"
+		},
+		{
+			"path": "hncsbj-admin",
+			"name": "hncsbj-admin"
+		}
+	],
+	"settings": {
+		"java.compile.nullAnalysis.mode": "automatic"
+	}
+}

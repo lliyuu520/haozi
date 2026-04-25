@@ -1,0 +1,121 @@
+server:
+  port: 8080
+  undertow:
+    buffer-size: 1024
+    direct-buffers: true
+spring:
+  application:
+    name: hncsbj-admin
+  main:
+    banner-mode: off
+  jackson:
+    time-zone: GMT+8
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://rm-2vc653b9c8w3c8n1c7o.mysql.cn-chengdu.rds.aliyuncs.com:3306/hncsbj?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: ${MYSQL_PASSWORD:}
+    # HikariCP 连接池配置
+    hikari:
+      # 连接池最大连接数
+      maximum-pool-size: 20
+      # 连接池最小空闲连接数
+      minimum-idle: 5
+      # 连接超时时间（毫秒）- 获取连接的最长等待时间
+      connection-timeout: 30000
+      # 连接最大存活时间（毫秒）- 建议设置为30分钟以内，小于MySQL的wait_timeout
+      max-lifetime: 1700000
+      # 连接空闲超时时间（毫秒）- 空闲连接在池中存活的最长时间
+      idle-timeout: 600000
+      # 从连接池获取连接时验证的超时时间（毫秒）
+      validation-timeout: 3000
+      # 泄漏检测阈值（毫秒）- 如果连接超过此时间未关闭，记录日志
+      leak-detection-threshold: 60000
+      # 连接名称（便于监控）
+      pool-name: HikariPool-HNCSBJ
+  data:
+    redis:
+      database: 3
+      host: localhost
+      port: 6379
+      timeout: 6000ms
+      client-type: LETTUCE
+      password: ${REDIS_PASSWORD:}
+      # 添加连接池配置
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+      location: /tmp
+# mybatis-plus配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.mgm.hncsbj.modules.*.entity
+  global-config:
+    banner: off
+    db-config:
+      id-type: ASSIGN_ID
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      table-underline: true
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+sa-token:
+  token-name: Authorization
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: true
+  is-share: false
+  token-style: simple-uuid
+  is-log: false
+  is-print: false
+  max-login-count: -1
+#  项目其他配置
+project:
+  domain: "https://hncsbj.cn"
+  ma-url: "/t/"
+  amap-key: "f2e31573a0f9cf9acad1c941b594cc71"
+  local-file-path: ${TEMP_DIR:/root/project/file}
+  aliyun-oss-properties:
+    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID:}
+    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:}
+    bucket-name: hncsbj
+    end-point: oss-cn-chengdu.aliyuncs.com
+    cdn-domain: https://oss.hncsbj.cn
+  wx-ma-subscribe-template:
+    template-id: TymIcy3gcUQp0AMHkHh0lX3aQSBCrFyBCh8oFxWF6_w
+    submit-date-time: date2
+    feedback-content: thing1
+    handleDateTime: time5
+    handle-result: thing6
+    remark: thing3
+    page: "pages/feedback/feedbackList"
+wx:
+  miniapp:
+    app-id: wx88465ac26065cc94
+    secret: ${WX_MINIAPP_SECRET:}
+    msg-data-format: JSON
+    config-storage:
+      type: RedisTemplate
+      key-prefix: hncsbj
+  pay:
+    app-id: ${wx.miniapp.app-id}
+    mch-id: 1724347343
+    mch-key: 6MobavFRtwiXaR0zrq7G0a2n19dR0jx8
+    cert-serial-no: 441FD3D6B6BB50F69275D923755B91DDB6060CB1
+    apiv3-Key: wQ8123ruKYb7pPwc74E1hAfBaa4NhG04
+    key-path: /root/project/cert/apiclient_cert.p12
+    private-key-path: /root/project/cert/apiclient_key.pem
+    private-cert-path: /root/project/cert/apiclient_cert.pem
