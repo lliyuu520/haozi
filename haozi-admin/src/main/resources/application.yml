@@ -1,0 +1,95 @@
+server:
+  port: 8080
+  undertow:
+    buffer-size: 1024
+    direct-buffers: true
+spring:
+  application:
+    name: haozi-admin
+  main:
+    banner-mode: off
+  jackson:
+    time-zone: GMT+8
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/haozi?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:}
+    # HikariCP 连接池配置
+    hikari:
+      # 连接池最大连接数
+      maximum-pool-size: 20
+      # 连接池最小空闲连接数
+      minimum-idle: 5
+      # 连接超时时间（毫秒）- 获取连接的最长等待时间
+      connection-timeout: 30000
+      # 连接最大存活时间（毫秒）- 建议设置为30分钟以内，小于MySQL的wait_timeout
+      max-lifetime: 1700000
+      # 连接空闲超时时间（毫秒）- 空闲连接在池中存活的最长时间
+      idle-timeout: 600000
+      # 从连接池获取连接时验证的超时时间（毫秒）
+      validation-timeout: 3000
+      # 泄漏检测阈值（毫秒）- 如果连接超过此时间未关闭，记录日志
+      leak-detection-threshold: 60000
+      # 连接名称（便于监控）
+      pool-name: HikariPool-HAOZI
+  data:
+    redis:
+      database: 3
+      host: localhost
+      port: 6379
+      timeout: 6000ms
+      client-type: LETTUCE
+      password: ${REDIS_PASSWORD:}
+      # 添加连接池配置
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+      location: /tmp
+# mybatis-plus配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.haozi.modules.*.entity
+  global-config:
+    banner: off
+    db-config:
+      id-type: ASSIGN_ID
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      table-underline: true
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+sa-token:
+  token-name: Authorization
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: true
+  is-share: false
+  token-style: simple-uuid
+  is-log: false
+  is-print: false
+  max-login-count: -1
+#  项目其他配置
+project:
+  domain: ${PROJECT_DOMAIN:http://localhost:8080}
+  amap-key: ${AMAP_KEY:}
+  local-file-path: ${TEMP_DIR:./file}
+  aliyun-oss-properties:
+    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID:}
+    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:}
+    bucket-name: ${ALIYUN_OSS_BUCKET:haozi}
+    end-point: ${ALIYUN_OSS_ENDPOINT:oss-cn-hangzhou.aliyuncs.com}
+    cdn-domain: ${ALIYUN_OSS_CDN_DOMAIN:}

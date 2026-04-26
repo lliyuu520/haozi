@@ -1,0 +1,25 @@
+# 自动跟踪新文件
+* text=auto
+
+# Java源文件
+*.java text diff=java
+*.xml text
+*.properties text
+*.yml text
+*.yaml text
+
+# 确保这些文件被Git跟踪
+src/main/java/**/*.java linguist-language=Java
+src/main/resources/**/*.xml linguist-language=XML
+src/main/resources/**/*.properties linguist-language=Properties
+src/main/resources/**/*.yml linguist-language=YAML
+src/main/resources/**/*.yaml linguist-language=YAML
+
+# 二进制文件
+*.class binary
+*.jar binary
+*.war binary
+*.ear binary
+*.zip binary
+*.tar.gz binary
+*.rar binary 
