@@ -170,3 +170,4 @@ application-local.yml
 .vfox/
 .claude/
 .omc/
+/.run/

@@ -4,22 +4,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     
-    <groupId>com.mgm</groupId>
-    <artifactId>hncsbj</artifactId>
+    <groupId>com.haozi</groupId>
+    <artifactId>haozi</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
     
-    <name>Hncsbj</name>
-    <description>槟界系统父项目</description>
+    <name>Haozi</name>
+    <description>Haozi 脚手架父项目</description>
     
     <modules>
-        <module>hncsbj-admin</module>
+        <module>haozi-admin</module>
     </modules>
     
     <!-- 前端项目说明 (非 Maven 模块) -->
     <!-- 
-        hncsbj-ui: Vue 3 + TypeScript 前端项目
-        位置: hncsbj-ui/
+        haozi-ui-vue: Vue 3 + TypeScript 前端项目
+        位置: haozi-ui-vue/
         技术: Vue 3, TypeScript, Element Plus, Vite
         命令: yarn dev / yarn build
     -->
@@ -49,10 +49,6 @@
         <lombok.version>1.18.40</lombok.version>
         <redisson.version>3.34.1</redisson.version>
         <aliyun.oss.version>3.17.1</aliyun.oss.version>
-        <aliyun.rds.version>1.1.4</aliyun.rds.version>
-        <aliyun.dysmsapi.version>2.0.18</aliyun.dysmsapi.version>
-        <wx-miniapp.version>4.7.0</wx-miniapp.version>
-        <wx-pay.version>4.7.0</wx-pay.version>
         <poi.version>5.2.4</poi.version>
         <!-- 暂时移除自定义 Netty 版本管理，使用 Spring Boot 默认版本 -->
     </properties>
@@ -112,34 +108,11 @@
                 <artifactId>aliyun-sdk-oss</artifactId>
                 <version>${aliyun.oss.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.aliyun</groupId>
-                <artifactId>dysmsapi20170525</artifactId>
-                <version>${aliyun.dysmsapi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.aliyun</groupId>
-                <artifactId>rds20140815</artifactId>
-                <version>${aliyun.rds.version}</version>
-            </dependency>
-            
             <!-- SpringDoc -->
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-ui</artifactId>
                 <version>${springdoc.version}</version>
-            </dependency>
-            
-            <!-- 微信相关 -->
-            <dependency>
-                <groupId>com.github.binarywang</groupId>
-                <artifactId>wx-java-pay-spring-boot-starter</artifactId>
-                <version>${wx-pay.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.binarywang</groupId>
-                <artifactId>wx-java-miniapp-spring-boot-starter</artifactId>
-                <version>${wx-miniapp.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.poi</groupId>
