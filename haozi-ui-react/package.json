@@ -1,0 +1,40 @@
+{
+  "name": "haozi-ui-react",
+  "version": "3.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --noEmit",
+    "openapi": "openapi-ts"
+  },
+  "dependencies": {
+    "@ant-design/icons": "6.2.0",
+    "@tanstack/react-query": "5.100.5",
+    "@tanstack/react-router": "1.168.24",
+    "antd": "6.3.7",
+    "axios": "1.15.2",
+    "dayjs": "1.11.13",
+    "file-saver": "2.0.5",
+    "nprogress": "0.2.0",
+    "qs": "6.14.0",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "zustand": "5.0.12"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "0.96.1",
+    "@types/file-saver": "2.0.7",
+    "@types/node": "24.10.0",
+    "@types/nprogress": "0.2.3",
+    "@types/qs": "6.14.0",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.1",
+    "sass": "1.99.0",
+    "typescript": "6.0.3",
+    "vite": "8.0.10"
+  },
+  "packageManager": "pnpm@10.32.1"
+}

@@ -12,6 +12,7 @@
 **/node_modules/
 **/dist/
 **/build/
+**/admin/
 /out/
 !**/src/main/**/build/
 !**/src/test/**/build/
