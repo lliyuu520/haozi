@@ -124,8 +124,18 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserMapper, SysUser> 
             }
         }
         final SysUser sysUser = getById(userId);
-        // 更新用户
-        updateById(sysUser);
+        if (sysUser == null) {
+            throw new BaseException("用户不存在");
+        }
+
+        final SysUser entity = SysUserConvert.INSTANCE.convertFromDTO(sysUserDTO);
+        if (StrUtil.isBlank(entity.getPassword())) {
+            entity.setPassword(null);
+        } else {
+            entity.setPassword(SaSecureUtil.sha256(entity.getPassword()));
+        }
+        // 更新用户，只应用表单提交的字段，避免旧实现读取原实体后没有真正更新用户信息。
+        updateById(entity);
         // 更新用户角色关系
         final List<Long> roleIdList = sysUserDTO.getRoleIdList();
         sysUserRoleService.saveOrUpdate(userId, roleIdList);
