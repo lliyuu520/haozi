@@ -4,6 +4,8 @@ server:
     buffer-size: 1024
     direct-buffers: true
 spring:
+  profiles:
+      include: local
   application:
     name: haozi-admin
   main:
@@ -12,9 +14,9 @@ spring:
     time-zone: GMT+8
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/haozi?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true}
-    username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:}
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
     # HikariCP 连接池配置
     hikari:
       # 连接池最大连接数
@@ -35,12 +37,12 @@ spring:
       pool-name: HikariPool-HAOZI
   data:
     redis:
-      database: 3
-      host: localhost
-      port: 6379
+      database: 4
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
       timeout: 6000ms
       client-type: LETTUCE
-      password: ${REDIS_PASSWORD:}
+      password: ${REDIS_PASSWORD}
       # 添加连接池配置
       lettuce:
         pool:
@@ -84,12 +86,11 @@ sa-token:
   max-login-count: -1
 #  项目其他配置
 project:
-  domain: ${PROJECT_DOMAIN:http://localhost:8080}
-  amap-key: ${AMAP_KEY:}
-  local-file-path: ${TEMP_DIR:./file}
+  amap-key: ${AMAP_KEY}
+  local-file-path: ${PROJECT_LOCAL_FILE_PATH}
   aliyun-oss-properties:
-    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID:}
-    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:}
-    bucket-name: ${ALIYUN_OSS_BUCKET:haozi}
-    end-point: ${ALIYUN_OSS_ENDPOINT:oss-cn-hangzhou.aliyuncs.com}
-    cdn-domain: ${ALIYUN_OSS_CDN_DOMAIN:}
+    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID}
+    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET}
+    bucket-name: ${ALIYUN_OSS_BUCKET_NAME}
+    end-point: ${ALIYUN_OSS_END_POINT}
+    cdn-domain: ${ALIYUN_OSS_CDN_DOMAIN}
