@@ -17,6 +17,7 @@ import com.haozi.modules.sys.entity.SysRoleMenu;
 import com.haozi.modules.sys.mapper.SysMenuMapper;
 import com.haozi.modules.sys.service.SysMenuService;
 import com.haozi.modules.sys.service.SysRoleMenuService;
+import com.haozi.modules.sys.support.RouteCodeResolver;
 import com.haozi.modules.sys.vo.SysMenuVO;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -160,6 +161,51 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> 
         }
 
         return permsSet;
+    }
+
+    /**
+     * 获取用户可访问的前端路由编码。
+     *
+     * <p>当前数据库仍以 url 描述前端页面，因此迁移期先从 url 推导 route code。
+     * 后续 sys_menu 增加 code 字段后，该方法应优先读取 code 字段。</p>
+     *
+     * @param user 用户
+     * @return route code 列表
+     */
+    @Override
+    public List<String> getUserRouteCodes(final UserDetail user) {
+        final List<SysMenu> menuList;
+        if (StrUtil.equals("admin", user.getUsername())) {
+            menuList = list(Wrappers.lambdaQuery(SysMenu.class).eq(SysMenu::getType, 0));
+        } else {
+            menuList = baseMapper.getUserMenuList(user.getId(), 0);
+        }
+
+        return menuList.stream()
+                .map(SysMenu::getUrl)
+                .map(RouteCodeResolver::fromLegacyUrl)
+                .flatMap(Optional::stream)
+                .distinct()
+                .sorted()
+                .toList();
+    }
+
+    /**
+     * 获取用户可使用的按钮和接口权限编码。
+     *
+     * <p>沿用现有 perms 字段和角色菜单关系，确保新 React 前端与后端 @SaCheckPermission
+     * 使用同一套权限编码。</p>
+     *
+     * @param user 用户
+     * @return 权限编码列表
+     */
+    @Override
+    public List<String> getPermissionCodes(final UserDetail user) {
+        return getUserAuthority(user).stream()
+                .filter(StrUtil::isNotBlank)
+                .distinct()
+                .sorted()
+                .toList();
     }
 
     /**

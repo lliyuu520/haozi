@@ -1,5 +1,7 @@
 package com.haozi.modules.sys.service;
 
+import com.haozi.modules.auth.vo.AuthorizationVO;
+import com.haozi.modules.auth.vo.CurrentUserVO;
 import com.haozi.modules.sys.dto.SysAccountLoginDTO;
 import com.haozi.modules.sys.vo.SysTokenVO;
 
@@ -17,6 +19,19 @@ public interface SysAuthService {
      */
     SysTokenVO loginByAccount(SysAccountLoginDTO sysAccountLoginDTO);
 
+    /**
+     * 获取当前登录用户上下文。
+     *
+     * @return 当前登录用户上下文
+     */
+    CurrentUserVO getCurrentUser();
+
+    /**
+     * 获取当前用户授权资源。
+     *
+     * @return 当前用户授权资源
+     */
+    AuthorizationVO getAuthorizations();
 
     /**
      * 退出登录

@@ -9,9 +9,12 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.haozi.common.exception.BaseException;
 import com.haozi.common.satoken.user.UserDetail;
 import com.haozi.common.utils.SysUserUtil;
+import com.haozi.modules.auth.vo.AuthorizationVO;
+import com.haozi.modules.auth.vo.CurrentUserVO;
 import com.haozi.modules.sys.dto.SysAccountLoginDTO;
 import com.haozi.modules.sys.entity.SysUser;
 import com.haozi.modules.sys.service.SysAuthService;
+import com.haozi.modules.sys.service.SysMenuService;
 import com.haozi.modules.sys.service.SysUserRoleService;
 import com.haozi.modules.sys.service.SysUserService;
 import com.haozi.modules.sys.vo.SysTokenVO;
@@ -34,6 +37,7 @@ public class SysAuthServiceImpl implements SysAuthService {
 
     private final SysUserService sysUserService;
     private final SysUserRoleService sysUserRoleService;
+    private final SysMenuService sysMenuService;
     private final Environment environment;
 
     /**
@@ -74,11 +78,82 @@ public class SysAuthServiceImpl implements SysAuthService {
     }
 
     /**
+     * 获取当前登录用户上下文。
+     *
+     * <p>React 前端启动、刷新和登录成功后都依赖该方法恢复用户身份、可访问路由和按钮权限。</p>
+     *
+     * @return 当前登录用户上下文
+     */
+    @Override
+    public CurrentUserVO getCurrentUser() {
+        final UserDetail user = requireUserDetail();
+        final AuthorizationVO authorizations = getAuthorizations(user);
+        return new CurrentUserVO(
+                user.getId(),
+                user.getUsername(),
+                user.getUsername(),
+                null,
+                user.getRoleIdList().stream().map(String::valueOf).toList(),
+                authorizations.routeCodes(),
+                authorizations.permissions()
+        );
+    }
+
+    /**
+     * 获取当前用户授权资源。
+     *
+     * @return 当前用户授权资源
+     */
+    @Override
+    public AuthorizationVO getAuthorizations() {
+        return getAuthorizations(requireUserDetail());
+    }
+
+    /**
      * 退出登录
      */
     @Override
     public void logout() {
         SysUserUtil.logout(SysUserUtil.getUserInfo().getId());
 
+    }
+
+    /**
+     * 根据当前 Sa-Token 会话获取用户信息。
+     *
+     * <p>如果 session 中缺失 UserDetail，则根据登录 ID 从数据库重建一份，
+     * 以保证服务重启或会话恢复场景下 /auth/me 仍能返回完整上下文。</p>
+     *
+     * @return 当前登录用户
+     */
+    private UserDetail requireUserDetail() {
+        StpUtil.checkLogin();
+        UserDetail user = SysUserUtil.getUserInfo();
+        if (user != null && user.getId() != null) {
+            return user;
+        }
+
+        final Long userId = Long.valueOf(String.valueOf(StpUtil.getLoginId()));
+        final SysUser sysUser = sysUserService.getById(userId);
+        if (sysUser == null) {
+            throw new BaseException(401, "登录用户不存在");
+        }
+        user = UserDetail.of(sysUser);
+        user.setRoleIdList(sysUserRoleService.getRoleIdList(userId));
+        SysUserUtil.setUserInfo(user);
+        return user;
+    }
+
+    /**
+     * 根据指定用户组装授权资源。
+     *
+     * @param user 用户
+     * @return 授权资源
+     */
+    private AuthorizationVO getAuthorizations(final UserDetail user) {
+        return new AuthorizationVO(
+                sysMenuService.getUserRouteCodes(user),
+                sysMenuService.getPermissionCodes(user)
+        );
     }
 }
