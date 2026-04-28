@@ -13,6 +13,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.OffsetDateTimeSerializer;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -69,6 +70,8 @@ public class JacksonConfiguration {
             this.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeFormatter.ISO_LOCAL_TIME));
             // Instant 类型序列化
             this.addSerializer(Instant.class, InstantSerializer.INSTANCE);
+            // OffsetDateTime 用于统一错误响应时间戳，需显式注册以避免覆盖 Spring Boot 默认 JavaTimeModule 后丢失支持。
+            this.addSerializer(OffsetDateTime.class, OffsetDateTimeSerializer.INSTANCE);
 
             // ======================= 时间反序列化规则 ==============================
             // yyyy-MM-dd HH:mm:ss
@@ -80,6 +83,8 @@ public class JacksonConfiguration {
             this.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeFormatter.ISO_LOCAL_TIME));
             // Instant 反序列化
             this.addDeserializer(Instant.class, InstantDeserializer.INSTANT);
+            // OffsetDateTime 反序列化
+            this.addDeserializer(OffsetDateTime.class, InstantDeserializer.OFFSET_DATE_TIME);
         }
 
     }

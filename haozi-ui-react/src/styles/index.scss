@@ -96,6 +96,17 @@ body {
   gap: 16px;
 }
 
+.dict-workbench {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.95fr) minmax(480px, 1.45fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.dict-workbench__selected-row > td {
+  background: #e8f1ff !important;
+}
+
 .login-page {
   display: grid;
   min-height: 100vh;
@@ -131,6 +142,10 @@ body {
 }
 
 @media (max-width: 768px) {
+  .dict-workbench {
+    grid-template-columns: 1fr;
+  }
+
   .login-page__panel {
     grid-template-columns: 1fr;
   }

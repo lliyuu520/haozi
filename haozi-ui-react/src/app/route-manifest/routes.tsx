@@ -40,7 +40,7 @@ export const routeManifest: AppRouteMeta[] = [
     title: '字典管理',
     icon: 'BookOutlined',
     order: 130,
-    component: lazy(() => import('@/features/system/PlaceholderPage')),
+    component: lazy(() => import('@/features/system/dicts/DictPage')),
   },
   {
     code: 'sys.config',

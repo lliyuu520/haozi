@@ -4,8 +4,6 @@ server:
     buffer-size: 1024
     direct-buffers: true
 spring:
-  profiles:
-      include: local
   application:
     name: haozi-admin
   main:
