@@ -2,10 +2,14 @@ import { Card, Typography } from 'antd';
 import { useRouterState } from '@tanstack/react-router';
 import { routeManifest } from '@/app/route-manifest/routes';
 import { PageContainer } from '@/components/PageContainer/PageContainer';
+import { useNavigationMenus } from '@/app/navigation/useNavigationMenus';
+import { findNavigationRouteByPath } from '@/app/navigation/navigation';
 
 export default function PlaceholderPage() {
   const pathname = useRouterState({ select: state => state.location.pathname });
-  const route = routeManifest.find(item => item.path === pathname);
+  const { data: navigationRoutes = [] } = useNavigationMenus();
+  const route =
+    findNavigationRouteByPath(navigationRoutes, pathname) ?? routeManifest.find(item => item.path === pathname);
 
   return (
     <PageContainer title={route?.title || '功能页面'}>

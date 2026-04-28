@@ -35,9 +35,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService {
     /**
-     * 骨架工作树只保留系统管理和监控模块菜单。
+     * 骨架工作树只保留仪表盘、系统管理和监控模块菜单。
      */
-    private static final Set<String> FRAMEWORK_MENU_PREFIXES = Set.of("sys/", "monitor/");
+    private static final Set<String> FRAMEWORK_MENU_PREFIXES = Set.of("/dashboard", "/system/", "/monitor/");
 
     private final SysRoleMenuService sysRoleMenuService;
 
@@ -166,8 +166,7 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> 
     /**
      * 获取用户可访问的前端路由编码。
      *
-     * <p>当前数据库仍以 url 描述前端页面，因此迁移期先从 url 推导 route code。
-     * 后续 sys_menu 增加 code 字段后，该方法应优先读取 code 字段。</p>
+     * <p>当前菜单 URL 直接保存 React 路由路径，由路由编码解析器转换为前端 route manifest 的 code。</p>
      *
      * @param user 用户
      * @return route code 列表
@@ -183,7 +182,7 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> 
 
         return menuList.stream()
                 .map(SysMenu::getUrl)
-                .map(RouteCodeResolver::fromLegacyUrl)
+                .map(RouteCodeResolver::fromMenuUrl)
                 .flatMap(Optional::stream)
                 .distinct()
                 .sorted()
@@ -228,6 +227,7 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> 
             map.put("openStyle", m.getOpenStyle());
             map.put("type", m.getType());
             map.put("url", m.getUrl());
+            map.put("icon", m.getIcon());
 
             if(parentId==0){
                 map.put("parentName", "一级菜单");
@@ -269,7 +269,7 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> 
                 .toList();
         menuNode.setChildren(filteredChildren);
 
-        final String url = Objects.toString(menuNode.get("url"), "");
+        final String url = Objects.toString(menuNode.get("url"), "").trim();
         final boolean allowedCurrentNode = FRAMEWORK_MENU_PREFIXES.stream().anyMatch(url::startsWith);
         if (allowedCurrentNode || !filteredChildren.isEmpty()) {
             return menuNode;

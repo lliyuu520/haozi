@@ -35,8 +35,8 @@ import java.util.List;
 /**
  * React 字典管理接口。
  *
- * <p>该控制器面向新 React 前端，直接返回业务数据和 HTTP 状态码。
- * 旧 Vue 版本继续使用 /sys/dict/type 与 /sys/dict/data，迁移期间两套入口互不影响。</p>
+ * <p>该控制器面向 React 前端，直接返回业务数据和 HTTP 状态码。
+ * 历史 /sys/dict/type 与 /sys/dict/data 入口继续保留，迁移期间两套入口互不影响。</p>
  */
 @RestController
 @RequestMapping("/system/dicts")
@@ -118,8 +118,8 @@ public class SystemDictController {
     /**
      * 删除字典类型。
      *
-     * <p>React 新接口删除类型时同步清理该类型下的数据，避免双栏页面残留不可见的孤儿数据。
-     * 旧 Vue 删除接口保持原有服务行为不变。</p>
+     * <p>React 接口删除类型时同步清理该类型下的数据，避免双栏页面残留不可见的孤儿数据。
+     * 历史删除接口保持原有服务行为不变。</p>
      *
      * @param id 字典类型 ID
      */

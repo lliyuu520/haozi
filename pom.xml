@@ -18,10 +18,10 @@
     
     <!-- 前端项目说明 (非 Maven 模块) -->
     <!-- 
-        haozi-ui-vue: Vue 3 + TypeScript 前端项目
-        位置: haozi-ui-vue/
-        技术: Vue 3, TypeScript, Element Plus, Vite
-        命令: yarn dev / yarn build
+        haozi-ui-react: React + TypeScript 前端项目
+        位置: haozi-ui-react/
+        技术: React, TypeScript, Ant Design, Vite
+        命令: yarn dev / yarn build / yarn typecheck
     -->
     
     <parent>

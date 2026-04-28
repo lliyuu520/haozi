@@ -16,6 +16,7 @@ import java.util.List;
  * @param name 菜单名称
  * @param type 类型，0 菜单、1 按钮、2 接口
  * @param url 路由地址
+ * @param icon 图标名称
  * @param perms 授权标识
  * @param openStyle 打开方式，0 内部、1 外部
  * @param weight 排序
@@ -35,6 +36,8 @@ public record MenuResourceVO(
         Integer type,
         @Schema(description = "路由地址")
         String url,
+        @Schema(description = "图标名称")
+        String icon,
         @Schema(description = "授权标识")
         String perms,
         @Schema(description = "打开方式，0 内部、1 外部")

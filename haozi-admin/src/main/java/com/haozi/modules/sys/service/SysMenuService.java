@@ -67,7 +67,7 @@ public interface SysMenuService extends BaseService<SysMenu> {
     /**
      * 获取用户可访问的前端路由编码。
      *
-     * <p>迁移期从旧菜单 URL 推导 route code；后续菜单资源模型升级后改为优先读取 code 字段。</p>
+     * <p>从菜单 URL 推导 route code，供 React route manifest 过滤动态菜单。</p>
      *
      * @param user 用户
      * @return route code 列表

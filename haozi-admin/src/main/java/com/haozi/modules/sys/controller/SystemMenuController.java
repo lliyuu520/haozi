@@ -5,8 +5,10 @@ import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.StrUtil;
 import com.haozi.common.constant.Constant;
 import com.haozi.common.exception.BaseException;
+import com.haozi.common.satoken.user.UserDetail;
 import com.haozi.modules.sys.dto.SysMenuDTO;
 import com.haozi.modules.sys.entity.SysMenu;
+import com.haozi.modules.sys.service.SysAuthService;
 import com.haozi.modules.sys.service.SysMenuService;
 import com.haozi.modules.sys.vo.MenuResourceVO;
 import lombok.RequiredArgsConstructor;
@@ -29,14 +31,15 @@ import java.util.Objects;
 /**
  * React 菜单资源接口。
  *
- * <p>该控制器面向新 React 前端，直接返回业务数据和 HTTP 状态码。
- * 旧 Vue 版本继续使用 /sys/menu，迁移期间两套入口互不影响。</p>
+ * <p>该控制器面向 React 前端，直接返回业务数据和 HTTP 状态码。
+ * 历史 /sys/menu 入口继续保留，迁移期间两套入口互不影响。</p>
  */
 @RestController
 @RequestMapping("/system/menus")
 @RequiredArgsConstructor
 public class SystemMenuController {
 
+    private final SysAuthService sysAuthService;
     private final SysMenuService sysMenuService;
 
     /**
@@ -49,6 +52,21 @@ public class SystemMenuController {
     @SaCheckPermission("sys:menu:page")
     public List<MenuResourceVO> list(@RequestParam(required = false) final Integer type) {
         return sysMenuService.getMenuList(type).stream()
+                .map(this::toMenuResource)
+                .toList();
+    }
+
+    /**
+     * 查询当前登录用户可访问的导航菜单树。
+     *
+     * <p>该接口只返回用户已授权的菜单节点，供 React 侧栏动态渲染；组件加载仍由前端 route manifest 白名单控制。</p>
+     *
+     * @return 当前用户导航菜单树
+     */
+    @GetMapping("navigation")
+    public List<MenuResourceVO> navigation() {
+        final UserDetail user = sysAuthService.getRequiredUserDetail();
+        return sysMenuService.getUserMenuList(user, 0).stream()
                 .map(this::toMenuResource)
                 .toList();
     }
@@ -134,6 +152,9 @@ public class SystemMenuController {
         if (dto.getUrl() == null) {
             dto.setUrl("");
         }
+        if (dto.getIcon() == null || dto.getType() != 0) {
+            dto.setIcon("");
+        }
         if (dto.getPerms() == null) {
             dto.setPerms("");
         }
@@ -153,6 +174,7 @@ public class SystemMenuController {
                 entity.getName(),
                 entity.getType(),
                 entity.getUrl(),
+                entity.getIcon(),
                 entity.getPerms(),
                 entity.getOpenStyle(),
                 entity.getWeight(),
@@ -177,6 +199,7 @@ public class SystemMenuController {
                 Objects.toString(tree.getName(), ""),
                 toInteger(tree.get("type")),
                 Objects.toString(tree.get("url"), ""),
+                Objects.toString(tree.get("icon"), ""),
                 Objects.toString(tree.get("perms"), ""),
                 toInteger(tree.get("openStyle")),
                 toInteger(tree.getWeight()),

@@ -1,31 +1,12 @@
-import {
-  ApartmentOutlined,
-  BookOutlined,
-  ControlOutlined,
-  DashboardOutlined,
-  DatabaseOutlined,
-  MonitorOutlined,
-  SafetyCertificateOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
-import { routeManifest } from '@/app/route-manifest/routes';
-import { useAuthStore } from '@/store/authStore';
+import { useEffect, useState } from 'react';
+import { getMenuIcon } from '@/app/route-manifest/icons';
+import { useNavigationMenus } from '@/app/navigation/useNavigationMenus';
+import { findNavigationAncestorKeys, type NavigationRoute } from '@/app/navigation/navigation';
 
 const { Sider } = Layout;
-
-const iconMap = {
-  ApartmentOutlined: <ApartmentOutlined />,
-  BookOutlined: <BookOutlined />,
-  ControlOutlined: <ControlOutlined />,
-  DashboardOutlined: <DashboardOutlined />,
-  DatabaseOutlined: <DatabaseOutlined />,
-  MonitorOutlined: <MonitorOutlined />,
-  SafetyCertificateOutlined: <SafetyCertificateOutlined />,
-  UserOutlined: <UserOutlined />,
-};
 
 type SidebarProps = {
   collapsed: boolean;
@@ -34,23 +15,19 @@ type SidebarProps = {
 /**
  * 后台侧边菜单。
  *
- * 菜单来源于前端 route manifest，并按后端授权 routeCodes 过滤，避免数据库直接控制前端组件路径。
+ * 菜单展示树从后端当前用户授权菜单获取，实际可跳转页面仍由前端 route manifest 白名单兜底。
  */
 export function Sidebar({ collapsed }: SidebarProps) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: state => state.location.pathname });
-  const routeCodes = useAuthStore(state => state.routeCodes);
-  const user = useAuthStore(state => state.user);
+  const { data: navigationRoutes = [] } = useNavigationMenus();
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const menuItems = toMenuItems(navigationRoutes);
 
-  const menuItems: MenuProps['items'] = routeManifest
-    .filter(route => !route.hideInMenu)
-    .filter(route => user?.username === 'admin' || routeCodes.includes(route.code))
-    .sort((left, right) => left.order - right.order)
-    .map(route => ({
-      key: route.path,
-      icon: route.icon ? iconMap[route.icon as keyof typeof iconMap] : undefined,
-      label: route.title,
-    }));
+  useEffect(() => {
+    const ancestorKeys = findNavigationAncestorKeys(navigationRoutes, pathname);
+    setOpenKeys(current => mergeKeys(current, ancestorKeys));
+  }, [navigationRoutes, pathname]);
 
   return (
     <Sider width={252} collapsed={collapsed} collapsedWidth={64} theme="light" className="admin-sidebar">
@@ -61,9 +38,29 @@ export function Sidebar({ collapsed }: SidebarProps) {
       <Menu
         mode="inline"
         selectedKeys={[pathname]}
+        openKeys={collapsed ? [] : openKeys}
         items={menuItems}
-        onClick={({ key }) => navigate({ to: key })}
+        onOpenChange={keys => setOpenKeys(keys.map(String))}
+        onClick={({ key }) => {
+          if (String(key).startsWith('/')) {
+            navigate({ to: key });
+          }
+        }}
       />
     </Sider>
   );
+}
+
+function toMenuItems(routes: NavigationRoute[]): MenuProps['items'] {
+  return routes.map(route => ({
+    key: route.key,
+    icon: getMenuIcon(route.icon),
+    label: route.title,
+    children: route.children.length > 0 ? toMenuItems(route.children) : undefined,
+  }));
+}
+
+function mergeKeys(current: string[], incoming: string[]) {
+  const next = Array.from(new Set([...current, ...incoming]));
+  return next.length === current.length && next.every((key, index) => key === current[index]) ? current : next;
 }

@@ -9,6 +9,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { App, Button, Card, Space, Table, Tag, Typography } from 'antd';
 import type { TableProps } from 'antd';
 import { useState } from 'react';
+import { NAVIGATION_MENU_QUERY_KEY } from '@/app/navigation/useNavigationMenus';
+import { getMenuIcon } from '@/app/route-manifest/icons';
 import { Auth } from '@/components/Auth/Auth';
 import { PageContainer } from '@/components/PageContainer/PageContainer';
 import {
@@ -45,6 +47,7 @@ export default function MenuPage() {
   const refreshMenus = () => {
     queryClient.invalidateQueries({ queryKey: MENU_QUERY_KEY });
     queryClient.invalidateQueries({ queryKey: ['system', 'roles', 'menu-tree'] });
+    queryClient.invalidateQueries({ queryKey: NAVIGATION_MENU_QUERY_KEY });
   };
 
   const createMutation = useMutation({
@@ -113,6 +116,23 @@ export default function MenuPage() {
       dataIndex: 'url',
       ellipsis: true,
       render: value => value || '-',
+    },
+    {
+      title: '图标',
+      dataIndex: 'icon',
+      width: 190,
+      render: value => {
+        const icon = getMenuIcon(value);
+        if (!value) {
+          return '-';
+        }
+        return (
+          <Space>
+            {icon}
+            <Typography.Text type={icon ? undefined : 'secondary'}>{value}</Typography.Text>
+          </Space>
+        );
+      },
     },
     {
       title: '授权标识',
@@ -197,7 +217,7 @@ export default function MenuPage() {
           columns={columns}
           loading={menusQuery.isFetching}
           dataSource={menusQuery.data ?? []}
-          scroll={{ x: 980 }}
+          scroll={{ x: 1120 }}
           pagination={false}
         />
       </Card>

@@ -3,35 +3,39 @@ package com.haozi.modules.sys.support;
 import cn.hutool.core.util.StrUtil;
 import lombok.experimental.UtilityClass;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * 路由编码解析工具。
  *
- * <p>迁移期仍保留旧菜单 URL 字段，该工具将旧 URL 转换为新 React route manifest
- * 可以消费的稳定 route code。后续数据库完成 code 字段迁移后，可以逐步减少对旧 URL 的依赖。</p>
+ * <p>菜单 URL 当前直接保存 React 路由路径，该工具将 React path 转换为 route manifest 使用的稳定 route code。</p>
  */
 @UtilityClass
 public class RouteCodeResolver {
 
-    private static final String INDEX_SUFFIX = "/index";
+    private static final Map<String, String> ROUTE_CODE_BY_REACT_PATH = Map.ofEntries(
+            Map.entry("/dashboard", "dashboard.home"),
+            Map.entry("/system/users", "sys.user"),
+            Map.entry("/system/roles", "sys.role"),
+            Map.entry("/system/menus", "sys.menu"),
+            Map.entry("/system/dicts", "sys.dict"),
+            Map.entry("/system/configs", "sys.config"),
+            Map.entry("/monitor/server", "monitor.server"),
+            Map.entry("/monitor/cache", "monitor.cache")
+    );
 
     /**
-     * 从旧菜单 URL 解析 route code。
+     * 从菜单 URL 解析 route code。
      *
-     * @param legacyUrl 旧菜单 URL，例如 sys/user/index
+     * @param menuUrl 菜单 URL，例如 /system/users
      * @return route code，例如 sys.user；空 URL 和外链返回空
      */
-    public Optional<String> fromLegacyUrl(final String legacyUrl) {
-        if (StrUtil.isBlank(legacyUrl) || StrUtil.startWithAny(legacyUrl, "http://", "https://")) {
+    public Optional<String> fromMenuUrl(final String menuUrl) {
+        if (StrUtil.isBlank(menuUrl) || StrUtil.startWithAny(menuUrl, "http://", "https://")) {
             return Optional.empty();
         }
 
-        String normalized = StrUtil.removeSuffix(legacyUrl.trim(), INDEX_SUFFIX);
-        normalized = StrUtil.strip(normalized, "/");
-        if (StrUtil.isBlank(normalized)) {
-            return Optional.empty();
-        }
-        return Optional.of(normalized.replace('/', '.'));
+        return Optional.ofNullable(ROUTE_CODE_BY_REACT_PATH.get(menuUrl.trim()));
     }
 }

@@ -86,7 +86,7 @@ public class SysAuthServiceImpl implements SysAuthService {
      */
     @Override
     public CurrentUserVO getCurrentUser() {
-        final UserDetail user = requireUserDetail();
+        final UserDetail user = getRequiredUserDetail();
         final AuthorizationVO authorizations = getAuthorizations(user);
         return new CurrentUserVO(
                 user.getId(),
@@ -106,7 +106,7 @@ public class SysAuthServiceImpl implements SysAuthService {
      */
     @Override
     public AuthorizationVO getAuthorizations() {
-        return getAuthorizations(requireUserDetail());
+        return getAuthorizations(getRequiredUserDetail());
     }
 
     /**
@@ -126,7 +126,8 @@ public class SysAuthServiceImpl implements SysAuthService {
      *
      * @return 当前登录用户
      */
-    private UserDetail requireUserDetail() {
+    @Override
+    public UserDetail getRequiredUserDetail() {
         StpUtil.checkLogin();
         UserDetail user = SysUserUtil.getUserInfo();
         if (user != null && user.getId() != null) {

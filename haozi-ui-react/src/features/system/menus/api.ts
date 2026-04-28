@@ -9,6 +9,7 @@ export type MenuResource = {
   name: string;
   type: MenuType;
   url: string;
+  icon: string;
   perms: string;
   openStyle: number;
   weight: number;
@@ -20,6 +21,7 @@ export type MenuPayload = {
   name: string;
   type: MenuType;
   url: string;
+  icon: string;
   perms: string;
   openStyle: number;
   weight: number;

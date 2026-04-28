@@ -1,5 +1,6 @@
 import { Form, Input, InputNumber, Modal, Radio, TreeSelect } from 'antd';
 import { useEffect } from 'react';
+import { IconGridPicker } from '@/features/system/menus/IconGridPicker';
 import type { MenuPayload, MenuResource, MenuType } from '@/features/system/menus/api';
 
 type MenuFormProps = {
@@ -23,8 +24,7 @@ type TreeSelectNode = {
 /**
  * 菜单资源新增/编辑表单。
  *
- * 迁移期仍保存旧菜单模型字段：菜单路由写入 url，按钮和接口权限写入 perms，
- * 以保证旧 Vue 菜单路径和新 React 权限树同时可用。
+ * 菜单路由直接保存 React path，按钮和接口权限继续写入 perms 供后端权限校验。
  */
 export function MenuForm({
   open,
@@ -56,6 +56,7 @@ export function MenuForm({
       name: initialValues?.name ?? '',
       type: initialValues?.type ?? 0,
       url: initialValues?.url ?? '',
+      icon: initialValues?.icon ?? '',
       perms: initialValues?.perms ?? '',
       openStyle: initialValues?.openStyle ?? 0,
       weight: initialValues?.weight ?? 0,
@@ -79,6 +80,7 @@ export function MenuForm({
         onValuesChange={changed => {
           if ('type' in changed && changed.type !== 0) {
             form.setFieldValue('url', '');
+            form.setFieldValue('icon', '');
           }
         }}
       >
@@ -100,9 +102,14 @@ export function MenuForm({
           />
         </Form.Item>
         {selectedType === 0 && (
-          <Form.Item name="url" label="菜单路由" rules={[{ required: true, message: '请输入菜单路由' }]}>
-            <Input autoComplete="off" placeholder="例如：sys/user/index" />
-          </Form.Item>
+          <>
+            <Form.Item name="url" label="菜单路由" rules={[{ required: true, message: '请输入菜单路由' }]}>
+              <Input autoComplete="off" placeholder="例如：/system/users" />
+            </Form.Item>
+            <Form.Item name="icon" label="菜单图标" tooltip="保存 Ant Design 图标组件名称，用于界面展示">
+              <IconGridPicker />
+            </Form.Item>
+          </>
         )}
         <Form.Item
           name="perms"
@@ -127,7 +134,7 @@ export function MenuForm({
 }
 
 /**
- * 将表单值整理为后端旧菜单模型需要的结构。
+ * 将表单值整理为后端菜单模型需要的结构。
  *
  * @param values 表单值
  * @returns 菜单资源提交数据
@@ -139,6 +146,7 @@ function normalizePayload(values: MenuPayload): MenuPayload {
     name: values.name.trim(),
     type,
     url: type === 0 ? values.url?.trim() ?? '' : '',
+    icon: type === 0 ? values.icon?.trim() ?? '' : '',
     perms: values.perms?.trim() ?? '',
     openStyle: values.openStyle ?? 0,
     weight: values.weight ?? 0,

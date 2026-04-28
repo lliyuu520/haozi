@@ -28,8 +28,8 @@ import java.util.List;
 /**
  * React 参数配置接口。
  *
- * <p>该控制器面向新 React 前端，直接返回业务数据和 HTTP 状态码。
- * 旧 Vue 版本继续使用 /sys/config，迁移期间两套入口互不影响。</p>
+ * <p>该控制器面向 React 前端，直接返回业务数据和 HTTP 状态码。
+ * 历史 /sys/config 入口继续保留，迁移期间两套入口互不影响。</p>
  */
 @RestController
 @RequestMapping("/system/configs")

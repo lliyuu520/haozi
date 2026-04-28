@@ -39,7 +39,16 @@ public class SysUserUtil {
             if (session == null) {
                 return new UserDetail();
             }
-            return (UserDetail) session.get(SESSION_KEY);
+            final Object user = session.get(SESSION_KEY);
+            if (user == null) {
+                return new UserDetail();
+            }
+            if (user instanceof UserDetail userDetail) {
+                return userDetail;
+            }
+            // DevTools 热重启后 session 中的对象可能来自旧 classloader，交由认证服务按登录 ID 重建。
+            log.warn("session 用户信息类型不匹配，忽略缓存用户上下文: {}", user.getClass().getName());
+            return new UserDetail();
 
         } catch (final NotLoginException e1) {
             // 有很多数据库插入,fill之类的,获取不到用户是正常的,所以这里不处理

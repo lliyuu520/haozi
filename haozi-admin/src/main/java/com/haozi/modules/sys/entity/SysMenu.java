@@ -28,6 +28,10 @@ public class SysMenu extends BaseEntity {
      */
     private String url;
     /**
+     * 菜单图标名称，用于前端界面展示
+     */
+    private String icon;
+    /**
      * 授权标识(多个用逗号分隔，如：sys:menu:list,sys:menu:save)
      */
     private String perms;

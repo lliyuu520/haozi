@@ -3,6 +3,8 @@ import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { routeManifest } from '@/app/route-manifest/routes';
 import { useEffect } from 'react';
 import { useUiStore } from '@/store/uiStore';
+import { useNavigationMenus } from '@/app/navigation/useNavigationMenus';
+import { findNavigationRouteByPath, getFirstNavigationPath } from '@/app/navigation/navigation';
 
 /**
  * 访问标签栏。
@@ -12,16 +14,18 @@ import { useUiStore } from '@/store/uiStore';
 export function TabsBar() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: state => state.location.pathname });
+  const { data: navigationRoutes = [] } = useNavigationMenus();
   const tabs = useUiStore(state => state.tabs);
   const upsertTab = useUiStore(state => state.upsertTab);
   const closeTab = useUiStore(state => state.closeTab);
 
   useEffect(() => {
-    const route = routeManifest.find(item => item.path === pathname);
-    if (route) {
+    const navigationRoute = findNavigationRouteByPath(navigationRoutes, pathname);
+    const route = navigationRoute ?? routeManifest.find(item => item.path === pathname);
+    if (route?.path) {
       upsertTab({ path: route.path, title: route.title });
     }
-  }, [pathname, upsertTab]);
+  }, [navigationRoutes, pathname, upsertTab]);
 
   return (
     <Tabs
@@ -35,7 +39,11 @@ export function TabsBar() {
         if (typeof targetKey === 'string') {
           closeTab(targetKey);
           if (targetKey === pathname) {
-            navigate({ to: tabs.find(tab => tab.path !== targetKey)?.path || '/dashboard' });
+            const nextPath =
+              tabs.find(tab => tab.path !== targetKey)?.path ||
+              getFirstNavigationPath(navigationRoutes) ||
+              '/dashboard';
+            navigate({ to: nextPath });
           }
         }
       }}

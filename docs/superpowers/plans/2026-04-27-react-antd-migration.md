@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 将现有 Vue 3 + Element Plus 管理脚手架升级为 React + Ant Design 管理脚手架，同时保留 Sa-Token 授权体系，并重建前后端契约、路由、权限、错误模型与页面组织方式。
+**Goal:** 将原管理脚手架升级为 React + Ant Design 管理脚手架，同时保留 Sa-Token 授权体系，并重建前后端契约、路由、权限、错误模型与页面组织方式。
 
 **Architecture:** 前端使用 Vite + React + TypeScript + Ant Design + TanStack Router + TanStack Query + Zustand，按 feature-based 结构组织；后端继续使用 Spring Boot + Sa-Token + MyBatis-Plus，重做 OpenAPI 契约、HTTP 状态错误模型、分页模型和授权资源模型。后端只负责认证、授权与资源码下发，前端通过 route manifest 决定页面、菜单与组件加载。
 
@@ -19,7 +19,7 @@
 - 前端新目录固定为 `D:\project\haozi\haozi-ui-react`。
 - 后端授权框架继续使用 Sa-Token，不引入 Spring Security。
 - 允许改造后端接口协议、错误模型、分页模型、菜单权限模型。
-- Vue 项目 `D:\project\haozi\haozi-ui-vue` 在迁移完成前保留，作为行为参照，不在第一阶段删除。
+- 旧版前端目录已移除，后续实现不再以旧目录作为行为参照或交付依赖。
 
 ## 拆解判断
 
@@ -73,11 +73,11 @@
 
 ### 权限与菜单策略
 
-旧模式：
+历史模式：
 
 - 后端菜单返回 `url`。
-- 前端按 `src/views/${url}.vue` 动态加载组件。
-- 按钮通过 `v-auth` 判断权限码。
+- 旧版前端按菜单 `url` 动态加载页面。
+- 按钮通过旧版权限指令判断权限码。
 
 新模式：
 
@@ -1315,7 +1315,7 @@ pnpm build
 - [ ] 错误提示是用户可读中文，不暴露堆栈和敏感配置。
 - [ ] 关键公开接口、业务实现方法、关键私有方法均有中文注释。
 - [ ] 没有只注释接口而忽略实现方法的情况。
-- [ ] Vue 旧项目仍可作为对照存在，直到 React 项目通过验收。
+- [ ] 旧版前端目录已移除，React 项目通过验收后不再依赖旧实现对照。
 
 ## 阶段性提交建议
 
@@ -1340,8 +1340,8 @@ commit 9: chore: complete migration verification and cleanup
 | Sa-Token Cookie 在开发环境跨域失效 | 登录后前端仍是未登录 | Vite 代理 `/api`，前端同源访问，Axios 开启 `withCredentials` |
 | OpenAPI 生成类型与现有接口不匹配 | 前端生成失败或类型不稳定 | 先改造核心认证与分页接口，再逐步纳入其他接口 |
 | Browser History 刷新 404 | 页面可跳转但刷新失败 | 后端配置 `/admin/**` fallback 到 `index.html` |
-| 菜单资源模型影响旧 Vue | 新旧前端并存期间菜单字段变化 | 保留旧字段到 React 验收完成，不立即删除 `url` 等字段 |
-| AntD Table 替代 VXE 能力不足 | 部分表格交互降级 | 先迁移基础列表；复杂编辑或虚拟滚动再单独封装 |
+| 菜单资源模型影响历史接口 | 菜单字段变化可能影响存量数据与兼容路径 | 保留历史字段到 React 验收完成，不立即删除 `url` 等字段 |
+| AntD Table 能力不足 | 部分表格交互降级 | 先迁移基础列表；复杂编辑或虚拟滚动再单独封装 |
 | 地图组件替换成本高 | 区域页延期 | 地图能力单独封装为 `MapPicker`，不阻塞系统核心页面 |
 
 ## 不做事项
@@ -1349,7 +1349,6 @@ commit 9: chore: complete migration verification and cleanup
 - 不引入 Spring Security。
 - 不保留前端可读 token 作为新架构目标。
 - 不让后端继续下发前端组件路径作为核心路由依据。
-- 不在第一阶段删除 `haozi-ui-vue`。
+- 不恢复已移除的旧版前端目录。
 - 不为了迁移顺手引入项目专有业务模块。
 - 不在未通过核心验证前替换线上部署入口。
-
