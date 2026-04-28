@@ -63,6 +63,7 @@ yarn vue-tsc --noEmit --skipLibCheck
 
 ## 前端约定
 
+- 当前 React 迁移阶段暂不考虑移动端适配；页面迁移和布局修复优先保证桌面端后台管理使用体验，不为移动端额外增加断点、侧栏折叠、表格移动端重排等适配逻辑。
 - Vue 文件优先使用 Composition API 和 `<script setup lang="ts">`，除非现有文件已经采用其他写法。
 - 页面放在 `src/views/<module>/<entity>/`，常见结构是 `index.vue` 与 `add-or-update.vue`。
 - API 文件放在 `src/api/**`，命名沿用 `useXxxApi`、`useXxxSubmitApi`、`useXxxDeleteApi` 等函数风格。

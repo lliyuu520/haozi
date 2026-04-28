@@ -62,6 +62,11 @@ public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigMapper, SysCo
         if (StrUtil.isNotBlank(code)) {
             queryWrapper.like(SysConfig::getCode, code);
         }
+        // 根据描述查询，供 React 参数配置页的描述筛选使用。
+        final String descs = query.getDescs();
+        if (StrUtil.isNotBlank(descs)) {
+            queryWrapper.like(SysConfig::getDescs, descs);
+        }
         // 根据类型查询
         final String type = query.getType();
         if (StrUtil.isNotBlank(type)) {

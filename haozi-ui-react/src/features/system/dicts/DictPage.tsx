@@ -7,10 +7,12 @@ import {
   SearchOutlined,
 } from '@ant-design/icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { App, Button, Card, Form, Input, Space, Table, Typography } from 'antd';
+import { App, Button, Card, Form, Input, Space, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { Auth } from '@/components/Auth/Auth';
+import { PageContainer } from '@/components/PageContainer/PageContainer';
+import { SearchForm } from '@/components/SearchForm/SearchForm';
 import {
   createDictData,
   createDictType,
@@ -149,6 +151,7 @@ export default function DictPage() {
       title: '操作',
       key: 'actions',
       width: 160,
+      fixed: 'right',
       render: (_, record) => (
         <Space>
           <Auth code="sys:dict:update">
@@ -214,6 +217,7 @@ export default function DictPage() {
       title: '操作',
       key: 'actions',
       width: 160,
+      fixed: 'right',
       render: (_, record) => (
         <Space>
           <Auth code="sys:dict:update">
@@ -275,35 +279,33 @@ export default function DictPage() {
   };
 
   return (
-    <div className="page-stack">
-      <Typography.Title level={2}>字典管理</Typography.Title>
-      <Card>
-        <Form form={typeForm} layout="inline" onFinish={handleTypeSearch}>
-          <Form.Item name="dictType" label="字典类型">
-            <Input allowClear placeholder="请输入字典类型" />
-          </Form.Item>
-          <Form.Item name="dictName" label="字典名称">
-            <Input allowClear placeholder="请输入字典名称" />
-          </Form.Item>
-          <Space>
-            <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
-              查询
-            </Button>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={() => {
-                typeForm.resetFields();
-                setSelectedType(null);
-                setTypeQuery({ page: 1, pageSize: typeQuery.pageSize });
-              }}
-            >
-              重置
-            </Button>
-          </Space>
-        </Form>
-      </Card>
+    <PageContainer title="字典管理">
+      <SearchForm<Pick<DictTypeQuery, 'dictType' | 'dictName'>> form={typeForm} onFinish={handleTypeSearch}>
+        <Form.Item name="dictType" label="字典类型">
+          <Input allowClear placeholder="请输入字典类型" />
+        </Form.Item>
+        <Form.Item name="dictName" label="字典名称">
+          <Input allowClear placeholder="请输入字典名称" />
+        </Form.Item>
+        <Space className="search-form__actions">
+          <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
+            查询
+          </Button>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => {
+              typeForm.resetFields();
+              setSelectedType(null);
+              setTypeQuery({ page: 1, pageSize: typeQuery.pageSize });
+            }}
+          >
+            重置
+          </Button>
+        </Space>
+      </SearchForm>
       <div className="dict-workbench">
         <Card
+          className="table-card"
           title="字典类型"
           extra={
             <Auth code="sys:dict:save">
@@ -326,6 +328,7 @@ export default function DictPage() {
             loading={dictTypesQuery.isFetching}
             dataSource={dictTypesQuery.data?.items ?? []}
             rowClassName={record => (record.id === selectedType?.id ? 'dict-workbench__selected-row' : '')}
+            scroll={{ x: 560 }}
             onRow={record => ({
               onClick: () => {
                 setSelectedType(record);
@@ -346,6 +349,7 @@ export default function DictPage() {
           />
         </Card>
         <Card
+          className="table-card"
           title={
             <Space>
               <AppstoreOutlined />
@@ -374,6 +378,7 @@ export default function DictPage() {
             loading={dictDataQuery.isFetching}
             dataSource={dictDataQuery.data?.items ?? []}
             locale={{ emptyText: selectedType ? '暂无字典数据' : '请先选择左侧字典类型' }}
+            scroll={{ x: 620 }}
             pagination={{
               current: dataQuery.page,
               pageSize: dataQuery.pageSize,
@@ -406,6 +411,6 @@ export default function DictPage() {
         }}
         onSubmit={handleDataSubmit}
       />
-    </div>
+    </PageContainer>
   );
 }

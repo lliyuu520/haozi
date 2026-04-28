@@ -10,6 +10,7 @@ import { App, Button, Card, Space, Table, Tag, Typography } from 'antd';
 import type { TableProps } from 'antd';
 import { useState } from 'react';
 import { Auth } from '@/components/Auth/Auth';
+import { PageContainer } from '@/components/PageContainer/PageContainer';
 import {
   createMenu,
   deleteMenu,
@@ -123,6 +124,7 @@ export default function MenuPage() {
       title: '操作',
       key: 'actions',
       width: 260,
+      fixed: 'right',
       render: (_, record) => (
         <Space>
           <Auth code="sys:menu:save">
@@ -168,9 +170,8 @@ export default function MenuPage() {
   };
 
   return (
-    <div className="page-stack">
-      <Typography.Title level={2}>菜单资源</Typography.Title>
-      <Card>
+    <PageContainer title="菜单资源">
+      <Card className="toolbar-card">
         <Space>
           <Auth code="sys:menu:save">
             <Button type="primary" icon={<PlusOutlined />} onClick={() => openCreate()}>
@@ -183,6 +184,7 @@ export default function MenuPage() {
         </Space>
       </Card>
       <Card
+        className="table-card"
         title={
           <Space>
             <BranchesOutlined />
@@ -195,6 +197,7 @@ export default function MenuPage() {
           columns={columns}
           loading={menusQuery.isFetching}
           dataSource={menusQuery.data ?? []}
+          scroll={{ x: 980 }}
           pagination={false}
         />
       </Card>
@@ -211,6 +214,6 @@ export default function MenuPage() {
         }}
         onSubmit={handleSubmit}
       />
-    </div>
+    </PageContainer>
   );
 }

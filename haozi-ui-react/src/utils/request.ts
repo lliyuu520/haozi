@@ -1,5 +1,5 @@
 import axios, { AxiosError, type AxiosRequestConfig } from 'axios';
-import { message } from 'antd';
+import type { MessageInstance } from 'antd/es/message/interface';
 import { useAuthStore } from '@/store/authStore';
 
 export type ApiError = {
@@ -10,6 +10,17 @@ export type ApiError = {
   traceId?: string | null;
   details?: Record<string, string>;
 };
+
+/**
+ * 全局消息实例，由 AppProviders 在应用初始化时注入。
+ *
+ * 避免 axios 拦截器等非 React 上下文中使用静态 message API 导致 antd v6 弃用警告。
+ */
+let msg: MessageInstance | null = null;
+
+export function setGlobalMessage(instance: MessageInstance) {
+  msg = instance;
+}
 
 /**
  * React 前端统一请求实例。
@@ -37,14 +48,16 @@ request.interceptors.response.use(
       if (location.pathname !== '/login') {
         location.assign('/login');
       }
-    } else if (status === 403) {
-      message.error('没有访问权限');
-    } else if (status === 409) {
-      message.warning(text);
-    } else if (status && status >= 500) {
-      message.error('服务器异常，请稍后再试');
-    } else if (text) {
-      message.error(text);
+    } else if (msg) {
+      if (status === 403) {
+        msg.error('没有访问权限');
+      } else if (status === 409) {
+        msg.warning(text);
+      } else if (status && status >= 500) {
+        msg.error('服务器异常，请稍后再试');
+      } else if (text) {
+        msg.error(text);
+      }
     }
 
     return Promise.reject(error);

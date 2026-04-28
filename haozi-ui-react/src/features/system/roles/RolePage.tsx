@@ -1,9 +1,11 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { App, Button, Card, Form, Input, Space, Table, Typography } from 'antd';
+import { App, Button, Card, Form, Input, Space, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { useState } from 'react';
 import { Auth } from '@/components/Auth/Auth';
+import { PageContainer } from '@/components/PageContainer/PageContainer';
+import { SearchForm } from '@/components/SearchForm/SearchForm';
 import {
   createRole,
   deleteRole,
@@ -72,7 +74,7 @@ export default function RolePage() {
     {
       title: '角色ID',
       dataIndex: 'id',
-      width: 120,
+      width: 180,
     },
     {
       title: '角色名称',
@@ -82,6 +84,7 @@ export default function RolePage() {
       title: '操作',
       key: 'actions',
       width: 180,
+      fixed: 'right',
       render: (_, record) => (
         <Space>
           <Auth code="sys:role:update">
@@ -134,30 +137,28 @@ export default function RolePage() {
   };
 
   return (
-    <div className="page-stack">
-      <Typography.Title level={2}>角色管理</Typography.Title>
-      <Card>
-        <Form form={form} layout="inline" onFinish={handleSearch}>
-          <Form.Item name="name" label="角色名称">
-            <Input allowClear placeholder="请输入角色名称" />
-          </Form.Item>
-          <Space>
-            <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
-              查询
-            </Button>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={() => {
-                form.resetFields();
-                setQuery({ page: 1, pageSize: query.pageSize });
-              }}
-            >
-              重置
-            </Button>
-          </Space>
-        </Form>
-      </Card>
+    <PageContainer title="角色管理">
+      <SearchForm<Pick<RoleQuery, 'name'>> form={form} onFinish={handleSearch}>
+        <Form.Item name="name" label="角色名称">
+          <Input allowClear placeholder="请输入角色名称" />
+        </Form.Item>
+        <Space className="search-form__actions">
+          <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
+            查询
+          </Button>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => {
+              form.resetFields();
+              setQuery({ page: 1, pageSize: query.pageSize });
+            }}
+          >
+            重置
+          </Button>
+        </Space>
+      </SearchForm>
       <Card
+        className="table-card"
         title="角色列表"
         extra={
           <Auth code="sys:role:save">
@@ -179,6 +180,7 @@ export default function RolePage() {
           columns={columns}
           loading={rolesQuery.isFetching}
           dataSource={rolesQuery.data?.items ?? []}
+          scroll={{ x: 680 }}
           pagination={{
             current: query.page,
             pageSize: query.pageSize,
@@ -200,6 +202,6 @@ export default function RolePage() {
         }}
         onSubmit={handleSubmit}
       />
-    </div>
+    </PageContainer>
   );
 }

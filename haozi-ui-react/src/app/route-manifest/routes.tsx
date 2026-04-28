@@ -48,7 +48,7 @@ export const routeManifest: AppRouteMeta[] = [
     title: '参数配置',
     icon: 'ControlOutlined',
     order: 140,
-    component: lazy(() => import('@/features/system/PlaceholderPage')),
+    component: lazy(() => import('@/features/system/configs/ConfigPage')),
   },
   {
     code: 'monitor.server',

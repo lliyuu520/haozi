@@ -1,9 +1,11 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { App, Button, Card, Form, Input, Space, Table, Typography } from 'antd';
+import { App, Button, Card, Form, Input, Space, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { useState } from 'react';
 import { Auth } from '@/components/Auth/Auth';
+import { PageContainer } from '@/components/PageContainer/PageContainer';
+import { SearchForm } from '@/components/SearchForm/SearchForm';
 import {
   createUser,
   deleteUser,
@@ -71,7 +73,7 @@ export default function UserPage() {
     {
       title: '用户ID',
       dataIndex: 'id',
-      width: 120,
+      width: 220,
     },
     {
       title: '用户名',
@@ -82,7 +84,7 @@ export default function UserPage() {
       dataIndex: 'roleIdList',
       render: roleIds => {
         const roleOptions = roleOptionsQuery.data ?? [];
-        const names = roleIds
+        const names = (roleIds ?? [])
           .map((id: number) => roleOptions.find(role => role.id === id)?.name)
           .filter(Boolean)
           .join('、');
@@ -93,6 +95,7 @@ export default function UserPage() {
       title: '操作',
       key: 'actions',
       width: 180,
+      fixed: 'right',
       render: (_, record) => (
         <Space>
           <Auth code="sys:user:update">
@@ -148,30 +151,28 @@ export default function UserPage() {
   };
 
   return (
-    <div className="page-stack">
-      <Typography.Title level={2}>用户管理</Typography.Title>
-      <Card>
-        <Form form={form} layout="inline" onFinish={handleSearch}>
-          <Form.Item name="username" label="用户名">
-            <Input allowClear placeholder="请输入用户名" />
-          </Form.Item>
-          <Space>
-            <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
-              查询
-            </Button>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={() => {
-                form.resetFields();
-                setQuery({ page: 1, pageSize: query.pageSize });
-              }}
-            >
-              重置
-            </Button>
-          </Space>
-        </Form>
-      </Card>
+    <PageContainer title="用户管理">
+      <SearchForm<Pick<UserQuery, 'username'>> form={form} onFinish={handleSearch}>
+        <Form.Item name="username" label="用户名">
+          <Input allowClear placeholder="请输入用户名" />
+        </Form.Item>
+        <Space className="search-form__actions">
+          <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
+            查询
+          </Button>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => {
+              form.resetFields();
+              setQuery({ page: 1, pageSize: query.pageSize });
+            }}
+          >
+            重置
+          </Button>
+        </Space>
+      </SearchForm>
       <Card
+        className="table-card"
         title="用户列表"
         extra={
           <Auth code="sys:user:save">
@@ -193,6 +194,7 @@ export default function UserPage() {
           columns={columns}
           loading={usersQuery.isFetching}
           dataSource={usersQuery.data?.items ?? []}
+          scroll={{ x: 760 }}
           pagination={{
             current: query.page,
             pageSize: query.pageSize,
@@ -214,6 +216,6 @@ export default function UserPage() {
         }}
         onSubmit={handleSubmit}
       />
-    </div>
+    </PageContainer>
   );
 }

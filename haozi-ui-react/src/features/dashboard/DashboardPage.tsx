@@ -1,9 +1,9 @@
-import { Card, Col, Row, Statistic, Typography } from 'antd';
+import { Card, Col, Row, Statistic } from 'antd';
+import { PageContainer } from '@/components/PageContainer/PageContainer';
 
 export default function DashboardPage() {
   return (
-    <div className="page-stack">
-      <Typography.Title level={2}>仪表盘</Typography.Title>
+    <PageContainer title="仪表盘">
       <Row gutter={[16, 16]}>
         <Col xs={24} md={8}>
           <Card>
@@ -21,6 +21,6 @@ export default function DashboardPage() {
           </Card>
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 }

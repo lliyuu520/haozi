@@ -38,7 +38,7 @@ export function LoginPage() {
         </div>
         <Card className="login-page__card">
           <Typography.Title level={3}>账号登录</Typography.Title>
-          <Form<LoginForm> layout="vertical" onFinish={handleFinish} initialValues={{ username: 'admin' }}>
+          <Form<LoginForm> layout="vertical" onFinish={handleFinish} initialValues={{ username: 'admin', password: 'dev' }}>
             <Form.Item name="username" label="用户名" rules={[{ required: true, message: '请输入用户名' }]}>
               <Input size="large" autoComplete="username" />
             </Form.Item>

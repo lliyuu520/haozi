@@ -53,7 +53,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
     }));
 
   return (
-    <Sider width={252} collapsed={collapsed} className="admin-sidebar">
+    <Sider width={252} collapsed={collapsed} collapsedWidth={64} theme="light" className="admin-sidebar">
       <div className="admin-sidebar__brand">
         <span className="admin-sidebar__brand-mark">H</span>
         {!collapsed && <span className="admin-sidebar__brand-text">Haozi Admin</span>}
