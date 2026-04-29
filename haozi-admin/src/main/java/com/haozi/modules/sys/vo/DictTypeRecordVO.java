@@ -1,6 +1,6 @@
 package com.haozi.modules.sys.vo;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serializable;
 
 /**
  * React 字典类型记录。
@@ -13,15 +13,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param dictName 字典名称
  * @param remark 备注
  */
-@Schema(description = "字典类型记录")
 public record DictTypeRecordVO(
-        @Schema(description = "字典类型 ID")
         Long id,
-        @Schema(description = "字典类型编码")
         String dictType,
-        @Schema(description = "字典名称")
         String dictName,
-        @Schema(description = "备注")
         String remark
-) {
+) implements Serializable {
 }

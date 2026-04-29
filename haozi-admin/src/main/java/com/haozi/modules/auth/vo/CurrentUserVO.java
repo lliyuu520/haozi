@@ -1,7 +1,6 @@
 package com.haozi.modules.auth.vo;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -18,21 +17,13 @@ import java.util.List;
  * @param routeCodes 可访问的前端路由编码
  * @param permissions 可使用的按钮和接口权限编码
  */
-@Schema(description = "当前登录用户")
 public record CurrentUserVO(
-        @Schema(description = "用户 ID")
         Long id,
-        @Schema(description = "用户名")
         String username,
-        @Schema(description = "真实姓名")
         String realName,
-        @Schema(description = "头像地址")
         String avatar,
-        @Schema(description = "角色编码")
         List<String> roles,
-        @Schema(description = "可访问的前端路由编码")
         List<String> routeCodes,
-        @Schema(description = "可使用的按钮和接口权限编码")
         List<String> permissions
-) {
+) implements Serializable {
 }

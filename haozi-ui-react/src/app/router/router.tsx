@@ -10,6 +10,7 @@ import {
 import { Spin } from 'antd';
 import { AdminLayout } from '@/layout/AdminLayout';
 import { AuthGuard } from '@/app/router/AuthGuard';
+import { RouteAccessGuard } from '@/app/router/RouteAccessGuard';
 import { routeManifest } from '@/app/route-manifest/routes';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { NotFoundPage } from '@/features/system/NotFoundPage';
@@ -50,15 +51,17 @@ const manifestRoutes = routeManifest.map(route =>
     getParentRoute: () => layoutRoute,
     path: route.path,
     component: () => (
-      <Suspense
-        fallback={
-          <div className="page-loading">
-            <Spin />
-          </div>
-        }
-      >
-        <route.component />
-      </Suspense>
+      <RouteAccessGuard code={route.code}>
+        <Suspense
+          fallback={
+            <div className="page-loading">
+              <Spin />
+            </div>
+          }
+        >
+          <route.component />
+        </Suspense>
+      </RouteAccessGuard>
     ),
   }),
 );

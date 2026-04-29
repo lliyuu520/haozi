@@ -1,5 +1,6 @@
 package com.haozi.modules.sys.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
@@ -187,6 +188,14 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleMapper, SysRole> 
     public List<String> getPermission() {
         UserDetail userInfo = SysUserUtil.getUserInfo();
         List<Long> roleIdList = userInfo.getRoleIdList();
+        if (roleIdList == null) {
+            // DevTools 热重启后 session 用户对象可能失效，权限校验阶段按登录 ID 恢复角色关系。
+            final Long userId = Long.valueOf(String.valueOf(StpUtil.getLoginId()));
+            roleIdList = sysUserRoleService.getRoleIdList(userId);
+        }
+        if (CollUtil.isEmpty(roleIdList)) {
+            return List.of();
+        }
         List<String> permissionList = CollUtil.newArrayList();
         roleIdList.forEach(roleId -> {
             // 先从缓存中获取

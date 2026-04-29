@@ -1,7 +1,6 @@
 package com.haozi.modules.sys.vo;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -13,13 +12,9 @@ import java.util.List;
  * @param name 角色名称
  * @param menuIdList 已授权菜单 ID 列表
  */
-@Schema(description = "角色管理记录")
 public record RoleRecordVO(
-        @Schema(description = "角色 ID")
         Long id,
-        @Schema(description = "角色名称")
         String name,
-        @Schema(description = "已授权菜单 ID 列表")
         List<Long> menuIdList
-) {
+) implements Serializable {
 }

@@ -1,7 +1,6 @@
 package com.haozi.common.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Map;
 
@@ -18,21 +17,14 @@ import java.util.Map;
  * @param traceId 链路追踪 ID
  * @param details 字段级错误详情
  */
-@Schema(description = "错误响应")
 public record ErrorResponse(
-        @Schema(description = "错误编码")
         String code,
-        @Schema(description = "用户可读错误信息")
         String message,
-        @Schema(description = "请求路径")
         String path,
-        @Schema(description = "发生时间")
         OffsetDateTime timestamp,
-        @Schema(description = "链路追踪 ID")
         String traceId,
-        @Schema(description = "字段级错误详情")
         Map<String, String> details
-) {
+) implements Serializable {
 
     /**
      * 构建不包含字段详情的错误响应。

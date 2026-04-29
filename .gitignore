@@ -174,3 +174,5 @@ application-local.yml
 .claude/
 .omc/
 /.run/
+/.qoder/
+/.codex/config.toml

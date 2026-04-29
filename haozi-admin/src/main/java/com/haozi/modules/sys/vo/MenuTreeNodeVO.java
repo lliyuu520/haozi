@@ -1,7 +1,6 @@
 package com.haozi.modules.sys.vo;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -14,13 +13,9 @@ import java.util.List;
  * @param name 菜单名称
  * @param children 子节点
  */
-@Schema(description = "菜单权限树节点")
 public record MenuTreeNodeVO(
-        @Schema(description = "菜单 ID")
         Long id,
-        @Schema(description = "菜单名称")
         String name,
-        @Schema(description = "子节点")
         List<MenuTreeNodeVO> children
-) {
+) implements Serializable {
 }

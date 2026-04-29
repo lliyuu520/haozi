@@ -1,7 +1,6 @@
 package com.haozi.modules.sys.vo;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -22,29 +21,17 @@ import java.util.List;
  * @param weight 排序
  * @param children 子资源
  */
-@Schema(description = "菜单资源记录")
 public record MenuResourceVO(
-        @Schema(description = "菜单 ID")
         Long id,
-        @Schema(description = "父菜单 ID")
         Long parentId,
-        @Schema(description = "父菜单名称")
         String parentName,
-        @Schema(description = "菜单名称")
         String name,
-        @Schema(description = "类型，0 菜单、1 按钮、2 接口")
         Integer type,
-        @Schema(description = "路由地址")
         String url,
-        @Schema(description = "图标名称")
         String icon,
-        @Schema(description = "授权标识")
         String perms,
-        @Schema(description = "打开方式，0 内部、1 外部")
         Integer openStyle,
-        @Schema(description = "排序")
         Integer weight,
-        @Schema(description = "子资源")
         List<MenuResourceVO> children
-) {
+) implements Serializable {
 }

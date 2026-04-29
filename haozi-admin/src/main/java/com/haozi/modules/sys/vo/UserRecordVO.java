@@ -1,7 +1,6 @@
 package com.haozi.modules.sys.vo;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -14,13 +13,9 @@ import java.util.List;
  * @param username 用户名
  * @param roleIdList 用户关联角色 ID 列表
  */
-@Schema(description = "用户管理记录")
 public record UserRecordVO(
-        @Schema(description = "用户 ID")
         Long id,
-        @Schema(description = "用户名")
         String username,
-        @Schema(description = "用户关联角色 ID 列表")
         List<Long> roleIdList
-) {
+) implements Serializable {
 }

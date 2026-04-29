@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.haozi.common.base.page.PageVO;
 import com.haozi.common.exception.BaseException;
 import com.haozi.common.model.PageResult;
+import com.haozi.common.utils.Result;
 import com.haozi.modules.sys.dto.SysConfigDTO;
 import com.haozi.modules.sys.entity.SysConfig;
 import com.haozi.modules.sys.query.SysConfigQuery;
@@ -12,24 +13,12 @@ import com.haozi.modules.sys.vo.ConfigRecordVO;
 import com.haozi.modules.sys.vo.SysConfigVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
  * React 参数配置接口。
- *
- * <p>该控制器面向 React 前端，直接返回业务数据和 HTTP 状态码。
- * 历史 /sys/config 入口继续保留，迁移期间两套入口互不影响。</p>
  */
 @RestController
 @RequestMapping("/system/configs")
@@ -50,7 +39,7 @@ public class SystemConfigController {
      */
     @GetMapping
     @SaCheckPermission("sys:config:page")
-    public PageResult<ConfigRecordVO> page(
+    public Result<PageResult<ConfigRecordVO>> page(
             @RequestParam(required = false) final String code,
             @RequestParam(required = false) final String descs,
             @RequestParam(required = false) final String type,
@@ -65,7 +54,7 @@ public class SystemConfigController {
         query.setLimit(pageSize);
         final PageVO<SysConfigVO> result = sysConfigService.pageVO(query);
         final List<ConfigRecordVO> items = result.getList().stream().map(this::toConfigRecord).toList();
-        return new PageResult<>(items, result.getTotal(), page, pageSize);
+        return Result.ok(new PageResult<>(items, result.getTotal(), page, pageSize));
     }
 
     /**
@@ -76,24 +65,25 @@ public class SystemConfigController {
      */
     @GetMapping("{id}")
     @SaCheckPermission("sys:config:info")
-    public ConfigRecordVO get(@PathVariable("id") final Long id) {
+    public Result<ConfigRecordVO> get(@PathVariable("id") final Long id) {
         final SysConfig entity = sysConfigService.getById(id);
         if (entity == null) {
             throw new BaseException(HttpStatus.NOT_FOUND.value(), "系统参数不存在");
         }
-        return toConfigRecord(entity);
+        return Result.ok(toConfigRecord(entity));
     }
 
     /**
      * 新增参数配置。
      *
      * @param dto 参数配置表单
+     * @return 空响应
      */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @SaCheckPermission("sys:config:save")
-    public void create(@RequestBody final SysConfigDTO dto) {
+    public Result<Void> create(@RequestBody final SysConfigDTO dto) {
         sysConfigService.saveOne(dto);
+        return Result.ok();
     }
 
     /**
@@ -101,25 +91,27 @@ public class SystemConfigController {
      *
      * @param id 参数 ID
      * @param dto 参数配置表单
+     * @return 空响应
      */
     @PutMapping("{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @SaCheckPermission("sys:config:update")
-    public void update(@PathVariable("id") final Long id, @RequestBody final SysConfigDTO dto) {
+    public Result<Void> update(@PathVariable("id") final Long id, @RequestBody final SysConfigDTO dto) {
         dto.setId(id);
         sysConfigService.updateOne(dto);
+        return Result.ok();
     }
 
     /**
      * 删除参数配置。
      *
      * @param id 参数 ID
+     * @return 空响应
      */
     @DeleteMapping("{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @SaCheckPermission("sys:config:delete")
-    public void delete(@PathVariable("id") final Long id) {
+    public Result<Void> delete(@PathVariable("id") final Long id) {
         sysConfigService.deleteIds(id);
+        return Result.ok();
     }
 
     /**

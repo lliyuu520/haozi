@@ -238,7 +238,8 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> 
             return longTreeNode;
         }).toList();
 
-        return TreeUtil.build(treeNodeList, Constant.ROOT);
+        final List<Tree<Long>> treeList = TreeUtil.build(treeNodeList, Constant.ROOT);
+        return treeList == null ? Collections.emptyList() : treeList;
     }
 
     /**
@@ -248,7 +249,9 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> 
      * @return 过滤后的菜单树
      */
     private List<Tree<Long>> filterFrameworkMenus(final List<Tree<Long>> menuTree) {
-        return menuTree.stream()
+        return Optional.ofNullable(menuTree)
+                .orElseGet(Collections::emptyList)
+                .stream()
                 .map(this::filterFrameworkMenuNode)
                 .filter(Objects::nonNull)
                 .toList();
@@ -261,16 +264,27 @@ public class SysMenuServiceImpl extends BaseServiceImpl<SysMenuMapper, SysMenu> 
      * @return 保留节点返回自身，否则返回 null
      */
     private Tree<Long> filterFrameworkMenuNode(final Tree<Long> menuNode) {
+        return filterFrameworkMenuNode(menuNode, false);
+    }
+
+    /**
+     * 递归裁剪菜单节点，允许的菜单页需要保留其按钮/接口子资源供角色授权使用。
+     *
+     * @param menuNode 当前菜单节点
+     * @param ancestorAllowed 上级节点是否已命中框架菜单白名单
+     * @return 保留节点返回自身，否则返回 null
+     */
+    private Tree<Long> filterFrameworkMenuNode(final Tree<Long> menuNode, final boolean ancestorAllowed) {
+        final String url = Objects.toString(menuNode.get("url"), "").trim();
+        final boolean allowedCurrentNode = ancestorAllowed || FRAMEWORK_MENU_PREFIXES.stream().anyMatch(url::startsWith);
         final List<Tree<Long>> filteredChildren = Optional.ofNullable(menuNode.getChildren())
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .map(this::filterFrameworkMenuNode)
+                .map(child -> filterFrameworkMenuNode(child, allowedCurrentNode))
                 .filter(Objects::nonNull)
                 .toList();
         menuNode.setChildren(filteredChildren);
 
-        final String url = Objects.toString(menuNode.get("url"), "").trim();
-        final boolean allowedCurrentNode = FRAMEWORK_MENU_PREFIXES.stream().anyMatch(url::startsWith);
         if (allowedCurrentNode || !filteredChildren.isEmpty()) {
             return menuNode;
         }

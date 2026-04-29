@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.haozi.common.base.page.PageVO;
 import com.haozi.common.exception.BaseException;
 import com.haozi.common.model.PageResult;
+import com.haozi.common.utils.Result;
 import com.haozi.modules.sys.dto.SysDictDataDTO;
 import com.haozi.modules.sys.dto.SysDictTypeDTO;
 import com.haozi.modules.sys.entity.SysDictData;
@@ -27,16 +28,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 /**
  * React 字典管理接口。
- *
- * <p>该控制器面向 React 前端，直接返回业务数据和 HTTP 状态码。
- * 历史 /sys/dict/type 与 /sys/dict/data 入口继续保留，迁移期间两套入口互不影响。</p>
  */
 @RestController
 @RequestMapping("/system/dicts")
@@ -57,7 +54,7 @@ public class SystemDictController {
      */
     @GetMapping("types")
     @SaCheckPermission("sys:dict:page")
-    public PageResult<DictTypeRecordVO> pageTypes(
+    public Result<PageResult<DictTypeRecordVO>> pageTypes(
             @RequestParam(required = false) final String dictType,
             @RequestParam(required = false) final String dictName,
             @RequestParam(defaultValue = "1") final Integer page,
@@ -70,7 +67,7 @@ public class SystemDictController {
         query.setLimit(pageSize);
         final PageVO<SysDictTypeVO> result = sysDictTypeService.pageVO(query);
         final List<DictTypeRecordVO> items = result.getList().stream().map(this::toDictTypeRecord).toList();
-        return new PageResult<>(items, result.getTotal(), page, pageSize);
+        return Result.ok(new PageResult<>(items, result.getTotal(), page, pageSize));
     }
 
     /**
@@ -81,24 +78,27 @@ public class SystemDictController {
      */
     @GetMapping("types/{id}")
     @SaCheckPermission("sys:dict:info")
-    public DictTypeRecordVO getType(@PathVariable("id") final Long id) {
+    public Result<DictTypeRecordVO> getType(
+            @PathVariable("id") final Long id
+    ) {
         final SysDictType entity = sysDictTypeService.getById(id);
         if (entity == null) {
             throw new BaseException(HttpStatus.NOT_FOUND.value(), "字典类型不存在");
         }
-        return toDictTypeRecord(entity);
+        return Result.ok(toDictTypeRecord(entity));
     }
 
     /**
      * 新增字典类型。
      *
      * @param dto 字典类型表单
+     * @return 空响应
      */
     @PostMapping("types")
-    @ResponseStatus(HttpStatus.CREATED)
     @SaCheckPermission("sys:dict:save")
-    public void createType(@RequestBody final SysDictTypeDTO dto) {
+    public Result<Void> createType(@RequestBody final SysDictTypeDTO dto) {
         sysDictTypeService.saveOne(dto);
+        return Result.ok();
     }
 
     /**
@@ -106,34 +106,38 @@ public class SystemDictController {
      *
      * @param id 字典类型 ID
      * @param dto 字典类型表单
+     * @return 空响应
      */
     @PutMapping("types/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @SaCheckPermission("sys:dict:update")
-    public void updateType(@PathVariable("id") final Long id, @RequestBody final SysDictTypeDTO dto) {
+    public Result<Void> updateType(
+            @PathVariable("id") final Long id,
+            @RequestBody final SysDictTypeDTO dto
+    ) {
         dto.setId(id);
         sysDictTypeService.updateOne(dto);
+        return Result.ok();
     }
 
     /**
      * 删除字典类型。
      *
-     * <p>React 接口删除类型时同步清理该类型下的数据，避免双栏页面残留不可见的孤儿数据。
-     * 历史删除接口保持原有服务行为不变。</p>
-     *
      * @param id 字典类型 ID
+     * @return 空响应
      */
     @DeleteMapping("types/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @SaCheckPermission("sys:dict:delete")
-    public void deleteType(@PathVariable("id") final Long id) {
+    public Result<Void> deleteType(
+            @PathVariable("id") final Long id
+    ) {
         final SysDictType entity = sysDictTypeService.getById(id);
         if (entity == null) {
-            return;
+            return Result.ok();
         }
         sysDictTypeService.deleteById(id);
         sysDictDataService.remove(Wrappers.lambdaQuery(SysDictData.class)
                 .eq(SysDictData::getDictType, entity.getDictType()));
+        return Result.ok();
     }
 
     /**
@@ -146,7 +150,7 @@ public class SystemDictController {
      */
     @GetMapping("data")
     @SaCheckPermission("sys:dict:page")
-    public PageResult<DictDataRecordVO> pageData(
+    public Result<PageResult<DictDataRecordVO>> pageData(
             @RequestParam final String dictType,
             @RequestParam(defaultValue = "1") final Integer page,
             @RequestParam(defaultValue = "10") final Integer pageSize
@@ -157,7 +161,7 @@ public class SystemDictController {
         query.setLimit(pageSize);
         final PageVO<SysDictDataVO> result = sysDictDataService.pageVO(query);
         final List<DictDataRecordVO> items = result.getList().stream().map(this::toDictDataRecord).toList();
-        return new PageResult<>(items, result.getTotal(), page, pageSize);
+        return Result.ok(new PageResult<>(items, result.getTotal(), page, pageSize));
     }
 
     /**
@@ -168,24 +172,27 @@ public class SystemDictController {
      */
     @GetMapping("data/{id}")
     @SaCheckPermission("sys:dict:info")
-    public DictDataRecordVO getData(@PathVariable("id") final Long id) {
+    public Result<DictDataRecordVO> getData(
+            @PathVariable("id") final Long id
+    ) {
         final SysDictData entity = sysDictDataService.getById(id);
         if (entity == null) {
             throw new BaseException(HttpStatus.NOT_FOUND.value(), "字典数据不存在");
         }
-        return toDictDataRecord(entity);
+        return Result.ok(toDictDataRecord(entity));
     }
 
     /**
      * 新增字典数据。
      *
      * @param dto 字典数据表单
+     * @return 空响应
      */
     @PostMapping("data")
-    @ResponseStatus(HttpStatus.CREATED)
     @SaCheckPermission("sys:dict:save")
-    public void createData(@RequestBody final SysDictDataDTO dto) {
+    public Result<Void> createData(@RequestBody final SysDictDataDTO dto) {
         sysDictDataService.saveOne(dto);
+        return Result.ok();
     }
 
     /**
@@ -193,25 +200,32 @@ public class SystemDictController {
      *
      * @param id 字典数据 ID
      * @param dto 字典数据表单
+     * @return 空响应
      */
     @PutMapping("data/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @SaCheckPermission("sys:dict:update")
-    public void updateData(@PathVariable("id") final Long id, @RequestBody final SysDictDataDTO dto) {
+    public Result<Void> updateData(
+            @PathVariable("id") final Long id,
+            @RequestBody final SysDictDataDTO dto
+    ) {
         dto.setId(id);
         sysDictDataService.updateOne(dto);
+        return Result.ok();
     }
 
     /**
      * 删除字典数据。
      *
      * @param id 字典数据 ID
+     * @return 空响应
      */
     @DeleteMapping("data/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @SaCheckPermission("sys:dict:delete")
-    public void deleteData(@PathVariable("id") final Long id) {
+    public Result<Void> deleteData(
+            @PathVariable("id") final Long id
+    ) {
         sysDictDataService.deleteById(id);
+        return Result.ok();
     }
 
     /**

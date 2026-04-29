@@ -56,7 +56,7 @@ export const routeManifest: AppRouteMeta[] = [
     title: '服务器监控',
     icon: 'MonitorOutlined',
     order: 200,
-    component: lazy(() => import('@/features/system/PlaceholderPage')),
+    component: lazy(() => import('@/features/monitor/server/ServerPage')),
   },
   {
     code: 'monitor.cache',
@@ -64,6 +64,6 @@ export const routeManifest: AppRouteMeta[] = [
     title: '缓存监控',
     icon: 'DatabaseOutlined',
     order: 210,
-    component: lazy(() => import('@/features/system/PlaceholderPage')),
+    component: lazy(() => import('@/features/monitor/cache/CachePage')),
   },
 ];

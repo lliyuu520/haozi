@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.haozi.common.constant.Constant;
 import com.haozi.common.exception.BaseException;
 import com.haozi.common.satoken.user.UserDetail;
+import com.haozi.common.utils.Result;
 import com.haozi.modules.sys.dto.SysMenuDTO;
 import com.haozi.modules.sys.entity.SysMenu;
 import com.haozi.modules.sys.service.SysAuthService;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
@@ -30,9 +30,6 @@ import java.util.Objects;
 
 /**
  * React 菜单资源接口。
- *
- * <p>该控制器面向 React 前端，直接返回业务数据和 HTTP 状态码。
- * 历史 /sys/menu 入口继续保留，迁移期间两套入口互不影响。</p>
  */
 @RestController
 @RequestMapping("/system/menus")
@@ -50,25 +47,25 @@ public class SystemMenuController {
      */
     @GetMapping
     @SaCheckPermission("sys:menu:page")
-    public List<MenuResourceVO> list(@RequestParam(required = false) final Integer type) {
-        return sysMenuService.getMenuList(type).stream()
+    public Result<List<MenuResourceVO>> list(
+            @RequestParam(required = false) final Integer type
+    ) {
+        return Result.ok(sysMenuService.getMenuList(type).stream()
                 .map(this::toMenuResource)
-                .toList();
+                .toList());
     }
 
     /**
      * 查询当前登录用户可访问的导航菜单树。
      *
-     * <p>该接口只返回用户已授权的菜单节点，供 React 侧栏动态渲染；组件加载仍由前端 route manifest 白名单控制。</p>
-     *
      * @return 当前用户导航菜单树
      */
     @GetMapping("navigation")
-    public List<MenuResourceVO> navigation() {
+    public Result<List<MenuResourceVO>> navigation() {
         final UserDetail user = sysAuthService.getRequiredUserDetail();
-        return sysMenuService.getUserMenuList(user, 0).stream()
+        return Result.ok(sysMenuService.getUserMenuList(user, 0).stream()
                 .map(this::toMenuResource)
-                .toList();
+                .toList());
     }
 
     /**
@@ -79,25 +76,28 @@ public class SystemMenuController {
      */
     @GetMapping("{id}")
     @SaCheckPermission("sys:menu:info")
-    public MenuResourceVO get(@PathVariable("id") final Long id) {
+    public Result<MenuResourceVO> get(
+            @PathVariable("id") final Long id
+    ) {
         final SysMenu entity = sysMenuService.getById(id);
         if (entity == null) {
             throw new BaseException(HttpStatus.NOT_FOUND.value(), "菜单资源不存在");
         }
-        return toMenuResource(entity);
+        return Result.ok(toMenuResource(entity));
     }
 
     /**
      * 新增菜单资源。
      *
      * @param dto 菜单资源表单
+     * @return 空响应
      */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @SaCheckPermission("sys:menu:save")
-    public void create(@RequestBody final SysMenuDTO dto) {
+    public Result<Void> create(@RequestBody final SysMenuDTO dto) {
         normalize(dto);
         sysMenuService.saveOne(dto);
+        return Result.ok();
     }
 
     /**
@@ -105,30 +105,33 @@ public class SystemMenuController {
      *
      * @param id 菜单 ID
      * @param dto 菜单资源表单
+     * @return 空响应
      */
     @PutMapping("{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @SaCheckPermission("sys:menu:update")
-    public void update(@PathVariable("id") final Long id, @RequestBody final SysMenuDTO dto) {
+    public Result<Void> update(@PathVariable("id") final Long id,
+                               @RequestBody final SysMenuDTO dto) {
         dto.setId(id);
         normalize(dto);
         sysMenuService.updateOne(dto);
+        return Result.ok();
     }
 
     /**
      * 删除菜单资源。
      *
      * @param id 菜单 ID
+     * @return 空响应
      */
     @DeleteMapping("{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @SaCheckPermission("sys:menu:delete")
-    public void delete(@PathVariable("id") final Long id) {
+    public Result<Void> delete(@PathVariable("id") final Long id) {
         final Long count = sysMenuService.getSubMenuCount(id);
         if (count > 0) {
             throw new BaseException(HttpStatus.CONFLICT.value(), "请先删除子菜单");
         }
         sysMenuService.deleteOne(id);
+        return Result.ok();
     }
 
     /**

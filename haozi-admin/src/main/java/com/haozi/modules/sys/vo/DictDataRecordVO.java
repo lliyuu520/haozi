@@ -1,6 +1,6 @@
 package com.haozi.modules.sys.vo;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serializable;
 
 /**
  * React 字典数据记录。
@@ -14,19 +14,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param weight 排序
  * @param remark 备注
  */
-@Schema(description = "字典数据记录")
 public record DictDataRecordVO(
-        @Schema(description = "字典数据 ID")
         Long id,
-        @Schema(description = "字典类型编码")
         String dictType,
-        @Schema(description = "字典标签")
         String dictLabel,
-        @Schema(description = "字典值")
         String dictValue,
-        @Schema(description = "排序")
         Integer weight,
-        @Schema(description = "备注")
         String remark
-) {
+) implements Serializable {
 }

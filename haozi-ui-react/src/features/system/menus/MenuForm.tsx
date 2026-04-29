@@ -1,4 +1,4 @@
-import { Form, Input, InputNumber, Modal, Radio, TreeSelect } from 'antd';
+import { Col, Divider, Form, Input, InputNumber, Modal, Radio, Row, TreeSelect } from 'antd';
 import { useEffect } from 'react';
 import { IconGridPicker } from '@/features/system/menus/IconGridPicker';
 import type { MenuPayload, MenuResource, MenuType } from '@/features/system/menus/api';
@@ -70,7 +70,7 @@ export function MenuForm({
       confirmLoading={submitting}
       onCancel={onCancel}
       onOk={() => form.submit()}
-      width={720}
+      width={900}
       destroyOnHidden
     >
       <Form<MenuPayload>
@@ -84,50 +84,81 @@ export function MenuForm({
           }
         }}
       >
-        <Form.Item name="type" label="资源类型" rules={[{ required: true, message: '请选择资源类型' }]}>
-          <Radio.Group disabled={isEdit}>
-            <Radio.Button value={0}>菜单</Radio.Button>
-            <Radio.Button value={1}>按钮</Radio.Button>
-            <Radio.Button value={2}>接口</Radio.Button>
-          </Radio.Group>
-        </Form.Item>
-        <Form.Item name="name" label="资源名称" rules={[{ required: true, message: '请输入资源名称' }]}>
-          <Input autoComplete="off" maxLength={64} placeholder="例如：用户管理、删除用户" />
-        </Form.Item>
-        <Form.Item name="parentId" label="上级资源" rules={[{ required: true, message: '请选择上级资源' }]}>
-          <TreeSelect
-            treeData={treeData}
-            treeDefaultExpandAll
-            placeholder="请选择上级资源"
-          />
-        </Form.Item>
+        <Divider titlePlacement="start" plain>
+          基础信息
+        </Divider>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item name="type" label="资源类型" rules={[{ required: true, message: '请选择资源类型' }]}>
+              <Radio.Group disabled={isEdit}>
+                <Radio.Button value={0}>菜单</Radio.Button>
+                <Radio.Button value={1}>按钮</Radio.Button>
+                <Radio.Button value={2}>接口</Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="weight" label="排序" rules={[{ required: true, message: '请输入排序' }]}>
+              <InputNumber min={0} precision={0} style={{ width: '100%' }} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="name" label="资源名称" rules={[{ required: true, message: '请输入资源名称' }]}>
+              <Input autoComplete="off" maxLength={64} placeholder="例如：用户管理、删除用户" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="parentId" label="上级资源" rules={[{ required: true, message: '请选择上级资源' }]}>
+              <TreeSelect
+                treeData={treeData}
+                treeDefaultExpandAll
+                placeholder="请选择上级资源"
+              />
+            </Form.Item>
+          </Col>
+        </Row>
         {selectedType === 0 && (
           <>
-            <Form.Item name="url" label="菜单路由" rules={[{ required: true, message: '请输入菜单路由' }]}>
-              <Input autoComplete="off" placeholder="例如：/system/users" />
-            </Form.Item>
-            <Form.Item name="icon" label="菜单图标" tooltip="保存 Ant Design 图标组件名称，用于界面展示">
-              <IconGridPicker />
-            </Form.Item>
+            <Divider titlePlacement="start" plain>
+              菜单展示
+            </Divider>
+            <Row gutter={16}>
+              <Col span={24}>
+                <Form.Item name="url" label="菜单路由" rules={[{ required: true, message: '请输入菜单路由' }]}>
+                  <Input autoComplete="off" placeholder="例如：/system/users" />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item name="icon" label="菜单图标" tooltip="保存 Ant Design 图标组件名称，用于界面展示">
+                  <IconGridPicker />
+                </Form.Item>
+              </Col>
+            </Row>
           </>
         )}
-        <Form.Item
-          name="perms"
-          label="授权标识"
-          tooltip="多个权限码使用英文逗号分隔，例如 sys:menu:update,sys:menu:info"
-          rules={selectedType === 0 ? [] : [{ required: true, message: '请输入授权标识' }]}
-        >
-          <Input autoComplete="off" placeholder="例如：sys:menu:save" />
-        </Form.Item>
-        <Form.Item name="openStyle" label="打开方式" rules={[{ required: true, message: '请选择打开方式' }]}>
-          <Radio.Group>
-            <Radio value={0}>内部</Radio>
-            <Radio value={1}>外部</Radio>
-          </Radio.Group>
-        </Form.Item>
-        <Form.Item name="weight" label="排序" rules={[{ required: true, message: '请输入排序' }]}>
-          <InputNumber min={0} precision={0} style={{ width: '100%' }} />
-        </Form.Item>
+        <Divider titlePlacement="start" plain>
+          权限配置
+        </Divider>
+        <Row gutter={16}>
+          <Col span={24}>
+            <Form.Item
+              name="perms"
+              label="授权标识"
+              tooltip="多个权限码使用英文逗号分隔，例如 sys:menu:update,sys:menu:info"
+              rules={selectedType === 0 ? [] : [{ required: true, message: '请输入授权标识' }]}
+            >
+              <Input autoComplete="off" placeholder="例如：sys:menu:save" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="openStyle" label="打开方式" rules={[{ required: true, message: '请选择打开方式' }]}>
+              <Radio.Group>
+                <Radio value={0}>内部</Radio>
+                <Radio value={1}>外部</Radio>
+              </Radio.Group>
+            </Form.Item>
+          </Col>
+        </Row>
       </Form>
     </Modal>
   );
