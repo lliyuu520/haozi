@@ -16,6 +16,8 @@
 /out/
 !**/src/main/**/build/
 !**/src/test/**/build/
+.trellis/
+.agents/
 
 # 日志文件
 **/logs/
