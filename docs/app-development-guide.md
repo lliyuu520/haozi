@@ -30,7 +30,7 @@ React Native + Expo + TypeScript + Expo Router + TanStack Query + Zustand
 
 不推荐作为默认方案：
 
-- 不建议把现有 `haozi-ui-react` 直接响应式改造成 APP。后台系统和 APP 的交互密度、导航方式、屏幕尺寸、离线场景不同。
+- 不建议把现有 `haozi-ui-web` 直接响应式改造成 APP。后台系统和 APP 的交互密度、导航方式、屏幕尺寸、离线场景不同。
 - 不建议默认使用 Capacitor/WebView 套壳。它适合轻量 H5 包装，不适合长期维护的原生体验 APP。
 - 不建议默认使用 Flutter，除非团队愿意单独投入 Dart/Flutter 技术栈，并接受和现有 React 体系割裂。
 - 不建议默认使用 uni-app 或 Taro，除非明确要求同时交付小程序、H5 和 APP 多端。
@@ -43,7 +43,7 @@ React Native + Expo + TypeScript + Expo Router + TanStack Query + Zustand
 ```text
 D:\project\haozi
 ├── haozi-admin
-├── haozi-ui-react
+├── haozi-ui-web
 ├── haozi-app
 │   ├── app
 │   │   ├── _layout.tsx

@@ -1,9 +1,11 @@
 package com.haozi.modules.auth.controller;
 
 import cn.dev33.satoken.annotation.SaIgnore;
+import cn.dev33.satoken.stp.StpUtil;
 import com.haozi.common.utils.Result;
 import com.haozi.modules.auth.vo.AuthorizationVO;
 import com.haozi.modules.auth.vo.CurrentUserVO;
+import com.haozi.modules.auth.vo.LoginResultVO;
 import com.haozi.modules.sys.dto.SysAccountLoginDTO;
 import com.haozi.modules.sys.service.SysAuthService;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +31,15 @@ public class AuthController {
      * 账号密码登录。
      *
      * @param loginDTO 登录请求
-     * @return 当前登录用户上下文
+     * @return 登录结果，包含 token 和当前用户信息
      */
     @PostMapping("login")
     @SaIgnore
-    public Result<CurrentUserVO> login(@RequestBody final SysAccountLoginDTO loginDTO) {
+    public Result<LoginResultVO> login(@RequestBody final SysAccountLoginDTO loginDTO) {
         sysAuthService.loginByAccount(loginDTO);
-        return Result.ok(sysAuthService.getCurrentUser());
+        String token = StpUtil.getTokenValue();
+        CurrentUserVO user = sysAuthService.getCurrentUser();
+        return Result.ok(new LoginResultVO(token, user));
     }
 
     /**

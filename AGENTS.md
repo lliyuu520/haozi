@@ -6,7 +6,7 @@
 
 - Haozi 是前后端分离的管理脚手架，根目录为 Maven 聚合工程，前端不属于 Maven 模块。
 - 后端位于 `haozi-admin`，包名 `com.haozi`，使用 Java 17、Spring Boot 3.3.8、Undertow、MyBatis-Plus、MySQL、Redis、Sa-Token、MapStruct、Lombok。
-- 前端位于 `haozi-ui-react`，使用 React 19、TypeScript、Vite、Ant Design、TanStack Router、TanStack Query、Axios、Zustand。
+- 前端包含两个模块：`haozi-ui-web` 为 Web 管理端，使用 React 19、TypeScript、Vite、Ant Design、TanStack Router、TanStack Query、Axios、Zustand；`haozi-ui-app` 为 App 端（移动端/客户端），目录已预留，技术栈以其 `package.json` 为准，若尚未初始化则后续补充。
 - 文档位于 `docs`，建表脚本放 `docs/doc/database`，增量 SQL 放 `docs/sql`。
 - 脚手架只保留系统管理、权限认证、监控、下载中心、区域和通用文件能力，不引入项目专有业务模块。
 - API 统一返回 `Result<T>`，成功码为 `0`；分页返回 `PageVO<T>`，字段为 `list` 和 `total`。
@@ -31,15 +31,22 @@ mvn clean package
 java -jar target/haozi-admin.jar
 ```
 
-前端：
+前端（Web 管理端）：
 
 ```bash
-cd haozi-ui-react
+cd haozi-ui-web
 yarn install
 yarn dev
 yarn build
 yarn typecheck
 yarn openapi
+```
+
+前端（App 端）：
+
+```bash
+cd haozi-ui-app
+# 待模块初始化后补充具体命令，默认遵循其自带的 package.json / README
 ```
 
 根 POM 默认 `skipTests=true`；需要显式跑测试时使用 `mvn test -DskipTests=false`。
@@ -57,7 +64,8 @@ yarn openapi
 
 ## 前端约定
 
-- 当前后台优先保证桌面端体验，不为移动端额外增加断点、侧栏折叠或表格重排。
+- 以下约定默认针对 `haozi-ui-web`；`haozi-ui-app` 另有自身规范，若与下述冲突以其模块内说明为准。
+- `haozi-ui-web` 优先保证桌面端体验，不为移动端额外增加断点、侧栏折叠或表格重排；移动端/触屏场景走 `haozi-ui-app`。
 - 页面放 `src/features/<module>/<entity>/`，常见结构为 `XxxPage.tsx`、`XxxForm.tsx`、`api.ts`。
 - 公共组件放 `src/components/**`，布局放 `src/layout/**`，Provider 与路由装配放 `src/app/**`。
 - API 文件贴近业务页面，命名沿用 `listXxx`、`getXxx`、`createXxx`、`updateXxx`、`deleteXxx`。
@@ -89,7 +97,7 @@ yarn openapi
 - 先理解相关入口、现有实现、模块边界和上下游依赖，再做最小必要改动。
 - 不修改无关代码，不顺手重构，不自动 commit、push 或改写 Git 历史。
 - 默认不新增或修改测试代码，除非用户明确要求；可以阅读并运行已有测试、构建、类型检查和 lint。
-- 后端改动优先跑 Maven compile/package，前端改动优先跑 `yarn typecheck` 或 `yarn build`。
+- 后端改动优先跑 Maven compile/package，前端改动优先在对应模块（`haozi-ui-web` 或 `haozi-ui-app`）跑 `yarn typecheck` 或 `yarn build`。
 - 无法验证时，在最终回复中说明原因、风险和可补充的验证场景。
 <!-- TRELLIS:START -->
 # Trellis Instructions
