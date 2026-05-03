@@ -166,6 +166,7 @@ application-local.yml
 *.swp
 *.swo
 *~
+nul
 
 # 缓存目录
 .cache/
